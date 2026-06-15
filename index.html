@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jørgen — Activity Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;background:#f9f9f8;color:#1a1a1a;padding:1.5rem}
+h1{font-size:18px;font-weight:500;margin-bottom:4px}
+.subtitle{font-size:12px;color:#999;margin-bottom:1.5rem}
+.tabs{display:flex;gap:0;border-bottom:1px solid #e0e0dc;margin-bottom:1.5rem}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:500}
+.panel{display:none}.panel.active{display:block}
+.tbl-wrap{overflow-x:auto;width:100%;border:1px solid #e0e0dc;border-radius:8px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th{text-align:left;font-weight:500;font-size:11px;color:#888;padding:8px 10px;border-bottom:1px solid #e0e0dc;white-space:nowrap;cursor:pointer;user-select:none;background:#fafaf9}
+th:hover{color:#1a1a1a}
+td{padding:7px 10px;border-bottom:1px solid #f0f0ec;color:#1a1a1a;vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f5f2}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500}
+.r{background:#dbeafe;color:#1d4ed8}.b{background:#dcfce7;color:#166534}.w{background:#fef3c7;color:#92400e}
+.zbar{display:flex;height:6px;border-radius:3px;overflow:hidden;width:80px}
+.hi{color:#dc2626;font-weight:500}.muted{color:#999}
+.filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.filters select,.filters input{font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:6px;background:#fff}
+.legend{display:flex;gap:12px;font-size:11px;color:#666;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+.legend span{display:flex;align-items:center;gap:4px}
+.leg-dot{width:10px;height:6px;border-radius:2px}
+.loading{padding:2rem;text-align:center;color:#999;font-size:14px}
+.error{padding:2rem;text-align:center;color:#dc2626;font-size:13px}
+</style>
+</head>
+<body>
+<h1>Jørgen — activity tracker</h1>
+<p class="subtitle">Auto-updated · snxz-y/Workouts-tracked</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('runs',this)">Runs</button>
+  <button class="tab" onclick="showTab('bikes',this)">Bikes</button>
+  <button class="tab" onclick="showTab('walks',this)">Walks</button>
+  <button class="tab" onclick="showTab('all',this)">All activities</button>
+</div>
+
+<div id="panel-runs" class="panel active">
+  <div class="legend">
+    <span><span class="leg-dot" style="background:#86efac"></span>Z1</span>
+    <span><span class="leg-dot" style="background:#60a5fa"></span>Z2</span>
+    <span><span class="leg-dot" style="background:#fcd34d"></span>Z3</span>
+    <span><span class="leg-dot" style="background:#f87171"></span>Z4</span>
+    <span><span class="leg-dot" style="background:#991b1b"></span>Z5</span>
+    <span style="margin-left:8px;color:#dc2626;font-size:11px">Red = HR &gt;175 avg / &gt;185 max</span>
+  </div>
+  <div class="tbl-wrap"><div class="loading" id="loading-runs">Loading...</div><table id="tbl-runs" style="display:none">
+    <thead><tr>
+      <th onclick="sort('runs','date')">Date ↕</th>
+      <th onclick="sort('runs','distanceM')">Distance</th>
+      <th onclick="sort('runs','pace')">Pace</th>
+      <th onclick="sort('runs','avgHR')">Avg HR</th>
+      <th onclick="sort('runs','maxHR')">Max HR</th>
+      <th onclick="sort('runs','elevGain')">Elev ↑</th>
+      <th onclick="sort('runs','elevLoss')">Elev ↓</th>
+      <th onclick="sort('runs','cadence')">Cadence</th>
+      <th onclick="sort('runs','strideLen')">Stride</th>
+      <th onclick="sort('runs','gct')">GCT</th>
+      <th onclick="sort('runs','vo')">Vert osc</th>
+      <th onclick="sort('runs','vertRatio')">Vert ratio</th>
+      <th onclick="sort('runs','avgPower')">Avg W</th>
+      <th onclick="sort('runs','normPower')">NP</th>
+      <th onclick="sort('runs','avgResp')">Resp</th>
+      <th onclick="sort('runs','fastest1k')">Best 1km</th>
+      <th onclick="sort('runs','fastest5k')">Best 5km</th>
+      <th onclick="sort('runs','vo2max')">VO₂max</th>
+      <th onclick="sort('runs','load')">Load</th>
+      <th onclick="sort('runs','bodyBatDrain')">BB drain</th>
+      <th onclick="sort('runs','calories')">kcal</th>
+      <th>HR zones</th>
+      <th onclick="sort('runs','label')">Effect</th>
+    </tr></thead>
+    <tbody id="tbody-runs"></tbody>
+  </table></div>
+</div>
+
+<div id="panel-bikes" class="panel">
+  <div class="tbl-wrap"><div class="loading" id="loading-bikes">Loading...</div><table id="tbl-bikes" style="display:none">
+    <thead><tr>
+      <th onclick="sort('bikes','date')">Date ↕</th>
+      <th onclick="sort('bikes','distanceM')">Distance</th>
+      <th onclick="sort('bikes','speed')">Avg speed</th>
+      <th onclick="sort('bikes','avgHR')">Avg HR</th>
+      <th onclick="sort('bikes','maxHR')">Max HR</th>
+      <th onclick="sort('bikes','elevGain')">Elev ↑</th>
+      <th onclick="sort('bikes','elevLoss')">Elev ↓</th>
+      <th onclick="sort('bikes','durationSec')">Duration</th>
+      <th onclick="sort('bikes','load')">Load</th>
+      <th onclick="sort('bikes','bodyBatDrain')">BB drain</th>
+      <th onclick="sort('bikes','calories')">kcal</th>
+      <th>HR zones</th>
+      <th onclick="sort('bikes','label')">Effect</th>
+    </tr></thead>
+    <tbody id="tbody-bikes"></tbody>
+  </table></div>
+</div>
+
+<div id="panel-walks" class="panel">
+  <div class="tbl-wrap"><div class="loading" id="loading-walks">Loading...</div><table id="tbl-walks" style="display:none">
+    <thead><tr>
+      <th onclick="sort('walks','date')">Date ↕</th>
+      <th onclick="sort('walks','distanceM')">Distance</th>
+      <th onclick="sort('walks','pace')">Pace</th>
+      <th onclick="sort('walks','avgHR')">Avg HR</th>
+      <th onclick="sort('walks','maxHR')">Max HR</th>
+      <th onclick="sort('walks','elevGain')">Elev ↑</th>
+      <th onclick="sort('walks','elevLoss')">Elev ↓</th>
+      <th onclick="sort('walks','durationSec')">Duration</th>
+      <th onclick="sort('walks','steps')">Steps</th>
+      <th onclick="sort('walks','strideLen')">Stride</th>
+      <th onclick="sort('walks','load')">Load</th>
+      <th onclick="sort('walks','bodyBatDrain')">BB drain</th>
+      <th onclick="sort('walks','calories')">kcal</th>
+      <th>HR zones</th>
+      <th onclick="sort('walks','label')">Effect</th>
+    </tr></thead>
+    <tbody id="tbody-walks"></tbody>
+  </table></div>
+</div>
+
+<div id="panel-all" class="panel">
+  <div class="filters">
+    <select id="filter-type" onchange="renderAll()">
+      <option value="">All types</option>
+      <option value="running">Runs</option>
+      <option value="cycling">Bikes</option>
+      <option value="walking">Walks</option>
+    </select>
+    <input type="text" id="filter-search" placeholder="Search name..." oninput="renderAll()" style="width:160px">
+  </div>
+  <div class="tbl-wrap"><div class="loading" id="loading-all">Loading...</div><table id="tbl-all" style="display:none">
+    <thead><tr>
+      <th>Date</th><th>Type</th><th>Name</th><th>Dist</th><th>Duration</th><th>Pace / Speed</th>
+      <th>Avg HR</th><th>Max HR</th><th>Elev ↑</th><th>Load</th><th>VO₂max</th><th>kcal</th><th>BB drain</th><th>Effect</th>
+    </tr></thead>
+    <tbody id="tbody-all"></tbody>
+  </table></div>
+</div>
+
+<script>
+const DATA_URL = 'https://raw.githubusercontent.com/snxz-y/Workouts-tracked/main/activities.json';
+let data = [];
+const ss = {runs:{col:'date',asc:false},bikes:{col:'date',asc:false},walks:{col:'date',asc:false}};
+
+const fmt = s => { const m=Math.floor(s/60),sc=Math.round(s%60); return m+':'+(sc<10?'0':'')+sc; };
+const fmtD = m => (m/1000).toFixed(2)+'km';
+const fmtSpd = mps => (mps*3.6).toFixed(1)+'km/h';
+const pace = (d,s) => fmt(s/(d/1000))+'/km';
+const n = (v,dec=0,suf='') => v==null?'—':(dec?v.toFixed(dec):Math.round(v))+suf;
+const hrCls = hr => hr>175?'hi':'';
+const zbar = a => {
+  const t=a.z1+a.z2+a.z3+a.z4+a.z5;
+  if(!t)return'—';
+  const p=v=>Math.round(v/t*100);
+  return`<div class="zbar"><div style="width:${p(a.z1)}%;background:#86efac"></div><div style="width:${p(a.z2)}%;background:#60a5fa"></div><div style="width:${p(a.z3)}%;background:#fcd34d"></div><div style="width:${p(a.z4)}%;background:#f87171"></div><div style="width:${p(a.z5)}%;background:#991b1b"></div></div>`;
+};
+
+function getSorted(arr,tab){
+  const{col,asc}=ss[tab];
+  return[...arr].sort((a,b)=>{
+    let av=a[col]??-Infinity,bv=b[col]??-Infinity;
+    if(col==='pace'){av=a.durationSec/(a.distanceM/1000);bv=b.durationSec/(b.distanceM/1000);}
+    if(col==='speed'){av=a.distanceM/a.durationSec;bv=b.distanceM/b.durationSec;}
+    if(typeof av==='string')return asc?av.localeCompare(bv):bv.localeCompare(av);
+    return asc?av-bv:bv-av;
+  });
+}
+
+function sort(tab,col){
+  if(ss[tab].col===col)ss[tab].asc=!ss[tab].asc;else{ss[tab].col=col;ss[tab].asc=false;}
+  render();
+}
+
+function showLoaded(tab){
+  const l=document.getElementById('loading-'+tab);
+  const t=document.getElementById('tbl-'+tab);
+  if(l)l.style.display='none';
+  if(t)t.style.display='';
+}
+
+function renderRuns(){
+  const rows=getSorted(data.filter(a=>a.type==='running'),'runs');
+  document.getElementById('tbody-runs').innerHTML=rows.map(r=>`<tr>
+    <td>${r.date}</td><td>${fmtD(r.distanceM)}</td><td>${pace(r.distanceM,r.durationSec)}</td>
+    <td class="${hrCls(r.avgHR)}">${r.avgHR}</td><td class="${hrCls(r.maxHR)}">${r.maxHR}</td>
+    <td>${n(r.elevGain)}m</td><td>${n(r.elevLoss)}m</td>
+    <td>${n(r.cadence)} spm</td><td>${n(r.strideLen,1)}cm</td><td>${n(r.gct)}ms</td>
+    <td>${n(r.vo,2)}cm</td><td>${n(r.vertRatio,2)}%</td>
+    <td>${n(r.avgPower)}W</td><td>${n(r.normPower)}W</td>
+    <td>${r.avgResp?n(r.avgResp,1)+' brpm':'—'}</td>
+    <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td>
+    <td>${n(r.vo2max)}</td><td>${n(r.load,1)}</td><td>-${n(r.bodyBatDrain)}</td><td>${n(r.calories)}</td>
+    <td>${zbar(r)}</td><td class="muted">${r.label||'—'}</td>
+  </tr>`).join('');
+  showLoaded('runs');
+}
+
+function renderBikes(){
+  const rows=getSorted(data.filter(a=>a.type==='cycling'),'bikes');
+  document.getElementById('tbody-bikes').innerHTML=rows.map(b=>`<tr>
+    <td>${b.date}</td><td>${fmtD(b.distanceM)}</td><td>${fmtSpd(b.distanceM/b.durationSec)}</td>
+    <td class="${hrCls(b.avgHR)}">${b.avgHR}</td><td class="${hrCls(b.maxHR)}">${b.maxHR}</td>
+    <td>${n(b.elevGain)}m</td><td>${n(b.elevLoss)}m</td><td>${fmt(b.durationSec)}</td>
+    <td>${n(b.load,1)}</td><td>-${n(b.bodyBatDrain)}</td><td>${n(b.calories)}</td>
+    <td>${zbar(b)}</td><td class="muted">${b.label||'—'}</td>
+  </tr>`).join('');
+  showLoaded('bikes');
+}
+
+function renderWalks(){
+  const rows=getSorted(data.filter(a=>a.type==='walking'),'walks');
+  document.getElementById('tbody-walks').innerHTML=rows.map(w=>`<tr>
+    <td>${w.date}</td><td>${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
+    <td>${w.avgHR}</td><td>${w.maxHR}</td>
+    <td>${n(w.elevGain)}m</td><td>${n(w.elevLoss)}m</td><td>${fmt(w.durationSec)}</td>
+    <td>${n(w.steps)}</td><td>${n(w.strideLen,1)}cm</td>
+    <td>${n(w.load,1)}</td><td>-${n(w.bodyBatDrain)}</td><td>${n(w.calories)}</td>
+    <td>${zbar(w)}</td><td class="muted">${w.label||'—'}</td>
+  </tr>`).join('');
+  showLoaded('walks');
+}
+
+function renderAll(){
+  const tf=document.getElementById('filter-type')?.value||'';
+  const s=(document.getElementById('filter-search')?.value||'').toLowerCase();
+  const rows=data.filter(a=>{
+    if(tf&&a.type!==tf)return false;
+    if(s&&!a.name.toLowerCase().includes(s))return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+  const badge=t=>t==='running'?'<span class="badge r">Run</span>':t==='cycling'?'<span class="badge b">Bike</span>':'<span class="badge w">Walk</span>';
+  document.getElementById('tbody-all').innerHTML=rows.map(a=>`<tr>
+    <td>${a.date}</td><td>${badge(a.type)}</td>
+    <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">${a.name}</td>
+    <td>${fmtD(a.distanceM)}</td><td>${fmt(a.durationSec)}</td>
+    <td>${a.type==='cycling'?fmtSpd(a.distanceM/a.durationSec):pace(a.distanceM,a.durationSec)}</td>
+    <td class="${hrCls(a.avgHR)}">${a.avgHR}</td><td class="${hrCls(a.maxHR)}">${a.maxHR}</td>
+    <td>${n(a.elevGain)}m</td><td>${n(a.load,1)}</td><td>${a.vo2max||'—'}</td>
+    <td>${n(a.calories)}</td><td>-${n(a.bodyBatDrain)}</td><td class="muted">${a.label||'—'}</td>
+  </tr>`).join('');
+  showLoaded('all');
+}
+
+function render(){renderRuns();renderBikes();renderWalks();renderAll();}
+
+function showTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+fetch(DATA_URL+'?nocache='+Date.now())
+  .then(r=>{ if(!r.ok)throw new Error(r.status); return r.json(); })
+  .then(d=>{ data=d; render(); })
+  .catch(e=>{
+    ['runs','bikes','walks','all'].forEach(tab=>{
+      const l=document.getElementById('loading-'+tab);
+      if(l)l.innerHTML='<span style="color:#dc2626">Could not load data. Check that activities.json exists in the repo and GitHub Pages is enabled.</span>';
+    });
+  });
+</script>
+</body>
+</html>
