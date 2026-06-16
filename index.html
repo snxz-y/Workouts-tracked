@@ -232,15 +232,20 @@ tr:hover td{background:var(--surface2)}
 
   <!-- HEALTH -->
   <div id="nav-health" class="panel">
-    <div class="period-tabs">
-      <button class="period-tab active" onclick="setPeriod('today',this)">Today</button>
-      <button class="period-tab" onclick="setPeriod('7d',this)">7D</button>
-      <button class="period-tab" onclick="setPeriod('14d',this)">14D</button>
-      <button class="period-tab" onclick="setPeriod('4w',this)">4W</button>
-      <button class="period-tab" onclick="setPeriod('3m',this)">3M</button>
-      <button class="period-tab" onclick="setPeriod('6m',this)">6M</button>
-      <button class="period-tab" onclick="setPeriod('12m',this)">12M</button>
-      <button class="period-tab" onclick="setPeriod('all',this)">All</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
+      <input type="date" id="health-start" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text)">
+      <span style="font-size:12px;color:var(--muted)">to</span>
+      <input type="date" id="health-end" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text)">
+      <button onclick="applyHealthRange()" style="padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;border-radius:6px;background:var(--accent2);color:#fff">Apply</button>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="period-tab active" onclick="setHealthPreset('today',this)">Today</button>
+        <button class="period-tab" onclick="setHealthPreset('7d',this)">7D</button>
+        <button class="period-tab" onclick="setHealthPreset('14d',this)">14D</button>
+        <button class="period-tab" onclick="setHealthPreset('4w',this)">4W</button>
+        <button class="period-tab" onclick="setHealthPreset('3m',this)">3M</button>
+        <button class="period-tab" onclick="setHealthPreset('6m',this)">6M</button>
+        <button class="period-tab" onclick="setHealthPreset('all',this)">All</button>
+      </div>
     </div>
     <div id="health-content"></div>
   </div>
@@ -376,26 +381,75 @@ function renderAll(){
 function renderActivities(){renderRuns();renderBikes();renderWalks();renderAll();}
 
 // ── HEALTH ────────────────────────────────────────────────────────────────────
+let healthStartDate = null;
+let healthEndDate = null;
+let healthSingleDay = true;
+
 function getFilteredHealth(){
   if(!healthData.length)return[];
   const sorted=[...healthData].sort((a,b)=>b.date.localeCompare(a.date));
+  if(healthSingleDay){
+    const d=healthEndDate||sorted[0].date;
+    return sorted.filter(h=>h.date===d);
+  }
+  const start=healthStartDate||sorted[sorted.length-1].date;
+  const end=healthEndDate||sorted[0].date;
+  return sorted.filter(h=>h.date>=start&&h.date<=end);
+}
+
+function initHealthDates(){
+  if(!healthData.length)return;
+  const sorted=[...healthData].sort((a,b)=>b.date.localeCompare(a.date));
   const latest=sorted[0].date;
-  const cutoff=p=>{
-    const ref=new Date(latest);
-    if(p==='today')return latest;
+  healthEndDate=latest;
+  healthSingleDay=true;
+  document.getElementById('health-end').value=latest;
+  document.getElementById('health-start').value=latest;
+}
+
+function applyHealthRange(){
+  const start=document.getElementById('health-start').value;
+  const end=document.getElementById('health-end').value;
+  if(!start||!end)return;
+  healthStartDate=start;
+  healthEndDate=end;
+  healthSingleDay=start===end;
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  renderHealth();
+}
+
+function setHealthPreset(p,el){
+  if(!healthData.length)return;
+  const sorted=[...healthData].sort((a,b)=>b.date.localeCompare(a.date));
+  const latest=sorted[0].date;
+  const ref=new Date(latest);
+  if(p==='today'){
+    healthStartDate=latest;healthEndDate=latest;healthSingleDay=true;
+    document.getElementById('health-start').value=latest;
+    document.getElementById('health-end').value=latest;
+  } else {
+    healthSingleDay=false;
+    healthEndDate=latest;
+    document.getElementById('health-end').value=latest;
     if(p==='7d')ref.setDate(ref.getDate()-7);
     else if(p==='14d')ref.setDate(ref.getDate()-14);
     else if(p==='4w')ref.setDate(ref.getDate()-28);
     else if(p==='3m')ref.setMonth(ref.getMonth()-3);
     else if(p==='6m')ref.setMonth(ref.getMonth()-6);
-    else if(p==='12m')ref.setFullYear(ref.getFullYear()-1);
-    else return null;
-    return ref.toISOString().slice(0,10);
-  };
-  const c=cutoff(currentPeriod);
-  if(!c)return sorted;
-  if(currentPeriod==='today')return sorted.filter(h=>h.date===c);
-  return sorted.filter(h=>h.date>=c);
+    else if(p==='all'){
+      healthStartDate=sorted[sorted.length-1].date;
+      document.getElementById('health-start').value=healthStartDate;
+      renderHealth();
+      document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+      if(el)el.classList.add('active');
+      return;
+    }
+    healthStartDate=ref.toISOString().slice(0,10);
+    document.getElementById('health-start').value=healthStartDate;
+  }
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderHealth();
 }
 
 function avgg(arr,key){const v=arr.map(d=>d[key]).filter(x=>x!=null);return v.length?(v.reduce((a,b)=>a+b,0)/v.length):null;}
@@ -413,7 +467,7 @@ function renderHealth(){
   destroyCharts();
   const hrows=getFilteredHealth();
   if(!hrows.length){document.getElementById('health-content').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted)">No health data for this period yet.</div>';return;}
-  const isToday=currentPeriod==='today';
+  const isToday=healthSingleDay;
   const d=hrows[0];
   const A=(k,dec=0)=>{if(isToday)return n(d[k],dec);const v=avgg(hrows,k);return v!=null?n(v,dec):'—';};
   const L=(k,dec=0)=>{const v=latestt(hrows,k);return v!=null?n(v,dec):'—';};
@@ -583,7 +637,7 @@ function renderHealth(){
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Training Status</div>
-        <div class="stat-value" style="font-size:16px;color:var(--green)">${isToday&&d.trainingStatus?d.trainingStatus:'—'}</div>
+        <div class="stat-value" style="font-size:16px;color:var(--green)">${isToday&&d.trainingStatus?(typeof d.trainingStatus==='object'?d.trainingStatus.trainingStatusKey||'—':d.trainingStatus):'—'}</div>
         <div class="stat-sub">Sport: Running</div>
       </div>
       <div class="stat-card">
@@ -775,12 +829,7 @@ function showSub(id,el){
   document.getElementById('sub-'+id).style.display='block';
   el.classList.add('active');
 }
-function setPeriod(p,el){
-  currentPeriod=p;
-  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  renderHealth();
-}
+// setPeriod replaced by setHealthPreset
 
 
 
@@ -1184,6 +1233,7 @@ Promise.all([
   nutritionData=nutr;
   reviewsData=revs;
   initReviewDates();
+  initHealthDates();
   renderReviewHistory();
   const lastDate=health.length?[...health].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'—';
   document.getElementById('last-updated').textContent='Health: '+lastDate;
