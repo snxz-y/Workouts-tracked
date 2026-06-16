@@ -297,6 +297,11 @@ let activities=[],healthData=[],currentPeriod='today';
 const ss={runs:{col:'date',asc:false},bikes:{col:'date',asc:false},walks:{col:'date',asc:false}};
 let chartInstances={};
 
+const fmtDate=d=>{
+  if(!d)return'—';
+  const [y,m,day]=d.split('-');
+  return day+' / '+m+' / '+y;
+};
 const fmt=s=>{const m=Math.floor(s/60),sc=Math.round(s%60);return m+':'+(sc<10?'0':'')+sc};
 const fmtD=m=>(m/1000).toFixed(2)+'km';
 const fmtSpd=mps=>((mps*3.6).toFixed(1))+'km/h';
@@ -334,7 +339,7 @@ function sort(tab,col){if(ss[tab].col===col)ss[tab].asc=!ss[tab].asc;else{ss[tab
 function renderRuns(){
   const rows=getSorted(activities.filter(a=>a.type==='running'),'runs');
   document.getElementById('tbody-runs').innerHTML=rows.map(r=>`<tr>
-    <td>${r.date}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td><td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
+    <td>${fmtDate(r.date)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td><td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
     <td style="${hrCls(r.avgHR)}">${r.avgHR}</td><td class="${r.maxHR>=187?'hi':r.maxHR>=166?'warn':''}">${r.maxHR}</td>
     <td>${n(r.elevGain)}m</td><td class="muted-cell">${n(r.elevLoss)}m</td>
     <td>${n(r.cadence)} spm</td><td>${n(r.strideLen,1)}cm</td><td>${n(r.gct)}ms</td>
@@ -348,7 +353,7 @@ function renderRuns(){
 function renderBikes(){
   const rows=getSorted(activities.filter(a=>a.type==='cycling'),'bikes');
   document.getElementById('tbody-bikes').innerHTML=rows.map(b=>`<tr>
-    <td>${b.date}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td>
+    <td>${fmtDate(b.date)}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td>
     <td style="${hrCls(b.avgHR)}">${b.avgHR}</td><td class="${b.maxHR>=187?'hi':b.maxHR>=166?'warn':''}">${b.maxHR}</td>
     <td>${n(b.elevGain)}m</td><td class="muted-cell">${n(b.elevLoss)}m</td>
     <td>${fmt(b.durationSec)}</td><td>${n(b.load,1)}</td><td class="muted-cell">-${n(b.bodyBatDrain)}</td><td>${n(b.calories)}</td>
@@ -358,7 +363,7 @@ function renderBikes(){
 function renderWalks(){
   const rows=getSorted(activities.filter(a=>a.type==='walking'),'walks');
   document.getElementById('tbody-walks').innerHTML=rows.map(w=>`<tr>
-    <td>${w.date}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
+    <td>${fmtDate(w.date)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
     <td style="${hrCls(w.avgHR)}">${w.avgHR}</td><td class="${w.maxHR>=187?'hi':w.maxHR>=166?'warn':''}">${w.maxHR}</td>
     <td>${n(w.elevGain)}m</td><td class="muted-cell">${n(w.elevLoss)}m</td>
     <td>${fmt(w.durationSec)}</td><td>${n(w.steps)}</td><td>${n(w.strideLen,1)}cm</td>
@@ -372,7 +377,7 @@ function renderAll(){
   const rows=activities.filter(a=>{if(tf&&a.type!==tf)return false;if(s&&!a.name.toLowerCase().includes(s))return false;return true;}).sort((a,b)=>b.date.localeCompare(a.date));
   const tbadge=t=>t==='running'?'<span class="type-badge tb-run">RUN</span>':t==='cycling'?'<span class="type-badge tb-bike">BIKE</span>':'<span class="type-badge tb-walk">WALK</span>';
   document.getElementById('tbody-all').innerHTML=rows.map(a=>`<tr>
-    <td>${a.date}</td><td>${tbadge(a.type)}</td>
+    <td>${fmtDate(a.date)}</td><td>${tbadge(a.type)}</td>
     <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis">${a.name}</td>
     <td>${fmtD(a.distanceM)}</td><td>${fmt(a.durationSec)}</td>
     <td style="font-weight:600">${a.type==='cycling'?fmtSpd(a.distanceM/a.durationSec):pace(a.distanceM,a.durationSec)}</td>
@@ -514,7 +519,7 @@ function renderHealth(){
 
   // Body comp data for charts
   const compRows=[...hrows].filter(r=>r.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
-  const compLabels=compRows.map(r=>r.date.slice(5));
+  const compLabels=compRows.map(r=>{ const p=r.date.split('-'); return p[2]+'/'+p[1]; });
   const showCharts=!isToday&&compRows.length>1;
 
   document.getElementById('health-content').innerHTML=`
@@ -780,7 +785,7 @@ function renderHealth(){
     <div class="tbl-wrap"><table>
       <thead><tr><th>Date</th><th>Readiness</th><th>Sleep</th><th>HRV</th><th>RHR</th><th>Stress</th><th>Steps</th><th>BB wake</th><th>VO₂max</th><th>Weight</th><th>Fat%</th></tr></thead>
       <tbody>${hrows.map(h=>`<tr>
-        <td>${h.date}</td>
+        <td>${fmtDate(h.date)}</td>
         <td class="${h.trainingReadiness>=70?'ok':h.trainingReadiness>=40?'warn':'hi'}">${n(h.trainingReadiness)}</td>
         <td class="${h.sleepScore>=80?'ok':h.sleepScore>=60?'warn':'hi'}">${n(h.sleepScore)}</td>
         <td style="color:var(--accent2)">${n(h.hrvAvg)}</td>
@@ -906,7 +911,7 @@ function renderReviewHistory() {
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:12px;font-weight:600;color:var(--accent)">${r.period}</div>
-          <div style="font-size:11px;color:var(--muted)">${r.date}</div>
+          <div style="font-size:11px;color:var(--muted)">${fmtDate(r.date)}</div>
         </div>
         <div style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap">${r.content}</div>
       </div>`).join('');
@@ -1099,7 +1104,7 @@ function renderNutrition() {
   const carbPct = pctOf(carb, TARGETS.carbs);
   const fatPct = pctOf(fat, TARGETS.fat);
 
-  const periodLabel = isToday ? 'Latest: ' + d.date : rows.length + ' days · ' + rows[rows.length-1].date + ' to ' + rows[0].date;
+  const periodLabel = isToday ? 'Latest: ' + fmtDate(d.date) : hrows.length + ' days · ' + rows[rows.length-1].date + ' to ' + rows[0].date;
 
   // Macro split: protein=4kcal/g, carbs=4kcal/g, fat=9kcal/g
   const proKcal = (pro||0) * 4;
@@ -1109,7 +1114,7 @@ function renderNutrition() {
 
   const showCharts = !isToday && rows.length > 1;
   const chartRows = [...rows].filter(r => r.calories != null).sort((a,b) => a.date.localeCompare(b.date));
-  const chartLabels = chartRows.map(r => r.date.slice(5));
+  const chartLabels = chartRows.map(r => { const p=r.date.split('-'); return p[2]+'/'+p[1]; });
 
   document.getElementById('nutrition-content').innerHTML = `
     <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem">${periodLabel}${!isToday ? ' (daily averages)' : ''}</div>
@@ -1160,28 +1165,37 @@ function renderNutrition() {
 
     <div class="section-head">Macro Split</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem;display:flex;align-items:center;gap:24px">
-      <div style="position:relative;width:120px;height:120px;flex-shrink:0">
-        <canvas id="macroPie" width="120" height="120" role="img" aria-label="Macro calorie split pie chart">Macro split: protein, carbs, fat.</canvas>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">Actual</div>
+        <div style="position:relative;width:100px;height:100px;flex-shrink:0">
+          <canvas id="macroPie" width="100" height="100" role="img" aria-label="Actual macro split">Actual macro split.</canvas>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">Goal</div>
+        <div style="position:relative;width:100px;height:100px;flex-shrink:0">
+          <canvas id="macroPieGoal" width="100" height="100" role="img" aria-label="Goal macro split">Goal macro split.</canvas>
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:12px;height:12px;border-radius:3px;background:#a89ef8;flex-shrink:0"></div>
           <div>
-            <div style="font-size:13px;font-weight:600">Protein ${totalMacroKcal ? Math.round(proKcal/totalMacroKcal*100) : 0}%</div>
+            <div style="font-size:13px;font-weight:600">Protein ${totalMacroKcal ? Math.round(proKcal/totalMacroKcal*100) : 0}% <span style="font-size:11px;color:var(--muted);font-weight:400">/ goal ${Math.round(TARGETS.protein*4/(TARGETS.protein*4+TARGETS.carbs*4+TARGETS.fat*9)*100)}%</span></div>
             <div style="font-size:11px;color:var(--muted)">${n(pro,1)}g · ${Math.round(proKcal)} kcal</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:12px;height:12px;border-radius:3px;background:#c8f53a;flex-shrink:0"></div>
           <div>
-            <div style="font-size:13px;font-weight:600">Carbs ${totalMacroKcal ? Math.round(carbKcal/totalMacroKcal*100) : 0}%</div>
+            <div style="font-size:13px;font-weight:600">Carbs ${totalMacroKcal ? Math.round(carbKcal/totalMacroKcal*100) : 0}% <span style="font-size:11px;color:var(--muted);font-weight:400">/ goal ${Math.round(TARGETS.carbs*4/(TARGETS.protein*4+TARGETS.carbs*4+TARGETS.fat*9)*100)}%</span></div>
             <div style="font-size:11px;color:var(--muted)">${n(carb,1)}g · ${Math.round(carbKcal)} kcal</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:12px;height:12px;border-radius:3px;background:#ffb020;flex-shrink:0"></div>
           <div>
-            <div style="font-size:13px;font-weight:600">Fat ${totalMacroKcal ? Math.round(fatKcal/totalMacroKcal*100) : 0}%</div>
+            <div style="font-size:13px;font-weight:600">Fat ${totalMacroKcal ? Math.round(fatKcal/totalMacroKcal*100) : 0}% <span style="font-size:11px;color:var(--muted);font-weight:400">/ goal ${Math.round(TARGETS.fat*9/(TARGETS.protein*4+TARGETS.carbs*4+TARGETS.fat*9)*100)}%</span></div>
             <div style="font-size:11px;color:var(--muted)">${n(fat,1)}g · ${Math.round(fatKcal)} kcal</div>
           </div>
         </div>
@@ -1215,7 +1229,7 @@ function renderNutrition() {
     <div class="tbl-wrap"><table>
       <thead><tr><th>Date</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Sat Fat</th><th>Fiber</th></tr></thead>
       <tbody>${rows.map(r => `<tr>
-        <td>${r.date}</td>
+        <td>${fmtDate(r.date)}</td>
         <td class="${(r.calories||0) > TARGETS.calories ? 'hi' : (r.calories||0) >= TARGETS.calories*0.9 ? 'ok' : ''}">${n(r.calories)}</td>
         <td class="${(r.protein||0) >= TARGETS.protein ? 'ok' : (r.protein||0) >= TARGETS.protein*0.8 ? '' : 'hi'}">${n(r.protein,1)}g</td>
         <td class="${(r.carbs||0) > TARGETS.carbs ? 'hi' : ''}">${n(r.carbs,1)}g</td>
