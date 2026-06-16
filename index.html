@@ -847,7 +847,9 @@ function renderHealth(){
 }
 
 function showNav(id,el){
+  destroyCharts();
   if(id==='nutrition'){renderNutrition();}
+  if(id==='health'){renderHealth();}
   if(id==='reviews'){renderReviewHistory();}
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
