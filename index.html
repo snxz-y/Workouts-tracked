@@ -90,7 +90,7 @@ tr:hover td{background:var(--surface2)}
 .load-lbl{font-size:11px;color:var(--muted)}
 .load-track{height:8px;background:var(--surface2);border-radius:4px;position:relative}
 .load-fill{height:100%;border-radius:4px;position:absolute;top:0;left:0}
-.load-range{position:absolute;top:0;height:100%;background:rgba(255,255,255,.08);border-left:1px solid rgba(255,255,255,.2);border-right:1px solid rgba(255,255,255,.2)}
+.load-range{position:absolute;top:0;height:100%;background:rgba(255,255,255,.18);border-left:2px solid rgba(255,255,255,.5);border-right:2px solid rgba(255,255,255,.5)}
 .load-val{font-size:12px;font-weight:600;text-align:right}
 .load-focus-label{font-size:11px;color:var(--amber);margin-top:10px}
 
@@ -368,12 +368,12 @@ function destroyChartById(id){if(chartInstances[id]){try{chartInstances[id].dest
 
 function renderHealth(){
   destroyCharts();
-  const rows=getFilteredHealth();
-  if(!rows.length){document.getElementById('health-content').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted)">No health data for this period yet.</div>';return;}
+  const hrows=getFilteredHealth();
+  if(!hrows.length){document.getElementById('health-content').innerHTML='<div style="padding:3rem;text-align:center;color:var(--muted)">No health data for this period yet.</div>';return;}
   const isToday=currentPeriod==='today';
-  const d=rows[0];
-  const A=(k,dec=0)=>{if(isToday)return n(d[k],dec);const v=avgg(rows,k);return v!=null?n(v,dec):'—';};
-  const L=(k,dec=0)=>{const v=latestt(rows,k);return v!=null?n(v,dec):'—';};
+  const d=hrows[0];
+  const A=(k,dec=0)=>{if(isToday)return n(d[k],dec);const v=avgg(hrows,k);return v!=null?n(v,dec):'—';};
+  const L=(k,dec=0)=>{const v=latestt(hrows,k);return v!=null?n(v,dec):'—';};
 
   const sleepH=isToday&&d.sleepSec?`${Math.floor(d.sleepSec/3600)}h ${Math.round((d.sleepSec%3600)/60)}m`:'—';
   const deepPct=isToday&&d.sleepSec?Math.round(d.deepSec/d.sleepSec*100):0;
@@ -390,28 +390,28 @@ function renderHealth(){
   const endClass=d.enduranceScore>=8800?'Elite':d.enduranceScore>=8100?'Superior':d.enduranceScore>=7300?'Expert':d.enduranceScore>=6600?'Well-trained':d.enduranceScore>=5800?'Trained':d.enduranceScore>=5100?'Intermediate':'Beginner';
 
   // kcal donut data
-  const activeKcal=isToday?d.activeKcal:Math.round(avgg(rows,'activeKcal'));
-  const totalKcal=isToday?d.totalKcal:Math.round(avgg(rows,'totalKcal'));
+  const activeKcal=isToday?d.activeKcal:Math.round(avgg(hrows,'activeKcal'));
+  const totalKcal=isToday?d.totalKcal:Math.round(avgg(hrows,'totalKcal'));
   const bmrKcal=totalKcal&&activeKcal?totalKcal-activeKcal:null;
   const activePct=totalKcal&&activeKcal?Math.round(activeKcal/totalKcal*100):null;
 
   // intensity minutes
-  const imTotal=(isToday?(d.modIntensityMin||0)+(d.vigIntensityMin||0):Math.round((avgg(rows,'modIntensityMin')||0)+(avgg(rows,'vigIntensityMin')||0)));
+  const imTotal=(isToday?(d.modIntensityMin||0)+(d.vigIntensityMin||0):Math.round((avgg(hrows,'modIntensityMin')||0)+(avgg(hrows,'vigIntensityMin')||0)));
   const imGoal=isToday?d.weeklyIntensityGoal:150;
   const imWeekly=isToday?d.weeklyIntensityTotal:null;
   const imPct=imGoal?Math.min(100,Math.round((imWeekly||imTotal)/imGoal*100)):0;
 
-  const periodLabel=isToday?`Latest data: ${d.date}`:`${rows.length} day${rows.length>1?'s':''} · ${rows[rows.length-1].date} → ${rows[0].date}`;
+  const periodLabel=isToday?`Latest data: ${d.date}`:`${hrows.length} day${hrows.length>1?'s':''} · ${hrows[hrows.length-1].date} → ${hrows[0].date}`;
 
   const stepsGoal=d.stepsGoal||9590;
-  const stepsVal=isToday?d.steps:Math.round(avgg(rows,'steps'));
+  const stepsVal=isToday?d.steps:Math.round(avgg(hrows,'steps'));
   const stepsOk=stepsVal>=stepsGoal;
   const floorsGoal=d.floorsGoal||10;
-  const floorsVal=isToday?d.floors:Math.round(avgg(rows,'floors'));
+  const floorsVal=isToday?d.floors:Math.round(avgg(hrows,'floors'));
   const floorsOk=floorsVal>=floorsGoal;
 
   // Body comp data for charts
-  const compRows=[...rows].filter(r=>r.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
+  const compRows=[...hrows].filter(r=>r.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
   const compLabels=compRows.map(r=>r.date.slice(5));
   const showCharts=!isToday&&compRows.length>1;
 
@@ -494,7 +494,7 @@ function renderHealth(){
     </div>`:`
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-label">Sleep Score (avg)</div><div class="stat-value">${A('sleepScore')}</div></div>
-      <div class="stat-card"><div class="stat-label">Sleep Duration (avg)</div><div class="stat-value" style="font-size:18px">${(()=>{const v=avgg(rows,'sleepSec');return v?`${Math.floor(v/3600)}h ${Math.round((v%3600)/60)}m`:'—'})()}</div></div>
+      <div class="stat-card"><div class="stat-label">Sleep Duration (avg)</div><div class="stat-value" style="font-size:18px">${(()=>{const v=avgg(hrows,'sleepSec');return v?`${Math.floor(v/3600)}h ${Math.round((v%3600)/60)}m`:'—'})()}</div></div>
     </div>`}
 
     <div class="section-head">Activity & Load</div>
@@ -561,7 +561,7 @@ function renderHealth(){
       </div>
       <div class="stat-card">
         <div class="stat-label">ACWR</div>
-        <div class="stat-value" style="color:${isToday&&d.acwr>1.5?'var(--red)':isToday&&d.acwr>1.3?'var(--amber)':'var(--text)'}">${isToday?n(d.acwr,2):n(avgg(rows,'acwr'),2)}</div>
+        <div class="stat-value" style="color:${isToday&&d.acwr>1.5?'var(--red)':isToday&&d.acwr>1.3?'var(--amber)':'var(--text)'}">${isToday?n(d.acwr,2):n(avgg(hrows,'acwr'),2)}</div>
         <div class="stat-sub">Acute ${A('acuteLoad')} · Chronic ${A('chronicLoad')}</div>
         <div class="acwr-explain">&lt;0.8 undertraining · 0.8–1.3 optimal · &gt;1.5 injury risk</div>
       </div>
@@ -592,9 +592,9 @@ function renderHealth(){
     <div class="load-section">
       ${(()=>{
         const vals=[
-          {lbl:'Aerobic Low',val:isToday?d.aerobicLowLoad:avgg(rows,'aerobicLowLoad'),min:130,max:342,color:'#60a5fa'},
-          {lbl:'Aerobic High',val:isToday?d.aerobicHighLoad:avgg(rows,'aerobicHighLoad'),min:256,max:467,color:'#c8f53a'},
-          {lbl:'Anaerobic',val:isToday?d.anaerobicLoad:avgg(rows,'anaerobicLoad'),min:0,max:211,color:'#f87171'}
+          {lbl:'Aerobic Low',val:isToday?d.aerobicLowLoad:avgg(hrows,'aerobicLowLoad'),min:130,max:342,color:'#60a5fa'},
+          {lbl:'Aerobic High',val:isToday?d.aerobicHighLoad:avgg(hrows,'aerobicHighLoad'),min:256,max:467,color:'#c8f53a'},
+          {lbl:'Anaerobic',val:isToday?d.anaerobicLoad:avgg(hrows,'anaerobicLoad'),min:0,max:211,color:'#f87171'}
         ];
         const cap=700;
         return vals.map(v=>{
@@ -664,11 +664,11 @@ function renderHealth(){
       </div>
     </div>`:''}
 
-    ${rows.length>1?`
+    ${hrows.length>1?`
     <div class="section-head" style="margin-top:1.5rem">Daily History</div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>Date</th><th>Readiness</th><th>Sleep</th><th>HRV</th><th>RHR</th><th>Stress</th><th>Steps</th><th>BB wake</th><th>VO₂max</th><th>Weight</th><th>Fat%</th></tr></thead>
-      <tbody>${rows.map(h=>`<tr>
+      <tbody>${hrows.map(h=>`<tr>
         <td>${h.date}</td>
         <td class="${h.trainingReadiness>=70?'ok':h.trainingReadiness>=40?'warn':'hi'}">${n(h.trainingReadiness)}</td>
         <td class="${h.sleepScore>=80?'ok':h.sleepScore>=60?'warn':'hi'}">${n(h.sleepScore)}</td>
