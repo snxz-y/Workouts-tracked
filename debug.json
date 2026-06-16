@@ -3,7 +3,6 @@
     "metrics" : [
       {
         "units" : "g",
-        "name" : "protein",
         "data" : [
           {
             "source" : "Kaloridagbok",
@@ -11,9 +10,9 @@
             "qty" : 0
           },
           {
-            "date" : "2026-06-10 08:00:00 +0200",
             "qty" : 33,
-            "source" : "Kaloridagbok"
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-10 08:00:00 +0200"
           },
           {
             "source" : "Kaloridagbok",
@@ -21,9 +20,9 @@
             "qty" : 71
           },
           {
-            "date" : "2026-06-11 00:00:00 +0200",
+            "source" : "Kaloridagbok",
             "qty" : 19.890000000000001,
-            "source" : "Kaloridagbok"
+            "date" : "2026-06-11 00:00:00 +0200"
           },
           {
             "date" : "2026-06-11 08:00:00 +0200",
@@ -36,125 +35,125 @@
             "source" : "Kaloridagbok"
           },
           {
+            "date" : "2026-06-11 17:00:00 +0200",
             "source" : "Kaloridagbok",
-            "qty" : 66.114999999999995,
-            "date" : "2026-06-11 17:00:00 +0200"
+            "qty" : 66.114999999999995
           },
           {
-            "qty" : 0.5,
+            "source" : "Kaloridagbok",
             "date" : "2026-06-11 20:00:00 +0200",
-            "source" : "Kaloridagbok"
+            "qty" : 0.5
           },
           {
+            "date" : "2026-06-12 08:00:00 +0200",
             "qty" : 27.549999999999997,
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-12 08:00:00 +0200"
-          },
-          {
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-12 12:00:00 +0200",
-            "qty" : 25.720000000000002
-          },
-          {
-            "date" : "2026-06-12 17:00:00 +0200",
-            "qty" : 55.440000000000005,
             "source" : "Kaloridagbok"
           },
           {
-            "date" : "2026-06-13 00:00:00 +0200",
+            "date" : "2026-06-12 12:00:00 +0200",
+            "qty" : 25.720000000000002,
+            "source" : "Kaloridagbok"
+          },
+          {
+            "qty" : 55.440000000000005,
+            "date" : "2026-06-12 17:00:00 +0200",
+            "source" : "Kaloridagbok"
+          },
+          {
             "source" : "Kaloridagbok",
+            "date" : "2026-06-13 00:00:00 +0200",
             "qty" : 1.6499999999999999
           },
           {
-            "date" : "2026-06-13 12:00:00 +0200",
             "qty" : 12.681230769230769,
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-13 12:00:00 +0200"
+          },
+          {
+            "qty" : 57.799999999999997,
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-13 17:00:00 +0200"
+          },
+          {
+            "date" : "2026-06-15 12:00:00 +0200",
+            "qty" : 37.881,
             "source" : "Kaloridagbok"
           },
           {
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-13 17:00:00 +0200",
-            "qty" : 57.799999999999997
-          },
-          {
-            "source" : "Kaloridagbok",
-            "qty" : 37.881,
-            "date" : "2026-06-15 12:00:00 +0200"
-          },
-          {
-            "source" : "Kaloridagbok",
             "date" : "2026-06-15 17:00:00 +0200",
+            "source" : "Kaloridagbok",
             "qty" : 54.41320142863399
           },
           {
-            "qty" : 27.266076923076923,
             "source" : "Kaloridagbok",
-            "date" : "2026-06-15 20:00:00 +0200"
+            "date" : "2026-06-15 20:00:00 +0200",
+            "qty" : 27.266076923076923
           },
           {
+            "source" : "Kaloridagbok",
             "date" : "2026-06-16 12:00:00 +0200",
-            "qty" : 8.384153846153847,
-            "source" : "Kaloridagbok"
+            "qty" : 8.384153846153847
           }
-        ]
+        ],
+        "name" : "protein"
       },
       {
         "units" : "g",
-        "name" : "dietary_sugar",
         "data" : [
           {
+            "source" : "Kaloridagbok",
             "date" : "2026-06-10 00:00:00 +0200",
-            "qty" : 20.699999999999999,
+            "qty" : 20.699999999999999
+          },
+          {
+            "date" : "2026-06-10 08:00:00 +0200",
+            "qty" : 2.7350000000000003,
+            "source" : "Kaloridagbok"
+          },
+          {
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-10 17:00:00 +0200",
+            "qty" : 7.3019999999999996
+          },
+          {
+            "qty" : 24.110500000000002,
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-11 00:00:00 +0200"
+          },
+          {
+            "qty" : 0.5,
+            "date" : "2026-06-11 08:00:00 +0200",
             "source" : "Kaloridagbok"
           },
           {
             "qty" : 2.7350000000000003,
-            "date" : "2026-06-10 08:00:00 +0200",
-            "source" : "Kaloridagbok"
-          },
-          {
-            "qty" : 7.3019999999999996,
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-10 17:00:00 +0200"
-          },
-          {
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-11 00:00:00 +0200",
-            "qty" : 24.110500000000002
-          },
-          {
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-11 08:00:00 +0200",
-            "qty" : 0.5
-          },
-          {
-            "source" : "Kaloridagbok",
             "date" : "2026-06-11 12:00:00 +0200",
-            "qty" : 2.7350000000000003
+            "source" : "Kaloridagbok"
           },
           {
+            "date" : "2026-06-11 17:00:00 +0200",
             "qty" : 14.817999999999998,
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-11 17:00:00 +0200"
+            "source" : "Kaloridagbok"
           },
           {
-            "source" : "Kaloridagbok",
             "date" : "2026-06-11 20:00:00 +0200",
-            "qty" : 3
-          },
-          {
-            "date" : "2026-06-12 08:00:00 +0200",
-            "qty" : 8.1705000000000005,
-            "source" : "Kaloridagbok"
-          },
-          {
-            "qty" : 14.088999999999999,
-            "date" : "2026-06-12 12:00:00 +0200",
+            "qty" : 3,
             "source" : "Kaloridagbok"
           },
           {
             "source" : "Kaloridagbok",
-            "date" : "2026-06-12 17:00:00 +0200",
-            "qty" : 99.280000000000001
+            "date" : "2026-06-12 08:00:00 +0200",
+            "qty" : 8.1705000000000005
+          },
+          {
+            "date" : "2026-06-12 12:00:00 +0200",
+            "qty" : 14.088999999999999,
+            "source" : "Kaloridagbok"
+          },
+          {
+            "qty" : 99.280000000000001,
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-12 17:00:00 +0200"
           },
           {
             "date" : "2026-06-13 00:00:00 +0200",
@@ -162,14 +161,15 @@
             "source" : "Kaloridagbok"
           },
           {
+            "date" : "2026-06-13 12:00:00 +0200",
             "qty" : 81.41153846153847,
-            "source" : "Kaloridagbok",
-            "date" : "2026-06-13 12:00:00 +0200"
-          },
-          {
-            "qty" : 0,
-            "date" : "2026-06-13 17:00:00 +0200",
             "source" : "Kaloridagbok"
           },
           {
-            "qty" : 1.9
+            "qty" : 0,
+            "source" : "Kaloridagbok",
+            "date" : "2026-06-13 17:00:00 +0200"
+          },
+          {
+            "source" : "Kaloridagbok",
+            "date"
