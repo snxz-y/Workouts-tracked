@@ -604,17 +604,12 @@ function renderHealth(){
           const rangeHigh=Math.min(100,Math.round((v.max||100)/cap*100));
           const inRange=vv!=null&&vv>=v.min&&vv<=v.max;
           const valColor=inRange?v.color:'#ff4d4d';
-          return\`<div class="load-row">
-            <span class="load-lbl">\${v.lbl}</span>
-            <div class="load-track">
-              <div class="load-range" style="left:\${rangeLow}%;width:\${rangeHigh-rangeLow}%"></div>
-              <div class="load-fill" style="width:\${fillPct}%;background:\${v.color};opacity:\${inRange?1:.5}"></div>
-            </div>
-            <span class="load-val" style="color:\${valColor}">\${vv!=null?vv:'—'} <span style="color:#444;font-size:10px">(\${v.min}–\${v.max})</span></span>
-          </div>\`;
-        }).join('')+\`<div class="load-focus-label">Focus: \${isToday&&d.loadFocus?d.loadFocus.replace(/_/g,' '):'—'}</div>\`;
+          return '<div class="load-row"><span class="load-lbl">'+v.lbl+'</span><div class="load-track"><div class="load-range" style="left:'+rangeLow+'%;width:'+(rangeHigh-rangeLow)+'%"></div><div class="load-fill" style="width:'+fillPct+'%;background:'+v.color+';opacity:'+(inRange?1:.5)+'"></div></div><span class="load-val" style="color:'+valColor+'">'+(vv!=null?vv:'—')+' <span style="color:#555;font-size:10px">('+v.min+'–'+v.max+')</span></span></div>';
+        }).join('')+'<div class="load-focus-label">Focus: '+(isToday&&d.loadFocus?d.loadFocus.replace(/_/g,' '):'—')+'</div>';
       })()}
     </div>
+
+    <div class="section-head">Body Composition    </div>
 
     <div class="section-head">Body Composition</div>
     <div class="stat-grid">
