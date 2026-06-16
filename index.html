@@ -880,12 +880,7 @@ function renderNutrition() {
         <div class="stat-sub">Goal: 25–38g</div>
         ${macroBar(fiber, 38, 'var(--green)')}
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Sugar</div>
-        <div class="stat-value" style="color:${(sugar||0) > 50 ? 'var(--red)' : 'var(--text)'}">${n(sugar,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
-        <div class="stat-sub">Limit: &lt;50g</div>
-        ${macroBar(sugar, 50, '#60a5fa')}
-      </div>
+
     </div>
 
     <div class="section-head">Macro Split</div>
@@ -937,16 +932,13 @@ function renderNutrition() {
         <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Fat (g)</div>
         <div style="height:120px;position:relative"><canvas id="fatChart" role="img" aria-label="Fat trend">Fat trend.</canvas></div>
       </div>
-      <div class="chart-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Sugar (g)</div>
-        <div style="height:120px;position:relative"><canvas id="sugarChart" role="img" aria-label="Sugar trend">Sugar trend.</canvas></div>
-      </div>
+
     </div>` : ''}
 
     ${rows.length > 1 ? `
     <div class="section-head">Daily Log</div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Date</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Sat Fat</th><th>Fiber</th><th>Sugar</th></tr></thead>
+      <thead><tr><th>Date</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Sat Fat</th><th>Fiber</th></tr></thead>
       <tbody>${rows.map(r => `<tr>
         <td>${r.date}</td>
         <td class="${(r.calories||0) > TARGETS.calories ? 'hi' : (r.calories||0) >= TARGETS.calories*0.9 ? 'ok' : ''}">${n(r.calories)}</td>
@@ -955,7 +947,6 @@ function renderNutrition() {
         <td class="${(r.fat||0) > TARGETS.fat ? 'hi' : ''}">${n(r.fat,1)}g</td>
         <td class="muted-cell">${n(r.saturatedFat,1)}g</td>
         <td>${n(r.fiber,1)}g</td>
-        <td class="${(r.sugar||0) > 50 ? 'hi' : ''}">${n(r.sugar,1)}g</td>
       </tr>`).join('')}</tbody>
     </table></div>` : ''}
   `;
@@ -992,7 +983,6 @@ function renderNutrition() {
       mkLine('proChart', chartRows.map(r => r.protein), '#a89ef8', TARGETS.protein);
       mkLine('carbChart', chartRows.map(r => r.carbs), 'var(--accent)', TARGETS.carbs);
       mkLine('fatChart', chartRows.map(r => r.fat), 'var(--amber)', TARGETS.fat);
-      mkLine('sugarChart', chartRows.map(r => r.sugar), '#60a5fa', 50);
     }
   }, 100);
 }
