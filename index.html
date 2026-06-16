@@ -93,10 +93,7 @@ tr:hover td{background:var(--surface2)}
 .load-range{position:absolute;top:0;height:100%;background:rgba(255,255,255,.08);border-left:1px solid rgba(255,255,255,.2);border-right:1px solid rgba(255,255,255,.2)}
 .load-val{font-size:12px;font-weight:600;text-align:right}
 .load-focus-label{font-size:11px;color:var(--amber);margin-top:10px}
-.endscore-bar{height:8px;background:var(--surface2);border-radius:4px;position:relative;margin:8px 0}
-.endscore-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#60a5fa,#c8f53a)}
-.endscore-marker{position:absolute;top:-3px;width:2px;height:14px;background:var(--text);border-radius:1px}
-.endscore-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted)}
+
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1rem}
 .chart-card canvas{display:block}
 .acwr-explain{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
@@ -361,11 +358,11 @@ function getFilteredHealth(){
 function avgg(arr,key){const v=arr.map(d=>d[key]).filter(x=>x!=null);return v.length?(v.reduce((a,b)=>a+b,0)/v.length):null;}
 function latestt(arr,key){for(const d of arr){if(d[key]!=null)return d[key];}return null;}
 
-function mkChart(id,type,labels,datasets,opts={}){
+function mkChart(id,type,labels,datasets){
   destroyChartById(id);
   const ctx=document.getElementById(id);
   if(!ctx)return;
-  chartInstances[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b6b80',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b6b80',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},...(opts.scales||{})},..( opts.rest||{})}});
+  chartInstances[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b6b80',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b6b80',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}}); 
 }
 function destroyChartById(id){if(chartInstances[id]){try{chartInstances[id].destroy();}catch(e){}delete chartInstances[id];}}
 
@@ -427,7 +424,7 @@ function renderHealth(){
         <div class="stat-label">Training Readiness</div>
         <div class="stat-value" style="color:${isToday?scoreColor(d.trainingReadiness):'var(--text)'}">${A('trainingReadiness')}</div>
         <div class="stat-sub">${isToday&&d.trainingReadinessLevel?d.trainingReadinessLevel:''}</div>
-        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${d.trainingReadinessFeedback||''}</div>`:''}
+        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${d.trainingReadinessFeedback.replace(/_/g,' ')||''}</div>`:''}
       </div>
       <div class="stat-card">
         <div class="stat-label">HRV Last Night</div>
@@ -437,9 +434,9 @@ function renderHealth(){
       </div>
       <div class="stat-card">
         <div class="stat-label">Body Battery</div>
-        <div class="stat-value" style="color:var(--accent)">${A('bbWake')}<span style="font-size:14px;color:var(--muted)"> wake</span></div>
-        <div class="stat-sub">High ${A('bbHigh')} · Low ${A('bbLow')}</div>
-        <div class="stat-sub">+${A('bbCharged')} charged · -${A('bbDrained')} drained</div>
+        <div class="stat-value" style="color:var(--accent)">${A('bbHigh')}<span style="font-size:16px;color:var(--muted)"> / ${A('bbLow')}</span></div>
+        <div class="stat-sub">High / Low</div>
+        <div class="stat-sub" style="margin-top:4px">+${A('bbCharged')} charged · -${A('bbDrained')} drained</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Recovery Time</div>
@@ -449,7 +446,6 @@ function renderHealth(){
       <div class="stat-card">
         <div class="stat-label">Avg Stress</div>
         <div class="stat-value" style="color:${isToday?scoreColor(100-d.avgStress):'var(--text)'}">${A('avgStress')}</div>
-        <div class="stat-sub">Max: ${A('maxStress')}</div>
         ${isToday&&d.avgStress!=null?`<div class="stat-badge ${stressBadge(d.avgStress)}">${d.avgStress<=25?'LOW':d.avgStress<=50?'MODERATE':'HIGH'}</div>`:''}
       </div>
       <div class="stat-card">
@@ -475,11 +471,11 @@ function renderHealth(){
       <div class="sleep-times-row">
         <div class="sleep-time-item">
           <div class="sleep-time-label">Bedtime</div>
-          <div class="sleep-time-val">${d.bedTime||'—'}</div>
+          <div class="sleep-time-val" style="color:var(--accent2)">${d.bedTime||'—'}</div>
         </div>
         <div class="sleep-time-item">
-          <div class="sleep-time-label">Wake</div>
-          <div class="sleep-time-val">${d.wakeTime||'—'}</div>
+          <div class="sleep-time-label">Wake up</div>
+          <div class="sleep-time-val" style="color:var(--accent2)">${d.wakeTime||'—'}</div>
         </div>
       </div>
       <div class="sleep-bar">
@@ -556,13 +552,7 @@ function renderHealth(){
         <div class="stat-label">Endurance Score</div>
         <div class="stat-value" style="font-size:20px">${L('enduranceScore')}</div>
         <div class="stat-sub" style="color:var(--accent2);font-weight:600">${endClass}</div>
-        <div class="endscore-bar">
-          <div class="endscore-fill" style="width:${endPct}%"></div>
-          <div class="endscore-marker" style="left:${Math.round((5100-3570)/(10560-3570)*100)}%"></div>
-          <div class="endscore-marker" style="left:${Math.round((5800-3570)/(10560-3570)*100)}%"></div>
-          <div class="endscore-marker" style="left:${Math.round((6600-3570)/(10560-3570)*100)}%"></div>
-        </div>
-        <div class="endscore-labels"><span>Beginner</span><span>Inter</span><span>Trained</span><span>Elite</span></div>
+
       </div>
       <div class="stat-card">
         <div class="stat-label">Fitness Age</div>
@@ -575,10 +565,26 @@ function renderHealth(){
         <div class="stat-sub">Acute ${A('acuteLoad')} · Chronic ${A('chronicLoad')}</div>
         <div class="acwr-explain">&lt;0.8 undertraining · 0.8–1.3 optimal · &gt;1.5 injury risk</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="grid-column:span 2">
         <div class="stat-label">Lactate Threshold</div>
-        <div class="stat-value" style="font-size:18px">${L('lactateHR')}<span style="font-size:13px;color:var(--muted)"> bpm</span></div>
-        <div class="stat-sub">Tempo zone upper limit</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:6px">
+          <div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">HR</div>
+            <div style="font-size:20px;font-weight:700">${L('lactateHR')}<span style="font-size:12px;color:var(--muted)"> bpm</span></div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Pace</div>
+            <div style="font-size:20px;font-weight:700">5:22<span style="font-size:12px;color:var(--muted)"> /km</span></div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Power</div>
+            <div style="font-size:20px;font-weight:700">297<span style="font-size:12px;color:var(--muted)"> W</span></div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">W/kg</div>
+            <div style="font-size:20px;font-weight:700">3.9<span style="font-size:12px;color:var(--muted)"> W/kg</span></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -592,20 +598,21 @@ function renderHealth(){
         ];
         const cap=700;
         return vals.map(v=>{
-          const fillPct=v.val!=null?Math.min(100,Math.round(v.val/cap*100)):0;
+          const vv=v.val!=null?Math.round(v.val):null;
+          const fillPct=vv!=null?Math.min(100,Math.round(vv/cap*100)):0;
           const rangeLow=Math.round((v.min||0)/cap*100);
           const rangeHigh=Math.min(100,Math.round((v.max||100)/cap*100));
-          const inRange=v.val>=v.min&&v.val<=v.max;
-          return`<div class="load-row">
-            <span class="load-lbl">${v.lbl}</span>
+          const inRange=vv!=null&&vv>=v.min&&vv<=v.max;
+          const valColor=inRange?v.color:'#ff4d4d';
+          return\`<div class="load-row">
+            <span class="load-lbl">\${v.lbl}</span>
             <div class="load-track">
-              <div class="load-range" style="left:${rangeLow}%;width:${rangeHigh-rangeLow}%"></div>
-              <div class="load-fill" style="width:${fillPct}%;background:${v.color};opacity:${inRange?1:.6}"></div>
+              <div class="load-range" style="left:\${rangeLow}%;width:\${rangeHigh-rangeLow}%"></div>
+              <div class="load-fill" style="width:\${fillPct}%;background:\${v.color};opacity:\${inRange?1:.5}"></div>
             </div>
-            <span class="load-val" style="color:${inRange?v.color:'var(--red)'}">${v.val!=null?Math.round(v.val):'—'}</span>
-          </div>`;
-        }).join('')+`<div class="load-focus-label">Focus: ${isToday&&d.loadFocus?d.loadFocus:'—'}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">Shaded area = target range · bar fills left to right · color = in range</div>`;
+            <span class="load-val" style="color:\${valColor}">\${vv!=null?vv:'—'} <span style="color:#444;font-size:10px">(\${v.min}–\${v.max})</span></span>
+          </div>\`;
+        }).join('')+\`<div class="load-focus-label">Focus: \${isToday&&d.loadFocus?d.loadFocus.replace(/_/g,' '):'—'}</div>\`;
       })()}
     </div>
 
@@ -689,17 +696,16 @@ function renderHealth(){
     const donut=document.getElementById('kcalDonut');
     if(donut&&activeKcal&&bmrKcal){
       destroyChartById('kcalDonut');
-      chartInstances['kcalDonut']=new Chart(donut,{type:'doughnut',data:{datasets:[{data:[activeKcal,bmrKcal],backgroundColor:['#c8f53a','#222230'],borderWidth:0,hoverOffset:0}]},options:{cutout:'72%',responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+      chartInstances['kcalDonut']=new Chart(donut,{type:'doughnut',data:{datasets:[{data:[activeKcal,bmrKcal],backgroundColor:['#c8f53a','#378ADD'],borderWidth:0,hoverOffset:0}]},options:{cutout:'72%',responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
     }
     // Body comp charts
     if(showCharts){
-      const lineOpts=(color,ymin,ymax)=>({type:'line',options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},elements:{point:{radius:3,backgroundColor:color},line:{tension:.3,borderColor:color,borderWidth:2,fill:true,backgroundColor:color+'22'}},scales:{x:{ticks:{color:'#6b6b80',font:{size:9},maxTicksLimit:6},grid:{color:'rgba(255,255,255,.04)'}},y:{min:ymin,max:ymax,ticks:{color:'#6b6b80',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}});
+
       const make=(id,data,color,ymin,ymax)=>{
         const el=document.getElementById(id);
         if(!el)return;
         destroyChartById(id);
-        const opts=lineOpts(color,ymin,ymax);
-        chartInstances[id]=new Chart(el,{...opts,data:{labels:compLabels,datasets:[{data,borderColor:color,backgroundColor:color+'22',borderWidth:2,fill:true,tension:.3,pointRadius:3,pointBackgroundColor:color}]}});
+        chartInstances[id]=new Chart(el,{type:'line',data:{labels:compLabels,datasets:[{data,borderColor:color,backgroundColor:color+'22',borderWidth:2,fill:true,tension:.3,pointRadius:3,pointBackgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y.toFixed(1)}}},elements:{},scales:{x:{ticks:{color:'#6b6b80',font:{size:9},maxTicksLimit:6},grid:{color:'rgba(255,255,255,.04)'}},y:{min:ymin,max:ymax,ticks:{color:'#6b6b80',font:{size:9},maxTicksLimit:5},grid:{color:'rgba(255,255,255,.04)'}}}}});
       };
       make('chartWeight',compRows.map(r=>r.weight),'#c8f53a',73,80);
       make('chartFat',compRows.map(r=>r.bodyFat),'#ffb020',22,28);
