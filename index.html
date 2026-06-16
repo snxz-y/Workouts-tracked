@@ -738,8 +738,11 @@ Promise.all([
   healthData=health;
   const lastDate=health.length?[...health].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'—';
   document.getElementById('last-updated').textContent='Health: '+lastDate;
-  renderActivities();
-  renderHealth();
+  try{renderActivities();}catch(e){console.error('renderActivities error:',e);}
+  try{renderHealth();}catch(e){
+    console.error('renderHealth error:',e);
+    document.getElementById('health-content').innerHTML='<div style="padding:2rem;color:#ff4d4d">Health render error: '+e.message+'</div>';
+  }
 });
 </script>
 </body>
