@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "date": "2026-06-16",
+    "calories": 1600,
+    "protein": 150,
+    "carbs": 145,
+    "fat": 51,
+    "fiber": null,
+    "sugar": null,
+    "water": null
+  }
+]
