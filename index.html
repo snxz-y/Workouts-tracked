@@ -233,19 +233,9 @@ tr:hover td{background:var(--surface2)}
   <!-- HEALTH -->
   <div id="nav-health" class="panel">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
-      <input type="date" id="health-start" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);color-scheme:dark;width:140px">
-      <span style="font-size:12px;color:var(--muted)">to</span>
-      <input type="date" id="health-end" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);color-scheme:dark;width:140px">
+      <input type="date" id="health-date" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);color-scheme:dark">
       <button onclick="applyHealthRange()" style="padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;border-radius:6px;background:var(--accent2);color:#fff">Apply</button>
-      <div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="period-tab active" onclick="setHealthPreset('today',this)">Yesterday</button>
-        <button class="period-tab" onclick="setHealthPreset('7d',this)">7D</button>
-        <button class="period-tab" onclick="setHealthPreset('14d',this)">14D</button>
-        <button class="period-tab" onclick="setHealthPreset('4w',this)">4W</button>
-        <button class="period-tab" onclick="setHealthPreset('3m',this)">3M</button>
-        <button class="period-tab" onclick="setHealthPreset('6m',this)">6M</button>
-        <button class="period-tab" onclick="setHealthPreset('all',this)">All</button>
-      </div>
+      <button class="period-tab active" id="health-yesterday-btn" onclick="setHealthPreset('today',this)">Yesterday</button>
     </div>
     <div id="health-content"></div>
   </div>
@@ -253,17 +243,9 @@ tr:hover td{background:var(--surface2)}
   <!-- NUTRITION -->
   <div id="nav-nutrition" class="panel">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
-      <input type="date" id="nutr-start" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);color-scheme:dark;width:140px">
-      <span style="font-size:12px;color:var(--muted)">to</span>
-      <input type="date" id="nutr-end" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);color-scheme:dark;width:140px">
+      <input type="date" id="nutr-date" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);color-scheme:dark">
       <button onclick="applyNutrRange()" style="padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;border-radius:6px;background:var(--accent2);color:#fff">Apply</button>
-      <div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="period-tab active" onclick="setNutrPreset('yesterday',this)">Yesterday</button>
-        <button class="period-tab" onclick="setNutrPreset('7d',this)">7D</button>
-        <button class="period-tab" onclick="setNutrPreset('14d',this)">14D</button>
-        <button class="period-tab" onclick="setNutrPreset('4w',this)">4W</button>
-        <button class="period-tab" onclick="setNutrPreset('all',this)">All</button>
-      </div>
+      <button class="period-tab active" id="nutr-yesterday-btn" onclick="setNutrPreset('yesterday',this)">Yesterday</button>
     </div>
     <div id="nutrition-content"></div>
   </div>
@@ -427,16 +409,16 @@ function initHealthDates(){
   const latest=sorted[0].date;
   healthEndDate=latest;
   healthSingleDay=true;
-  document.getElementById('health-end').value=latest;
-  document.getElementById('health-start').value=latest;
+  document.getElementById('health-date').value=latest;
+  
 }
 
 function applyHealthRange(){
-  const start=document.getElementById('health-start').value;
-  const end=document.getElementById('health-end').value;
-  if(!start||!end)return;
-  healthStartDate=start;
-  healthEndDate=end;
+  const d=document.getElementById('health-date').value;
+  if(!d)return;
+  healthStartDate=d;
+  healthEndDate=d;
+  healthSingleDay=true;
   healthSingleDay=start===end;
   document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
   renderHealth();
@@ -449,12 +431,12 @@ function setHealthPreset(p,el){
   const ref=new Date(latest);
   if(p==='today'){
     healthStartDate=latest;healthEndDate=latest;healthSingleDay=true;
-    document.getElementById('health-start').value=latest;
-    document.getElementById('health-end').value=latest;
+    
+    document.getElementById('health-date').value=latest;
   } else {
     healthSingleDay=false;
     healthEndDate=latest;
-    document.getElementById('health-end').value=latest;
+    document.getElementById('health-date').value=latest;
     if(p==='7d')ref.setDate(ref.getDate()-7);
     else if(p==='14d')ref.setDate(ref.getDate()-14);
     else if(p==='4w')ref.setDate(ref.getDate()-28);
