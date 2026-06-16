@@ -552,9 +552,7 @@ function renderHealth(){
   const showCharts=!isToday&&compRows.length>1;
 
   document.getElementById('health-content').innerHTML=`
-    <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem">${periodLabel}</div>
-
-    <div class="section-head">Recovery & Readiness</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem"><div class="section-head">Recovery & Readiness</div>
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Training Readiness</div>
@@ -1231,8 +1229,6 @@ function renderNutrition() {
   const chartLabels = chartRows.map(r => { const p=r.date.split('-'); return p[2]+'/'+p[1]; });
 
   document.getElementById('nutrition-content').innerHTML = `
-    <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem">${periodLabel}${!isToday ? ' (daily averages)' : ''}</div>
-
     <div class="section-head">Calories</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem">
       <div style="display:flex;align-items:flex-end;gap:1rem;margin-bottom:12px">
