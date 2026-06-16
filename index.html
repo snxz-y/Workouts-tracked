@@ -238,7 +238,7 @@ tr:hover td{background:var(--surface2)}
       <input type="date" id="health-end" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text)">
       <button onclick="applyHealthRange()" style="padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;border-radius:6px;background:var(--accent2);color:#fff">Apply</button>
       <div style="display:flex;gap:4px;flex-wrap:wrap">
-        <button class="period-tab active" onclick="setHealthPreset('today',this)">Today</button>
+        <button class="period-tab active" onclick="setHealthPreset('today',this)">Yesterday</button>
         <button class="period-tab" onclick="setHealthPreset('7d',this)">7D</button>
         <button class="period-tab" onclick="setHealthPreset('14d',this)">14D</button>
         <button class="period-tab" onclick="setHealthPreset('4w',this)">4W</button>
@@ -252,13 +252,18 @@ tr:hover td{background:var(--surface2)}
 
   <!-- NUTRITION -->
   <div id="nav-nutrition" class="panel">
-    <div class="period-tabs">
-      <button class="period-tab active" onclick="setNutrPeriod('today',this)">Today</button>
-      <button class="period-tab" onclick="setNutrPeriod('7d',this)">7D</button>
-      <button class="period-tab" onclick="setNutrPeriod('14d',this)">14D</button>
-      <button class="period-tab" onclick="setNutrPeriod('4w',this)">4W</button>
-      <button class="period-tab" onclick="setNutrPeriod('3m',this)">3M</button>
-      <button class="period-tab" onclick="setNutrPeriod('all',this)">All</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
+      <input type="date" id="nutr-start" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text)">
+      <span style="font-size:12px;color:var(--muted)">to</span>
+      <input type="date" id="nutr-end" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text)">
+      <button onclick="applyNutrRange()" style="padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;border-radius:6px;background:var(--accent2);color:#fff">Apply</button>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="period-tab active" onclick="setNutrPreset('yesterday',this)">Yesterday</button>
+        <button class="period-tab" onclick="setNutrPreset('7d',this)">7D</button>
+        <button class="period-tab" onclick="setNutrPreset('14d',this)">14D</button>
+        <button class="period-tab" onclick="setNutrPreset('4w',this)">4W</button>
+        <button class="period-tab" onclick="setNutrPreset('all',this)">All</button>
+      </div>
     </div>
     <div id="nutrition-content"></div>
   </div>
@@ -842,6 +847,56 @@ function initReviewDates() {
   document.getElementById('review-start').value = start;
 }
 
+let nutrStartDate = null;
+let nutrEndDate = null;
+let nutrSingleDay = true;
+
+function initNutrDates() {
+  if (!nutritionData.length) return;
+  const sorted = [...nutritionData].sort((a,b) => b.date.localeCompare(a.date));
+  const latest = sorted[0].date;
+  nutrEndDate = latest;
+  nutrStartDate = latest;
+  nutrSingleDay = true;
+  document.getElementById('nutr-end').value = latest;
+  document.getElementById('nutr-start').value = latest;
+}
+
+function applyNutrRange() {
+  const start = document.getElementById('nutr-start').value;
+  const end = document.getElementById('nutr-end').value;
+  if (!start || !end) return;
+  nutrStartDate = start;
+  nutrEndDate = end;
+  nutrSingleDay = start === end;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  renderNutrition();
+}
+
+function setNutrPreset(p, el) {
+  if (!nutritionData.length) return;
+  const sorted = [...nutritionData].sort((a,b) => b.date.localeCompare(a.date));
+  const latest = sorted[0].date;
+  const ref = new Date(latest);
+  nutrEndDate = latest;
+  document.getElementById('nutr-end').value = latest;
+  if (p === 'yesterday') {
+    nutrStartDate = latest; nutrEndDate = latest; nutrSingleDay = true;
+    document.getElementById('nutr-start').value = latest;
+  } else {
+    nutrSingleDay = false;
+    if (p === '7d') ref.setDate(ref.getDate()-7);
+    else if (p === '14d') ref.setDate(ref.getDate()-14);
+    else if (p === '4w') ref.setDate(ref.getDate()-28);
+    else if (p === 'all') { nutrStartDate = sorted[sorted.length-1].date; document.getElementById('nutr-start').value = nutrStartDate; renderNutrition(); document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active')); if(el)el.classList.add('active'); return; }
+    nutrStartDate = ref.toISOString().slice(0,10);
+    document.getElementById('nutr-start').value = nutrStartDate;
+  }
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderNutrition();
+}
+
 function renderReviewHistory() {
   const el = document.getElementById('review-history');
   if (!reviewsData.length) { el.innerHTML = ''; return; }
@@ -998,21 +1053,13 @@ const TARGETS = { calories: 1600, protein: 150, carbs: 145, fat: 51 };
 function getFilteredNutr() {
   if (!nutritionData.length) return [];
   const sorted = [...nutritionData].sort((a,b) => b.date.localeCompare(a.date));
-  const latest = sorted[0].date;
-  const cutoff = p => {
-    const ref = new Date(latest);
-    if (p === 'today') return latest;
-    if (p === '7d') ref.setDate(ref.getDate()-7);
-    else if (p === '14d') ref.setDate(ref.getDate()-14);
-    else if (p === '4w') ref.setDate(ref.getDate()-28);
-    else if (p === '3m') ref.setMonth(ref.getMonth()-3);
-    else return null;
-    return ref.toISOString().slice(0,10);
-  };
-  const c = cutoff(currentNutrPeriod);
-  if (!c) return sorted;
-  if (currentNutrPeriod === 'today') return sorted.filter(d => d.date === c);
-  return sorted.filter(d => d.date >= c);
+  if (nutrSingleDay) {
+    const d = nutrEndDate || sorted[0].date;
+    return sorted.filter(n => n.date === d);
+  }
+  const start = nutrStartDate || sorted[sorted.length-1].date;
+  const end = nutrEndDate || sorted[0].date;
+  return sorted.filter(n => n.date >= start && n.date <= end);
 }
 
 function nutrAvg(arr, key) {
@@ -1034,7 +1081,7 @@ function renderNutrition() {
     document.getElementById('nutrition-content').innerHTML = '<div style="padding:3rem;text-align:center;color:var(--muted)">No nutrition data yet.</div>';
     return;
   }
-  const isToday = currentNutrPeriod === 'today';
+  const isToday = nutrSingleDay;
   const d = rows[0];
 
   const cal = isToday ? d.calories : nutrAvg(rows, 'calories');
@@ -1189,6 +1236,18 @@ function renderNutrition() {
         data: { datasets: [{ data: [proKcal, carbKcal, fatKcal], backgroundColor: ['#a89ef8','#c8f53a','#ffb020'], borderWidth: 0 }] },
         options: { cutout: '65%', responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
       });
+      const goalPie = document.getElementById('macroPieGoal');
+      if (goalPie) {
+        destroyChartById('macroPieGoal');
+        const goalProKcal = TARGETS.protein * 4;
+        const goalCarbKcal = TARGETS.carbs * 4;
+        const goalFatKcal = TARGETS.fat * 9;
+        chartInstances['macroPieGoal'] = new Chart(goalPie, {
+          type: 'doughnut',
+          data: { datasets: [{ data: [goalProKcal, goalCarbKcal, goalFatKcal], backgroundColor: ['#a89ef844','#c8f53a44','#ffb02044'], borderColor: ['#a89ef8','#c8f53a','#ffb020'], borderWidth: 2 }] },
+          options: { cutout: '65%', responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+        });
+      }
     }
 
     if (showCharts) {
@@ -1215,12 +1274,7 @@ function renderNutrition() {
   }, 100);
 }
 
-function setNutrPeriod(p, el) {
-  currentNutrPeriod = p;
-  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderNutrition();
-}
+// setNutrPeriod replaced by setNutrPreset
 
 Promise.all([
   fetch(ACT_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
@@ -1234,6 +1288,7 @@ Promise.all([
   reviewsData=revs;
   initReviewDates();
   initHealthDates();
+  initNutrDates();
   renderReviewHistory();
   const lastDate=health.length?[...health].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'—';
   document.getElementById('last-updated').textContent='Health: '+lastDate;
