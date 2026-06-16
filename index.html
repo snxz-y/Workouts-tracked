@@ -471,11 +471,11 @@ function renderHealth(){
       <div class="sleep-times-row">
         <div class="sleep-time-item">
           <div class="sleep-time-label">Bedtime</div>
-          <div class="sleep-time-val" style="color:var(--accent2)">${d.bedTime||'—'}</div>
+          <div class="sleep-time-val" style="color:var(--accent2);font-size:22px">${d.bedTime||'no data'}</div>
         </div>
         <div class="sleep-time-item">
           <div class="sleep-time-label">Wake up</div>
-          <div class="sleep-time-val" style="color:var(--accent2)">${d.wakeTime||'—'}</div>
+          <div class="sleep-time-val" style="color:var(--accent2);font-size:22px">${d.wakeTime||'no data'}</div>
         </div>
       </div>
       <div class="sleep-bar">
@@ -521,9 +521,9 @@ function renderHealth(){
               <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Active kcal</div>
             </div>
             <div>
-              <div style="font-size:22px;font-weight:700;letter-spacing:-.5px">${totalKcal!=null?totalKcal.toLocaleString():'—'}</div>
+              <div style="font-size:22px;font-weight:700;letter-spacing:-.5px;color:#378ADD">${totalKcal!=null?totalKcal.toLocaleString():'—'}</div>
               <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Total kcal</div>
-              ${activePct!=null?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${activePct}% from activity</div>`:''}
+              ${activePct!=null?`<div style="font-size:13px;font-weight:700;color:var(--accent);margin-top:4px">${activePct}% <span style="font-size:10px;font-weight:400;color:var(--muted)">from activity</span></div>`:''}
             </div>
           </div>
         </div>
@@ -592,9 +592,9 @@ function renderHealth(){
     <div class="load-section">
       ${(()=>{
         const vals=[
-          {lbl:'Aerobic Low',val:isToday?d.aerobicLowLoad:avgg(rows,'aerobicLowLoad'),min:isToday?d.aerobicLowMin:130,max:isToday?d.aerobicLowMax:342,color:'#60a5fa'},
-          {lbl:'Aerobic High',val:isToday?d.aerobicHighLoad:avgg(rows,'aerobicHighLoad'),min:isToday?d.aerobicHighMin:256,max:isToday?d.aerobicHighMax:467,color:'#c8f53a'},
-          {lbl:'Anaerobic',val:isToday?d.anaerobicLoad:avgg(rows,'anaerobicLoad'),min:isToday?d.anaerobicMin:0,max:isToday?d.anaerobicMax:211,color:'#f87171'}
+          {lbl:'Aerobic Low',val:isToday?d.aerobicLowLoad:avgg(rows,'aerobicLowLoad'),min:130,max:342,color:'#60a5fa'},
+          {lbl:'Aerobic High',val:isToday?d.aerobicHighLoad:avgg(rows,'aerobicHighLoad'),min:256,max:467,color:'#c8f53a'},
+          {lbl:'Anaerobic',val:isToday?d.anaerobicLoad:avgg(rows,'anaerobicLoad'),min:0,max:211,color:'#f87171'}
         ];
         const cap=700;
         return vals.map(v=>{
@@ -608,8 +608,6 @@ function renderHealth(){
         }).join('')+'<div class="load-focus-label">Focus: '+(isToday&&d.loadFocus?d.loadFocus.replace(/_/g,' '):'—')+'</div>';
       })()}
     </div>
-
-    <div class="section-head">Body Composition    </div>
 
     <div class="section-head">Body Composition</div>
     <div class="stat-grid">
