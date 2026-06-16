@@ -110,6 +110,7 @@ tr:hover td{background:var(--surface2)}
   <div class="nav-inner">
     <button class="nav-tab active" onclick="showNav('activities',this)">Activities</button>
     <button class="nav-tab" onclick="showNav('health',this)">Health</button>
+    <button class="nav-tab" onclick="showNav('nutrition',this)">Nutrition</button>
   </div>
 </div>
 <div class="content">
@@ -241,6 +242,19 @@ tr:hover td{background:var(--surface2)}
       <button class="period-tab" onclick="setPeriod('all',this)">All</button>
     </div>
     <div id="health-content"></div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div id="nav-nutrition" class="panel">
+    <div class="period-tabs">
+      <button class="period-tab active" onclick="setNutrPeriod('today',this)">Today</button>
+      <button class="period-tab" onclick="setNutrPeriod('7d',this)">7D</button>
+      <button class="period-tab" onclick="setNutrPeriod('14d',this)">14D</button>
+      <button class="period-tab" onclick="setNutrPeriod('4w',this)">4W</button>
+      <button class="period-tab" onclick="setNutrPeriod('3m',this)">3M</button>
+      <button class="period-tab" onclick="setNutrPeriod('all',this)">All</button>
+    </div>
+    <div id="nutrition-content"></div>
   </div>
 </div>
 
@@ -726,6 +740,7 @@ function renderHealth(){
 }
 
 function showNav(id,el){
+  if(id==='nutrition'){renderNutrition();}
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('nav-'+id).classList.add('active');
@@ -744,12 +759,259 @@ function setPeriod(p,el){
   renderHealth();
 }
 
+
+// ── NUTRITION ─────────────────────────────────────────────────────────────────
+const NUTR_URL = 'https://raw.githubusercontent.com/snxz-y/Workouts-tracked/main/nutrition.json';
+let nutritionData = [];
+let currentNutrPeriod = 'today';
+
+const TARGETS = { calories: 1600, protein: 150, carbs: 145, fat: 51 };
+
+function getFilteredNutr() {
+  if (!nutritionData.length) return [];
+  const sorted = [...nutritionData].sort((a,b) => b.date.localeCompare(a.date));
+  const latest = sorted[0].date;
+  const cutoff = p => {
+    const ref = new Date(latest);
+    if (p === 'today') return latest;
+    if (p === '7d') ref.setDate(ref.getDate()-7);
+    else if (p === '14d') ref.setDate(ref.getDate()-14);
+    else if (p === '4w') ref.setDate(ref.getDate()-28);
+    else if (p === '3m') ref.setMonth(ref.getMonth()-3);
+    else return null;
+    return ref.toISOString().slice(0,10);
+  };
+  const c = cutoff(currentNutrPeriod);
+  if (!c) return sorted;
+  if (currentNutrPeriod === 'today') return sorted.filter(d => d.date === c);
+  return sorted.filter(d => d.date >= c);
+}
+
+function nutrAvg(arr, key) {
+  const vals = arr.map(d => d[key]).filter(v => v != null);
+  return vals.length ? Math.round(vals.reduce((a,b) => a+b, 0) / vals.length * 10) / 10 : null;
+}
+
+function macroBar(val, target, color) {
+  const pct = target ? Math.min(100, Math.round((val||0) / target * 100)) : 0;
+  const over = val > target;
+  return '<div style="height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:6px">' +
+    '<div style="height:100%;width:' + pct + '%;background:' + (over ? '#ff4d4d' : color) + ';border-radius:4px;transition:width .3s"></div></div>';
+}
+
+function renderNutrition() {
+  destroyCharts();
+  const rows = getFilteredNutr();
+  if (!rows.length) {
+    document.getElementById('nutrition-content').innerHTML = '<div style="padding:3rem;text-align:center;color:var(--muted)">No nutrition data yet.</div>';
+    return;
+  }
+  const isToday = currentNutrPeriod === 'today';
+  const d = rows[0];
+
+  const cal = isToday ? d.calories : nutrAvg(rows, 'calories');
+  const pro = isToday ? d.protein : nutrAvg(rows, 'protein');
+  const carb = isToday ? d.carbs : nutrAvg(rows, 'carbs');
+  const fat = isToday ? d.fat : nutrAvg(rows, 'fat');
+  const satFat = isToday ? d.saturatedFat : nutrAvg(rows, 'saturatedFat');
+  const fiber = isToday ? d.fiber : nutrAvg(rows, 'fiber');
+  const sugar = isToday ? d.sugar : nutrAvg(rows, 'sugar');
+
+  const n = (v, dec=0) => v != null ? (dec ? v.toFixed(dec) : Math.round(v)) : '—';
+  const pctOf = (v, t) => v != null && t ? Math.round(v/t*100) : null;
+  const calPct = pctOf(cal, TARGETS.calories);
+  const proPct = pctOf(pro, TARGETS.protein);
+  const carbPct = pctOf(carb, TARGETS.carbs);
+  const fatPct = pctOf(fat, TARGETS.fat);
+
+  const periodLabel = isToday ? 'Latest: ' + d.date : rows.length + ' days · ' + rows[rows.length-1].date + ' to ' + rows[0].date;
+
+  // Macro split: protein=4kcal/g, carbs=4kcal/g, fat=9kcal/g
+  const proKcal = (pro||0) * 4;
+  const carbKcal = (carb||0) * 4;
+  const fatKcal = (fat||0) * 9;
+  const totalMacroKcal = proKcal + carbKcal + fatKcal;
+
+  const showCharts = !isToday && rows.length > 1;
+  const chartRows = [...rows].filter(r => r.calories != null).sort((a,b) => a.date.localeCompare(b.date));
+  const chartLabels = chartRows.map(r => r.date.slice(5));
+
+  document.getElementById('nutrition-content').innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem">${periodLabel}${!isToday ? ' (daily averages)' : ''}</div>
+
+    <div class="section-head">Calories</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem">
+      <div style="display:flex;align-items:flex-end;gap:1rem;margin-bottom:12px">
+        <div>
+          <div style="font-size:48px;font-weight:700;letter-spacing:-2px;line-height:1;color:${cal > TARGETS.calories ? 'var(--red)' : 'var(--accent)'}">${n(cal)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">kcal${!isToday ? ' avg/day' : ''}</div>
+        </div>
+        <div style="font-size:14px;color:var(--muted);padding-bottom:6px">/ ${TARGETS.calories} target</div>
+        ${calPct != null ? `<div style="font-size:20px;font-weight:700;color:${cal > TARGETS.calories ? 'var(--red)' : 'var(--green)'};padding-bottom:6px">${calPct}%</div>` : ''}
+      </div>
+      <div style="height:10px;background:var(--surface2);border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:${Math.min(100, calPct||0)}%;background:${(cal||0) > TARGETS.calories ? '#ff4d4d' : 'var(--accent)'};border-radius:5px"></div>
+      </div>
+    </div>
+
+    <div class="section-head">Macros</div>
+    <div class="stat-grid" style="margin-bottom:1.5rem">
+      <div class="stat-card">
+        <div class="stat-label">Protein</div>
+        <div class="stat-value" style="color:#a89ef8">${n(pro,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
+        <div class="stat-sub">Target: ${TARGETS.protein}g · ${proPct != null ? proPct + '%' : '—'}</div>
+        ${macroBar(pro, TARGETS.protein, '#a89ef8')}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Carbohydrates</div>
+        <div class="stat-value" style="color:var(--accent)">${n(carb,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
+        <div class="stat-sub">Target: ${TARGETS.carbs}g · ${carbPct != null ? carbPct + '%' : '—'}</div>
+        ${macroBar(carb, TARGETS.carbs, 'var(--accent)')}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fat</div>
+        <div class="stat-value" style="color:var(--amber)">${n(fat,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
+        <div class="stat-sub">Target: ${TARGETS.fat}g · ${fatPct != null ? fatPct + '%' : '—'} · Sat: ${n(satFat,1)}g</div>
+        ${macroBar(fat, TARGETS.fat, 'var(--amber)')}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fiber</div>
+        <div class="stat-value" style="color:var(--green)">${n(fiber,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
+        <div class="stat-sub">Goal: 25–38g</div>
+        ${macroBar(fiber, 38, 'var(--green)')}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Sugar</div>
+        <div class="stat-value" style="color:${(sugar||0) > 50 ? 'var(--red)' : 'var(--text)'}">${n(sugar,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
+        <div class="stat-sub">Limit: &lt;50g</div>
+        ${macroBar(sugar, 50, '#60a5fa')}
+      </div>
+    </div>
+
+    <div class="section-head">Macro Split</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem;display:flex;align-items:center;gap:24px">
+      <div style="position:relative;width:120px;height:120px;flex-shrink:0">
+        <canvas id="macroPie" width="120" height="120" role="img" aria-label="Macro calorie split pie chart">Macro split: protein, carbs, fat.</canvas>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#a89ef8;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px;font-weight:600">Protein ${totalMacroKcal ? Math.round(proKcal/totalMacroKcal*100) : 0}%</div>
+            <div style="font-size:11px;color:var(--muted)">${n(pro,1)}g · ${Math.round(proKcal)} kcal</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#c8f53a;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px;font-weight:600">Carbs ${totalMacroKcal ? Math.round(carbKcal/totalMacroKcal*100) : 0}%</div>
+            <div style="font-size:11px;color:var(--muted)">${n(carb,1)}g · ${Math.round(carbKcal)} kcal</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#ffb020;flex-shrink:0"></div>
+          <div>
+            <div style="font-size:13px;font-weight:600">Fat ${totalMacroKcal ? Math.round(fatKcal/totalMacroKcal*100) : 0}%</div>
+            <div style="font-size:11px;color:var(--muted)">${n(fat,1)}g · ${Math.round(fatKcal)} kcal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${showCharts ? `
+    <div class="section-head">Trends</div>
+    <div class="chart-card" style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Calories per day</div>
+      <div style="height:160px;position:relative"><canvas id="calChart" role="img" aria-label="Daily calorie trend">Calorie trend.</canvas></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem">
+      <div class="chart-card">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Protein (g)</div>
+        <div style="height:120px;position:relative"><canvas id="proChart" role="img" aria-label="Protein trend">Protein trend.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Carbs (g)</div>
+        <div style="height:120px;position:relative"><canvas id="carbChart" role="img" aria-label="Carb trend">Carb trend.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Fat (g)</div>
+        <div style="height:120px;position:relative"><canvas id="fatChart" role="img" aria-label="Fat trend">Fat trend.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Sugar (g)</div>
+        <div style="height:120px;position:relative"><canvas id="sugarChart" role="img" aria-label="Sugar trend">Sugar trend.</canvas></div>
+      </div>
+    </div>` : ''}
+
+    ${rows.length > 1 ? `
+    <div class="section-head">Daily Log</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Sat Fat</th><th>Fiber</th><th>Sugar</th></tr></thead>
+      <tbody>${rows.map(r => `<tr>
+        <td>${r.date}</td>
+        <td class="${(r.calories||0) > TARGETS.calories ? 'hi' : (r.calories||0) >= TARGETS.calories*0.9 ? 'ok' : ''}">${n(r.calories)}</td>
+        <td class="${(r.protein||0) >= TARGETS.protein ? 'ok' : (r.protein||0) >= TARGETS.protein*0.8 ? '' : 'hi'}">${n(r.protein,1)}g</td>
+        <td class="${(r.carbs||0) > TARGETS.carbs ? 'hi' : ''}">${n(r.carbs,1)}g</td>
+        <td class="${(r.fat||0) > TARGETS.fat ? 'hi' : ''}">${n(r.fat,1)}g</td>
+        <td class="muted-cell">${n(r.saturatedFat,1)}g</td>
+        <td>${n(r.fiber,1)}g</td>
+        <td class="${(r.sugar||0) > 50 ? 'hi' : ''}">${n(r.sugar,1)}g</td>
+      </tr>`).join('')}</tbody>
+    </table></div>` : ''}
+  `;
+
+  // Macro pie chart
+  setTimeout(() => {
+    const pie = document.getElementById('macroPie');
+    if (pie && totalMacroKcal > 0) {
+      destroyChartById('macroPie');
+      chartInstances['macroPie'] = new Chart(pie, {
+        type: 'doughnut',
+        data: { datasets: [{ data: [proKcal, carbKcal, fatKcal], backgroundColor: ['#a89ef8','#c8f53a','#ffb020'], borderWidth: 0 }] },
+        options: { cutout: '65%', responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+      });
+    }
+
+    if (showCharts) {
+      const mkLine = (id, data, color, target) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        destroyChartById(id);
+        const datasets = [{ data, borderColor: color, backgroundColor: color+'22', borderWidth: 2, fill: true, tension: .3, pointRadius: 3, pointBackgroundColor: color }];
+        if (target) datasets.push({ data: chartLabels.map(() => target), borderColor: 'rgba(255,255,255,.2)', borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false });
+        chartInstances[id] = new Chart(el, {
+          type: 'line',
+          data: { labels: chartLabels, datasets },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
+            x: { ticks: { color: '#6b6b80', font: { size: 9 }, maxTicksLimit: 6 }, grid: { color: 'rgba(255,255,255,.04)' } },
+            y: { ticks: { color: '#6b6b80', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.04)' } }
+          }}
+        });
+      };
+      mkLine('calChart', chartRows.map(r => r.calories), 'var(--accent)', TARGETS.calories);
+      mkLine('proChart', chartRows.map(r => r.protein), '#a89ef8', TARGETS.protein);
+      mkLine('carbChart', chartRows.map(r => r.carbs), 'var(--accent)', TARGETS.carbs);
+      mkLine('fatChart', chartRows.map(r => r.fat), 'var(--amber)', TARGETS.fat);
+      mkLine('sugarChart', chartRows.map(r => r.sugar), '#60a5fa', 50);
+    }
+  }, 100);
+}
+
+function setNutrPeriod(p, el) {
+  currentNutrPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderNutrition();
+}
+
 Promise.all([
   fetch(ACT_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
-  fetch(HEALTH_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[])
-]).then(([acts,health])=>{
+  fetch(HEALTH_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
+  fetch(NUTR_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[])
+]).then(([acts,health,nutr])=>{
   activities=acts;
   healthData=health;
+  nutritionData=nutr;
   const lastDate=health.length?[...health].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'—';
   document.getElementById('last-updated').textContent='Health: '+lastDate;
   try{renderActivities();}catch(e){console.error('renderActivities error:',e);}
@@ -757,6 +1019,7 @@ Promise.all([
     console.error('renderHealth error:',e);
     document.getElementById('health-content').innerHTML='<div style="padding:2rem;color:#ff4d4d">Health render error: '+e.message+'</div>';
   }
+  try{renderNutrition();}catch(e){console.error('renderNutrition error:',e);}
 });
 </script>
 </body>
