@@ -522,17 +522,28 @@ function renderHealth(){
   const readinessFeedback=t=>{
     if(!t)return'';
     const map={
+      // Recovery time + sleep combinations
       'LOW_RT_MOD_OR_LOW_SS_POOR':'Below-baseline recovery and poor sleep',
-      'LOW_SS_POOR':'Poor sleep score',
-      'LOW_RT_MOD':'Recovery metrics below baseline',
+      'LOW_RT_MOD_OR_LOW_SS_MOD':'Below-baseline recovery and moderate sleep',
+      'LOW_RT_MOD_OR_LOW_SS_MOD_ACWR_NEG':'Below-baseline recovery, moderate sleep, high training load',
+      'LOW_RT_MOD_OR_LOW_SS_MOD_SLEEP_HISTORY_NEG':'Below-baseline recovery, moderate sleep, poor sleep history',
+      'LOW_RT_HIGH_SS_GOOD_OR_MOD':'High recovery needs despite good sleep',
+      'LOW_RT_HIGH_SS':'High recovery needs despite good sleep',
+      'LOW_RT_MOD_SS':'Below-baseline recovery, moderate sleep',
+      'MOD_RT_LOW_SS_MOD_ACWR_NEG':'Moderate recovery, moderate sleep, high training load',
+      'MOD_RT_LOW_SS_MOD_SLEEP_HISTORY_NEG':'Moderate recovery, moderate sleep, poor sleep history',
+      'MOD_RT_LOW_SS_UNKNOWN_SLEEP_HISTORY_NEG':'Moderate recovery, sleep data pending, poor sleep history',
+      'MOD_RT_MOD_OR_LOW_SS_POOR':'Moderate recovery but poor sleep',
+      'MOD_RT_MOD_OR_LOW_SS_GOOD_SLEEP_HISTORY_NEG':'Moderate recovery and sleep, poor sleep history',
+      'MOD_RT_MOD_SS_UNKNOWN':'Recovery in progress, sleep data pending',
+      'HIGH_RT_AVAILABLE_SS_UNKNOWN':'Well recovered, sleep data pending',
       'HIGH_RT_HIGH_SS':'Strong recovery and great sleep',
       'HIGH_RT_MOD_SS':'Good recovery and decent sleep',
-      'LOW_RT_HIGH_SS':'Below-baseline recovery despite good sleep',
       'HIGH_RT_LOW_SS':'Good recovery metrics but poor sleep',
-      'HIGH_HRV_STATUS_HIGH_TRAINING_READINESS':'Great HRV and high readiness',
-      'HIGH_HRV_STATUS_MOD_TRAINING_READINESS':'Good HRV, moderate readiness',
-      'LOW_HRV_STATUS_LOW_TRAINING_READINESS':'Low HRV and low readiness',
-      'LOW_HRV_STATUS_MOD_TRAINING_READINESS':'Low HRV, moderate readiness',
+      // Simple
+      'LOW_SS_POOR':'Poor sleep score',
+      'LOW_RT_MOD':'Recovery metrics below baseline',
+      'UNKNOWN':'Data unavailable',
     };
     const key=t.replace(/ /g,'_').toUpperCase();
     return map[key]||(t.replace(/_/g,' ').charAt(0).toUpperCase()+t.replace(/_/g,' ').slice(1).toLowerCase());
