@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-06-17",
+    "calories": 82,
+    "protein": 7.2,
+    "carbs": 0.2,
+    "fat": 5.9,
+    "saturatedFat": 1.7,
+    "fiber": 0,
+    "sugar": 0.2,
+    "water": null
+  },
+  {
     "date": "2026-06-16",
     "calories": 1384.8,
     "protein": 121.2,
@@ -63,6 +74,105 @@
     "saturatedFat": 3.9,
     "fiber": 44.2,
     "sugar": 30.7,
+    "water": null
+  },
+  {
+    "date": "2026-06-09",
+    "calories": 1820.1,
+    "protein": 138.3,
+    "carbs": 103.8,
+    "fat": 89.5,
+    "saturatedFat": 17.3,
+    "fiber": 23.9,
+    "sugar": 31.6,
+    "water": null
+  },
+  {
+    "date": "2026-06-08",
+    "calories": 1684.9,
+    "protein": 161,
+    "carbs": 133.9,
+    "fat": 52.3,
+    "saturatedFat": 13.5,
+    "fiber": 19.7,
+    "sugar": 40.1,
+    "water": null
+  },
+  {
+    "date": "2026-06-07",
+    "calories": 1380.8,
+    "protein": 150.6,
+    "carbs": 110.3,
+    "fat": 33.7,
+    "saturatedFat": 7.9,
+    "fiber": 16.8,
+    "sugar": 13,
+    "water": null
+  },
+  {
+    "date": "2026-06-06",
+    "calories": 2264,
+    "protein": 134.8,
+    "carbs": 239.8,
+    "fat": 83.3,
+    "saturatedFat": 28.3,
+    "fiber": 9.4,
+    "sugar": 64.4,
+    "water": null
+  },
+  {
+    "date": "2026-06-05",
+    "calories": 1798.9,
+    "protein": 152.1,
+    "carbs": 169.8,
+    "fat": 53.4,
+    "saturatedFat": 16.3,
+    "fiber": 12.9,
+    "sugar": 99.8,
+    "water": null
+  },
+  {
+    "date": "2026-06-04",
+    "calories": 1624.9,
+    "protein": 124,
+    "carbs": 140.1,
+    "fat": 60.4,
+    "saturatedFat": 13,
+    "fiber": 9.8,
+    "sugar": 17.6,
+    "water": null
+  },
+  {
+    "date": "2026-06-03",
+    "calories": 1537.9,
+    "protein": 181.4,
+    "carbs": 97.3,
+    "fat": 43.8,
+    "saturatedFat": 8.6,
+    "fiber": 12.9,
+    "sugar": 66.7,
+    "water": null
+  },
+  {
+    "date": "2026-06-02",
+    "calories": 1386.2,
+    "protein": 122.7,
+    "carbs": 111.3,
+    "fat": 46,
+    "saturatedFat": 11.6,
+    "fiber": 15.4,
+    "sugar": 59.4,
+    "water": null
+  },
+  {
+    "date": "2026-06-01",
+    "calories": 1044.8,
+    "protein": 88.9,
+    "carbs": 84.5,
+    "fat": 29.6,
+    "saturatedFat": 6.9,
+    "fiber": 12.5,
+    "sugar": 22.8,
     "water": null
   }
 ]
