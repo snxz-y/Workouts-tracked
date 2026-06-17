@@ -1031,24 +1031,14 @@ async function generateReview() {
   };
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://nutrition-reciever.margidowiggen.workers.dev/generate-review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
-        system: `You are a personal health and training coach reviewing Jørgen's week. Jørgen is 28, 171cm, goal weight 65kg. He is a shift nurse in Trondheim, Norway. He quit Zyn (nicotine pouches) on June 5 2026. His HR zones: Z1 104-124, Z2 125-145, Z3 146-165, Z4 166-186, Z5 187+. Zone 2 target for easy runs. Daily targets: 1600 kcal, 150g protein, 145g carbs, 51g fat. Write a warm, direct, insightful weekly review in English. Be specific with the numbers. Use sections with emoji headers. Keep it motivating but honest. Format: plain text, no markdown bold, use line breaks between sections.`,
-        messages: [{
-          role: 'user',
-          content: `Please write my weekly review based on this data:
-
-${JSON.stringify(weekSummary, null, 2)}`
-        }]
-      })
+      body: JSON.stringify(weekSummary)
     });
 
     const data = await response.json();
-    const reviewText = data.content?.[0]?.text || 'Could not generate review.';
+    const reviewText = data.text || data.error || 'Could not generate review.';
 
     const reviewObj = {
       date: new Date().toISOString().slice(0,10),
