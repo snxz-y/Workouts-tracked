@@ -965,13 +965,16 @@ function renderReviewHistory() {
   if (!reviewsData.length) { el.innerHTML = ''; return; }
   const sorted = [...reviewsData].sort((a,b) => b.date.localeCompare(a.date));
   el.innerHTML = '<div class="section-head" style="margin-top:1.5rem">Past Reviews</div>' +
-    sorted.map(r => `
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:12px;font-weight:600;color:var(--accent)">${r.period}</div>
-          <div style="font-size:11px;color:var(--muted)">${fmtDate(r.date)}</div>
+    sorted.map((r,i) => `
+      <div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden">
+        <div onclick="toggleReview(${i})" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--surface);cursor:pointer;user-select:none">
+          <div style="font-size:13px;font-weight:600">Weekly Review — ${r.period}</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:11px;color:var(--muted)">${fmtDate(r.date)}</div>
+            <div id="review-chevron-${i}" style="color:var(--muted);font-size:12px;transition:transform .2s">&#9660;</div>
+          </div>
         </div>
-        <div style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap">${r.content.replace(/([\u{1F300}-\u{1F9FF}])/gu,"\n\n$1").trim()}</div>
+        <div id="review-body-${i}" style="display:none;padding:16px;font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border)">${r.content.replace(/([\u{1F300}-\u{1F9FF}])/gu,"\n\n$1").trim()}</div>
       </div>`).join('');
 }
 
