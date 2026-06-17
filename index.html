@@ -519,6 +519,24 @@ function renderHealth(){
 
   const scoreColor=v=>v>=80?'var(--green)':v>=60?'var(--amber)':'var(--red)';
   const readBadge=v=>v>=70?'badge-good':v>=40?'badge-warn':'badge-bad';
+  const readinessFeedback=t=>{
+    if(!t)return'';
+    const map={
+      'LOW_RT_MOD_OR_LOW_SS_POOR':'Below-baseline recovery and poor sleep',
+      'LOW_SS_POOR':'Poor sleep score',
+      'LOW_RT_MOD':'Recovery metrics below baseline',
+      'HIGH_RT_HIGH_SS':'Strong recovery and great sleep',
+      'HIGH_RT_MOD_SS':'Good recovery and decent sleep',
+      'LOW_RT_HIGH_SS':'Below-baseline recovery despite good sleep',
+      'HIGH_RT_LOW_SS':'Good recovery metrics but poor sleep',
+      'HIGH_HRV_STATUS_HIGH_TRAINING_READINESS':'Great HRV and high readiness',
+      'HIGH_HRV_STATUS_MOD_TRAINING_READINESS':'Good HRV, moderate readiness',
+      'LOW_HRV_STATUS_LOW_TRAINING_READINESS':'Low HRV and low readiness',
+      'LOW_HRV_STATUS_MOD_TRAINING_READINESS':'Low HRV, moderate readiness',
+    };
+    const key=t.replace(/ /g,'_').toUpperCase();
+    return map[key]||(t.replace(/_/g,' ').charAt(0).toUpperCase()+t.replace(/_/g,' ').slice(1).toLowerCase());
+  };
   const stressBadge=v=>v<=25?'badge-good':v<=50?'badge-warn':'badge-bad';
 
   // Endurance score scale: 3570 (base) to 10560 (max), classes at 5100/5800/6600/7300/8100/8800
@@ -558,7 +576,7 @@ function renderHealth(){
         <div class="stat-label">Training Readiness</div>
         <div class="stat-value" style="color:${isToday?scoreColor(d.trainingReadiness):'var(--text)'}">${A('trainingReadiness')}</div>
         <div class="stat-sub">${isToday&&d.trainingReadinessLevel?d.trainingReadinessLevel:''}</div>
-        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${d.trainingReadinessFeedback.replace(/_/g,' ')||''}</div>`:''}
+        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${readinessFeedback(d.trainingReadinessFeedback)}</div>`:''}
       </div>
       <div class="stat-card">
         <div class="stat-label">HRV Last Night</div>
