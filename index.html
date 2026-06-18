@@ -277,7 +277,10 @@ tr:hover td{background:var(--surface2)}
   <!-- NUTRITION -->
   <div id="nav-nutrition" class="panel">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
-      <div style="position:relative;display:inline-block"><input type="text" id="nutr-date" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('nutr-picker','nutr-date')" style="font-size:16px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:150px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="nutr-picker" class="date-picker" style="display:none"></div></div>
+      <span style="font-size:12px;color:var(--muted);font-weight:600">From</span>
+      <div style="position:relative;display:inline-block"><input type="text" id="nutr-start" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('nutr-start-picker','nutr-start')" style="font-size:14px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:140px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="nutr-start-picker" class="date-picker" style="display:none"></div></div>
+      <span style="font-size:12px;color:var(--muted);font-weight:600">To</span>
+      <div style="position:relative;display:inline-block"><input type="text" id="nutr-end" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('nutr-end-picker','nutr-end')" style="font-size:14px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:140px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="nutr-end-picker" class="date-picker" style="display:none"></div></div>
     </div>
     <div id="nutrition-content"></div>
   </div>
@@ -943,23 +946,30 @@ let nutrSingleDay = true;
 
 function initNutrDates() {
   if (!nutritionData.length) return;
-  const d=new Date(); d.setDate(d.getDate()-1);
-  const yesterday=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
-  nutrEndDate = yesterday;
-  nutrStartDate = yesterday;
-  nutrSingleDay = true;
-  const el = document.getElementById('nutr-date');
-  if(el) el.value = toDisplay(yesterday);
+  const end = new Date(); end.setDate(end.getDate()-1);
+  const start = new Date(end); start.setDate(start.getDate()-6);
+  const fmt = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  nutrEndDate = fmt(end);
+  nutrStartDate = fmt(start);
+  nutrSingleDay = false;
+  const s = document.getElementById('nutr-start'); if(s) s.value = toDisplay(nutrStartDate);
+  const e = document.getElementById('nutr-end');   if(e) e.value = toDisplay(nutrEndDate);
   try{renderNutrition();}catch(e){console.error('renderNutrition:',e);}
 }
 
-function applyNutrRange() {
-  const d = parseDate(document.getElementById('nutr-date').value);
+function applyNutrStart() {
+  const d = parseDate(document.getElementById('nutr-start').value);
   if (!d) return;
   nutrStartDate = d;
+  nutrSingleDay = nutrStartDate === nutrEndDate;
+  renderNutrition();
+}
+
+function applyNutrEnd() {
+  const d = parseDate(document.getElementById('nutr-end').value);
+  if (!d) return;
   nutrEndDate = d;
-  nutrSingleDay = true;
-  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  nutrSingleDay = nutrStartDate === nutrEndDate;
   renderNutrition();
 }
 
@@ -1207,7 +1217,8 @@ function selectDate(pickerId, dateStr) {
   document.getElementById(pickerId).style.display = 'none';
   // Trigger apply for health/nutr
   if (inputId === 'health-date') applyHealthRange();
-  if (inputId === 'nutr-date') applyNutrRange();
+  if (inputId === 'nutr-start') applyNutrStart();
+  if (inputId === 'nutr-end') applyNutrEnd();
 }
 
 // Close picker when clicking outside
@@ -1268,6 +1279,13 @@ function renderNutrition() {
   const fiber = isToday ? d.fiber : nutrAvg(rows, 'fiber');
   const sugar = isToday ? d.sugar : nutrAvg(rows, 'sugar');
 
+  // Calorie balance: compare nutrition kcal eaten vs Garmin total kcal burned
+  const hRange = healthData.filter(h => h.date >= nutrStartDate && h.date <= nutrEndDate && h.totalKcal != null);
+  const totalEaten = rows.reduce((a,r) => a + (r.calories||0), 0);
+  const totalBurned = hRange.reduce((a,h) => a + (h.totalKcal||0), 0);
+  const avgBurned = hRange.length ? Math.round(totalBurned / hRange.length) : null;
+  const netBalance = hRange.length ? totalEaten - totalBurned : null;
+
   const n = (v, dec=0) => v != null ? (dec ? v.toFixed(dec) : Math.round(v)) : '—';
   const pctOf = (v, t) => v != null && t ? Math.round(v/t*100) : null;
   const calPct = pctOf(cal, TARGETS.calories);
@@ -1275,7 +1293,7 @@ function renderNutrition() {
   const carbPct = pctOf(carb, TARGETS.carbs);
   const fatPct = pctOf(fat, TARGETS.fat);
 
-  const periodLabel = isToday ? 'Currently showing: ' + fmtDate(d.date) : hrows.length + ' days · ' + rows[rows.length-1].date + ' to ' + rows[0].date;
+  const periodLabel = isToday ? 'Currently showing: ' + fmtDate(d.date) : rows.length + ' days · ' + fmtDate(rows[rows.length-1].date) + ' – ' + fmtDate(rows[0].date);
 
   // Macro split: protein=4kcal/g, carbs=4kcal/g, fat=9kcal/g
   const proKcal = (pro||0) * 4;
@@ -1302,6 +1320,33 @@ function renderNutrition() {
         <div style="height:100%;width:${Math.min(100, calPct||0)}%;background:${(cal||0) > TARGETS.calories ? '#ff4d4d' : 'var(--accent)'};border-radius:5px"></div>
       </div>
     </div>
+
+    ${netBalance != null ? `
+    <div class="section-head">Calorie Balance</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Eaten${!isToday?' (total)':''}</div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent)">${Math.round(totalEaten).toLocaleString()}</div>
+          ${!isToday && rows.length>1 ? `<div style="font-size:11px;color:var(--muted)">${Math.round(totalEaten/rows.length).toLocaleString()} avg/day</div>` : ''}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Burned${!isToday?' (total)':''}</div>
+          <div style="font-size:24px;font-weight:700;color:#7c6dfa">${Math.round(totalBurned).toLocaleString()}</div>
+          ${!isToday && hRange.length>1 ? `<div style="font-size:11px;color:var(--muted)">${avgBurned.toLocaleString()} avg/day</div>` : ''}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">${netBalance < 0 ? 'Deficit' : 'Surplus'}${!isToday?' (total)':''}</div>
+          <div style="font-size:24px;font-weight:700;color:${netBalance < 0 ? 'var(--green)' : 'var(--red)'}">${netBalance < 0 ? '' : '+'}${Math.round(netBalance).toLocaleString()}</div>
+          ${!isToday && rows.length>1 ? `<div style="font-size:11px;color:var(--muted)">${Math.round(netBalance/Math.max(rows.length,hRange.length)) > 0 ? '+' : ''}${Math.round(netBalance/Math.max(rows.length,hRange.length)).toLocaleString()} avg/day</div>` : ''}
+        </div>
+      </div>
+      <div style="height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;position:relative">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${Math.min(100,Math.round(totalEaten/Math.max(totalBurned,1)*100))}%;background:${netBalance<0?'var(--green)':'var(--red)'};border-radius:4px;transition:width .3s"></div>
+        <div style="position:absolute;left:${Math.min(100,Math.round(totalEaten/Math.max(totalBurned,1)*100))}%;top:-1px;height:calc(100%+2px);width:2px;background:#fff4;border-radius:1px"></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">${Math.round(totalEaten/Math.max(totalBurned,1)*100)}% of burned · ${hRange.length} day${hRange.length!==1?'s':''} of Garmin data matched</div>
+    </div>` : ''}
 
     <div class="section-head">Macros</div>
     <div class="stat-grid" style="margin-bottom:1.5rem">
