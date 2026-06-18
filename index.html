@@ -422,6 +422,8 @@ function renderActivities(){renderRuns();renderBikes();renderWalks();renderAll()
 let healthStartDate = null;
 let healthEndDate = null;
 let healthSingleDay = true;
+let compStartDate = null;
+let compEndDate = null;
 
 function getFilteredHealth(){
   if(!healthData.length)return[];
@@ -433,6 +435,31 @@ function getFilteredHealth(){
   const start=healthStartDate||sorted[sorted.length-1].date;
   const end=healthEndDate||sorted[0].date;
   return sorted.filter(h=>h.date>=start&&h.date<=end);
+}
+
+function getCompRows(){
+  const all=[...healthData].filter(r=>r.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!all.length)return[];
+  const start=compStartDate||all[0].date;
+  const end=compEndDate||all[all.length-1].date;
+  return all.filter(r=>r.date>=start&&r.date<=end);
+}
+
+function initCompDates(){
+  const d=new Date(); d.setDate(d.getDate()-1);
+  const yest=d.toISOString().slice(0,10);
+  compEndDate=yest;
+  d.setDate(d.getDate()-6);
+  compStartDate=d.toISOString().slice(0,10);
+}
+
+function applyCompStart(){
+  const d=parseDate(document.getElementById('comp-start').value);
+  if(d){compStartDate=d;renderHealth();}
+}
+function applyCompEnd(){
+  const d=parseDate(document.getElementById('comp-end').value);
+  if(d){compEndDate=d;renderHealth();}
 }
 
 function initHealthDates(){
@@ -580,10 +607,21 @@ function renderHealth(){
   const floorsVal=isToday?d.floors:Math.round(avgg(hrows,'floors'));
   const floorsOk=floorsVal>=floorsGoal;
 
-  // Body comp data for charts
-  const compRows=[...hrows].filter(r=>r.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
+  // Body comp — independent date range (all healthData with weight, not just hrows)
+  const compRows=getCompRows();
   const compLabels=compRows.map(r=>{ const p=r.date.split('-'); return p[2]+'/'+p[1]; });
-  const showCharts=!isToday&&compRows.length>1;
+  const showCharts=compRows.length>1;
+  // latest value + delta (end minus start) for comp range
+  const cLast=compRows.length?compRows[compRows.length-1]:null;
+  const cFirst=compRows.length?compRows[0]:null;
+  const cVal=(k,dec=1)=>cLast&&cLast[k]!=null?n(cLast[k],dec):'—';
+  const cDelta=(k,dec=1)=>{
+    if(!cFirst||!cLast||cFirst===cLast)return'';
+    const diff=(cLast[k]||0)-(cFirst[k]||0);
+    if(diff===0)return'';
+    const sign=diff>0?'+':'';
+    return` <span style="font-size:11px;color:${diff<0?'var(--green)':'var(--red)'}">(${sign}${n(diff,dec)})</span>`;
+  };
 
   document.getElementById('health-content').innerHTML=`
     <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem"><div class="section-head">Recovery & Readiness</div>
@@ -786,34 +824,41 @@ function renderHealth(){
       })()}
     </div>
 
-    <div class="section-head">Body Composition</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;margin-top:1.5rem">
+      <div class="section-head" style="margin:0">Body Composition</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)">
+        <div style="position:relative;display:inline-block"><input type="text" id="comp-start" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('comp-start-picker','comp-start')" value="${toDisplay(compStartDate||'')}" style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--text);width:110px;cursor:pointer;text-align:center"><div id="comp-start-picker" class="date-picker" style="display:none"></div></div>
+        <span>→</span>
+        <div style="position:relative;display:inline-block"><input type="text" id="comp-end" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('comp-end-picker','comp-end')" value="${toDisplay(compEndDate||'')}" style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--text);width:110px;cursor:pointer;text-align:center"><div id="comp-end-picker" class="date-picker" style="display:none"></div></div>
+      </div>
+    </div>
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Weight</div>
-        <div class="stat-value" style="font-size:22px">${L('weight',1)}<span style="font-size:14px;color:var(--muted)">kg</span></div>
+        <div class="stat-value" style="font-size:22px">${cVal('weight',1)}${cDelta('weight',1)}<span style="font-size:14px;color:var(--muted)">kg</span></div>
         <div class="stat-sub">Goal: 65kg</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">BMI</div>
-        <div class="stat-value" style="font-size:22px">${L('bmi',1)}</div>
-        <div class="stat-sub">Normal: 18.5-24.9</div>
+        <div class="stat-value" style="font-size:22px">${cVal('bmi',1)}${cDelta('bmi',1)}</div>
+        <div class="stat-sub">Normal: 18.5–24.9</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Body Fat</div>
-        <div class="stat-value" style="color:var(--amber);font-size:22px">${L('bodyFat',1)}<span style="font-size:14px;color:var(--muted)">%</span></div>
+        <div class="stat-value" style="color:var(--amber);font-size:22px">${cVal('bodyFat',1)}${cDelta('bodyFat',1)}<span style="font-size:14px;color:var(--muted)">%</span></div>
         <div class="stat-sub">Goal: &lt;20%</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Muscle Mass</div>
-        <div class="stat-value" style="font-size:22px;color:var(--green)">${L('muscleMass',1)}<span style="font-size:14px;color:var(--muted)">kg</span></div>
+        <div class="stat-value" style="font-size:22px;color:var(--green)">${cVal('muscleMass',1)}${cDelta('muscleMass',1)}<span style="font-size:14px;color:var(--muted)">kg</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Bone Mass</div>
-        <div class="stat-value" style="font-size:22px">${L('boneMass',2)}<span style="font-size:14px;color:var(--muted)">kg</span></div>
+        <div class="stat-value" style="font-size:22px">${cVal('boneMass',2)}<span style="font-size:14px;color:var(--muted)">kg</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Body Water</div>
-        <div class="stat-value" style="font-size:22px;color:var(--accent2)">${L('bodyWater',1)}<span style="font-size:14px;color:var(--muted)">%</span></div>
+        <div class="stat-value" style="font-size:22px;color:var(--accent2)">${cVal('bodyWater',1)}<span style="font-size:14px;color:var(--muted)">%</span></div>
       </div>
     </div>
 
@@ -1240,6 +1285,8 @@ function selectDate(pickerId, dateStr) {
   if (inputId === 'health-date') applyHealthRange();
   if (inputId === 'nutr-start') applyNutrStart();
   if (inputId === 'nutr-end') applyNutrEnd();
+  if (inputId === 'comp-start') applyCompStart();
+  if (inputId === 'comp-end') applyCompEnd();
 }
 
 // Close picker when clicking outside
@@ -1465,16 +1512,22 @@ function renderNutrition() {
     ${rows.length > 1 ? `
     <div class="section-head">Daily Log</div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Date</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Sat Fat</th><th>Fiber</th></tr></thead>
-      <tbody>${rows.map(r => `<tr>
+      <thead><tr><th>Date</th><th>Eaten</th><th>Burned</th><th>Balance</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Fiber</th></tr></thead>
+      <tbody>${rows.map(r => {
+        const hd = hRange.find(h=>h.date===r.date);
+        const burned = hd ? hd.totalKcal : null;
+        const eaten = r.calories||0;
+        const bal = burned ? eaten - burned : null;
+        return `<tr>
         <td>${fmtDate(r.date)}</td>
-        <td class="${(r.calories||0) > TARGETS.calories ? 'hi' : (r.calories||0) >= TARGETS.calories*0.9 ? 'ok' : ''}">${n(r.calories)}</td>
+        <td class="${eaten > TARGETS.calories ? 'hi' : eaten >= TARGETS.calories*0.9 ? 'ok' : ''}">${n(eaten)}</td>
+        <td class="muted-cell">${burned ? n(burned) : '—'}</td>
+        <td class="${bal!=null?(bal<=0?'ok':'hi'):''}">${bal!=null?(bal>0?'+':'')+Math.round(bal)+' kcal':'—'}</td>
         <td class="${(r.protein||0) >= TARGETS.protein ? 'ok' : (r.protein||0) >= TARGETS.protein*0.8 ? '' : 'hi'}">${n(r.protein,1)}g</td>
         <td class="${(r.carbs||0) > TARGETS.carbs ? 'hi' : ''}">${n(r.carbs,1)}g</td>
         <td class="${(r.fat||0) > TARGETS.fat ? 'hi' : ''}">${n(r.fat,1)}g</td>
-        <td class="muted-cell">${n(r.saturatedFat,1)}g</td>
         <td>${n(r.fiber,1)}g</td>
-      </tr>`).join('')}</tbody>
+      </tr>`;}).join('')}</tbody>
     </table></div>` : ''}
   `;
 
@@ -1558,6 +1611,7 @@ Promise.all([
   reviewsData=revs;
   try{renderActivities();}catch(e){console.error('renderActivities error:',e);}
   initReviewDates();
+  initCompDates();
   initHealthDates();
   initNutrDates();
   try{renderReviewHistory();}catch(e){console.error('renderReviewHistory error:',e);}
