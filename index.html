@@ -6,64 +6,42 @@
 <title>Jørgen — Training Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-:root{--bg:#0a0a0c;--surface:#111115;--surface2:#18181f;--border:#222230;--accent:#c8f53a;--accent2:#7c6dfa;--red:#ff4d4d;--amber:#ffb020;--green:#3af58a;--text:#f0f0f5;--muted:#6b6b80;--muted2:#9090a8}
+:root{--bg:#111009;--surface:#1a1714;--surface2:#221f19;--border:#2e2820;--accent:#c49078;--accent2:#a07860;--red:#c47878;--amber:#c9a84c;--green:#7aab88;--text:#e8ddd6;--muted:#7a6e64;--muted2:#a09488}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;font-size:13px;min-height:100vh}
-.header{
-  background:linear-gradient(135deg,#0f0f14 0%,#1a1a24 40%,#0f0f14 100%);
-  border-bottom:1px solid var(--border);
-  padding:0 1.5rem;
-  position:relative;
-  overflow:hidden;
-}
-.header::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(ellipse at 20% 50%,rgba(200,245,58,.06) 0%,transparent 60%),
-    radial-gradient(ellipse at 80% 50%,rgba(124,109,250,.06) 0%,transparent 60%);
-  pointer-events:none;
-}
-.header::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events:none;
-}
-.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:center;height:80px;position:relative;z-index:1}
-.logo{font-size:26px;font-weight:800;letter-spacing:-1px;text-align:center}
-.logo span{color:var(--accent)}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-size:17px;font-weight:600;letter-spacing:-.3px;color:var(--text)}
+.logo span{color:var(--accent);font-weight:400}
 .last-updated{font-size:11px;color:var(--muted)}
-.nav{background:var(--surface);border-top:2px solid transparent;border-image:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent) 1;border-bottom:1px solid var(--border);padding:0 1.5rem;position:sticky;top:0;z-index:100}
-.nav-inner{max-width:1400px;margin:0 auto;display:flex}
-.nav-tab{padding:12px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;transition:color .15s;margin-bottom:-1px}
-.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.nav-tab:hover{color:var(--text)}
+.nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;gap:2px;padding:8px 0}
+.nav-tab{padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);border-radius:8px;transition:color .15s,background .15s}
+.nav-tab.active{color:var(--text);background:var(--surface2)}
+.nav-tab:hover:not(.active){color:var(--text)}
 .content{max-width:1400px;margin:0 auto;padding:1.5rem}
 .panel{display:none}.panel.active{display:block}
 .subtabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
 .subtab{padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);border-radius:99px;background:none;color:var(--muted);transition:all .15s}
-.subtab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.subtab.active{background:var(--accent);color:#1a1208;border-color:var(--accent)}
 .subtab:hover:not(.active){color:var(--text);border-color:var(--muted)}
 .period-tabs{display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap}
 .period-tab{padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);border-radius:4px;background:none;color:var(--muted);letter-spacing:.05em;transition:all .15s}
 .period-tab.active{background:var(--accent2);color:#fff;border-color:var(--accent2)}
 .period-tab:hover:not(.active){color:var(--text)}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:1.5rem}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.stat-label{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
-.stat-value{font-size:24px;font-weight:700;letter-spacing:-1px;line-height:1}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.stat-label{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-size:24px;font-weight:600;letter-spacing:-.5px;line-height:1}
 .stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
 .stat-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:6px;letter-spacing:.04em}
-.badge-good{background:rgba(58,245,138,.12);color:var(--green)}
-.badge-warn{background:rgba(255,176,32,.12);color:var(--amber)}
-.badge-bad{background:rgba(255,77,77,.12);color:var(--red)}
-.badge-neutral{background:rgba(124,109,250,.12);color:var(--accent2)}
-.section-head{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;margin-top:1.5rem;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.badge-good{background:rgba(122,171,136,.14);color:var(--green)}
+.badge-warn{background:rgba(201,168,76,.14);color:var(--amber)}
+.badge-bad{background:rgba(196,120,120,.14);color:var(--red)}
+.badge-neutral{background:rgba(196,144,120,.14);color:var(--accent)}
+.section-head{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;margin-top:1.5rem;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .section-head:first-child{margin-top:0}
-.sleep-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem}
+.sleep-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:1.5rem}
 .sleep-top{display:flex;align-items:flex-end;gap:1.5rem;margin-bottom:14px}
 .sleep-score-big{font-size:56px;font-weight:700;letter-spacing:-3px;line-height:1}
 .sleep-meta{display:flex;flex-direction:column;gap:4px}
@@ -77,7 +55,7 @@ body{background:var(--bg);color:var(--text);background-image:url("data:image/svg
 .sleep-legend{display:flex;gap:14px;font-size:11px;color:var(--muted)}
 .sleep-legend span{display:flex;align-items:center;gap:4px}
 .sleep-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-bottom:1.5rem}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin-bottom:1.5rem}
 table{width:100%;border-collapse:collapse;min-width:500px}
 th{text-align:left;font-weight:600;font-size:10px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;background:var(--surface)}
 th:hover{color:var(--text)}
@@ -86,9 +64,9 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--surface2)}
 .hi{color:var(--red);font-weight:600}.ok{color:var(--green)}.warn{color:var(--amber)}.muted-cell{color:var(--muted)}
 .type-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.05em}
-.tb-run{background:rgba(124,109,250,.15);color:#a89ef8}
-.tb-bike{background:rgba(58,245,138,.1);color:#3af58a}
-.tb-walk{background:rgba(200,245,58,.1);color:#c8f53a}
+.tb-run{background:rgba(196,144,120,.15);color:#c49078}
+.tb-bike{background:rgba(122,171,136,.12);color:#7aab88}
+.tb-walk{background:rgba(201,168,76,.12);color:#c9a84c}
 .zbar{display:flex;height:5px;border-radius:3px;overflow:hidden;width:72px}
 .zone-legend{display:flex;gap:10px;margin-bottom:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
 .zone-legend span{display:flex;align-items:center;gap:4px}
@@ -107,7 +85,7 @@ tr:hover td{background:var(--surface2)}
 .im-num{font-size:32px;font-weight:700;letter-spacing:-1.5px;line-height:1}
 .im-bar-track{height:6px;background:var(--surface2);border-radius:3px;margin:8px 0 4px;overflow:hidden}
 .im-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
-.load-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1.5rem}
+.load-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:1.5rem}
 .load-row{display:grid;grid-template-columns:100px 1fr 60px;align-items:center;gap:8px;margin-bottom:10px}
 .load-row:last-child{margin-bottom:0}
 .load-lbl{font-size:11px;color:var(--muted)}
@@ -117,11 +95,11 @@ tr:hover td{background:var(--surface2)}
 .load-val{font-size:12px;font-weight:600;text-align:right}
 .load-focus-label{font-size:11px;color:var(--amber);margin-top:10px}
 
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:1rem}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:1rem}
 .chart-card canvas{display:block}
 .acwr-explain{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
 
-.date-picker{position:absolute;top:calc(100% + 4px);left:0;z-index:1000;background:#1a1a24;border:1px solid var(--border);border-radius:10px;padding:12px;width:240px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.date-picker{position:absolute;top:calc(100% + 4px);left:0;z-index:1000;background:#201c16;border:1px solid var(--border);border-radius:12px;padding:12px;width:240px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .date-picker-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .date-picker-header button{background:none;border:none;color:var(--text);cursor:pointer;font-size:16px;padding:2px 8px;border-radius:4px}
 .date-picker-header button:hover{background:var(--surface2)}
@@ -138,7 +116,7 @@ tr:hover td{background:var(--surface2)}
 <body>
 <div class="header">
   <div class="header-inner">
-    <div class="logo">Wiggen <span>/ Health Portal Super APP Code King</span></div>
+    <div class="logo">Wiggen <span>/ Health</span></div>
     <div id="last-updated" style="display:none"></div>
   </div>
 </div>
@@ -163,7 +141,7 @@ tr:hover td{background:var(--surface2)}
 
     <div id="sub-runs" class="subpanel">
       <div class="zone-legend">
-        <span><span class="zone-dot" style="background:#3af58a"></span>Z1 — Easy / Rest</span>
+        <span><span class="zone-dot" style="background:#7aab88"></span>Z1 — Easy / Rest</span>
         <span><span class="zone-dot" style="background:#60a5fa"></span>Z2 — Aerobic base</span>
         <span><span class="zone-dot" style="background:#fcd34d"></span>Z3 — Tempo</span>
         <span><span class="zone-dot" style="background:#f87171"></span>Z4 — Threshold</span>
@@ -199,7 +177,7 @@ tr:hover td{background:var(--surface2)}
 
     <div id="sub-bikes" class="subpanel" style="display:none">
       <div class="zone-legend">
-        <span><span class="zone-dot" style="background:#3af58a"></span>Z1</span>
+        <span><span class="zone-dot" style="background:#7aab88"></span>Z1</span>
         <span><span class="zone-dot" style="background:#60a5fa"></span>Z2</span>
         <span><span class="zone-dot" style="background:#fcd34d"></span>Z3</span>
         <span><span class="zone-dot" style="background:#f87171"></span>Z4</span>
@@ -227,7 +205,7 @@ tr:hover td{background:var(--surface2)}
 
     <div id="sub-walks" class="subpanel" style="display:none">
       <div class="zone-legend">
-        <span><span class="zone-dot" style="background:#3af58a"></span>Z1</span>
+        <span><span class="zone-dot" style="background:#7aab88"></span>Z1</span>
         <span><span class="zone-dot" style="background:#60a5fa"></span>Z2</span>
         <span><span class="zone-dot" style="background:#fcd34d"></span>Z3</span>
         <span><span class="zone-dot" style="background:#f87171"></span>Z4</span>
@@ -363,13 +341,13 @@ const hrCls=hr=>{
   if(hr>=166)return'color:#f87171;font-weight:600';      // Z4
   if(hr>=146)return'color:#fcd34d';                      // Z3
   if(hr>=125)return'color:#60a5fa';                      // Z2
-  return'color:#3af58a';                                 // Z1
+  return'color:#7aab88';                                 // Z1
 };
 const zbar=a=>{
   const t=(a.z1||0)+(a.z2||0)+(a.z3||0)+(a.z4||0)+(a.z5||0);
   if(!t)return'—';
   const p=v=>Math.round((v||0)/t*100);
-  return`<div class="zbar"><div style="width:${p(a.z1)}%;background:#3af58a"></div><div style="width:${p(a.z2)}%;background:#60a5fa"></div><div style="width:${p(a.z3)}%;background:#fcd34d"></div><div style="width:${p(a.z4)}%;background:#f87171"></div><div style="width:${p(a.z5)}%;background:#991b1b"></div></div>`;
+  return`<div class="zbar"><div style="width:${p(a.z1)}%;background:#7aab88"></div><div style="width:${p(a.z2)}%;background:#60a5fa"></div><div style="width:${p(a.z3)}%;background:#fcd34d"></div><div style="width:${p(a.z4)}%;background:#f87171"></div><div style="width:${p(a.z5)}%;background:#991b1b"></div></div>`;
 };
 
 function destroyCharts(){Object.values(chartInstances).forEach(c=>{try{c.destroy()}catch(e){}});chartInstances={};}
@@ -520,7 +498,7 @@ function mkChart(id,type,labels,datasets){
   destroyChartById(id);
   const ctx=document.getElementById(id);
   if(!ctx)return;
-  chartInstances[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b6b80',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#6b6b80',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}}); 
+  chartInstances[id]=new Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}}); 
 }
 function destroyChartById(id){if(chartInstances[id]){try{chartInstances[id].destroy();}catch(e){}delete chartInstances[id];}}
 
@@ -669,14 +647,14 @@ function renderHealth(){
         </div>
       </div>
       <div class="sleep-bar">
-        <div class="sleep-seg" style="width:${deepPct}%;background:#7c6dfa"></div>
-        <div class="sleep-seg" style="width:${remPct}%;background:#3af58a"></div>
+        <div class="sleep-seg" style="width:${deepPct}%;background:#8b9cc4"></div>
+        <div class="sleep-seg" style="width:${remPct}%;background:#7aab88"></div>
         <div class="sleep-seg" style="width:${lightPct}%;background:#60a5fa"></div>
         <div class="sleep-seg" style="width:${awakePct}%;background:#444"></div>
       </div>
       <div class="sleep-legend">
-        <span><span class="sleep-dot" style="background:#7c6dfa"></span>Deep ${deepPct}%</span>
-        <span><span class="sleep-dot" style="background:#3af58a"></span>REM ${remPct}%</span>
+        <span><span class="sleep-dot" style="background:#8b9cc4"></span>Deep ${deepPct}%</span>
+        <span><span class="sleep-dot" style="background:#7aab88"></span>REM ${remPct}%</span>
         <span><span class="sleep-dot" style="background:#60a5fa"></span>Light ${lightPct}%</span>
         <span><span class="sleep-dot" style="background:#444"></span>Awake ${awakePct}%</span>
         <span style="margin-left:6px">Resp: ${n(d.avgResp)} brpm</span>
@@ -711,7 +689,7 @@ function renderHealth(){
               <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Active kcal</div>
             </div>
             <div>
-              <div style="font-size:22px;font-weight:700;letter-spacing:-.5px;color:#378ADD">${totalKcal!=null?totalKcal.toLocaleString():'—'}</div>
+              <div style="font-size:22px;font-weight:700;letter-spacing:-.5px;color:#8b9cc4">${totalKcal!=null?totalKcal.toLocaleString():'—'}</div>
               <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Total kcal</div>
               ${activePct!=null?`<div style="font-size:13px;font-weight:700;color:var(--accent);margin-top:4px">${activePct}% <span style="font-size:10px;font-weight:400;color:var(--muted)">from activity</span></div>`:''}
             </div>
@@ -783,7 +761,7 @@ function renderHealth(){
       ${(()=>{
         const vals=[
           {lbl:'Aerobic Low',val:isToday?d.aerobicLowLoad:avgg(hrows,'aerobicLowLoad'),min:130,max:342,color:'#60a5fa'},
-          {lbl:'Aerobic High',val:isToday?d.aerobicHighLoad:avgg(hrows,'aerobicHighLoad'),min:256,max:467,color:'#c8f53a'},
+          {lbl:'Aerobic High',val:isToday?d.aerobicHighLoad:avgg(hrows,'aerobicHighLoad'),min:256,max:467,color:'#c49078'},
           {lbl:'Anaerobic',val:isToday?d.anaerobicLoad:avgg(hrows,'anaerobicLoad'),min:0,max:211,color:'#f87171'}
         ];
         const cap=700;
@@ -863,6 +841,23 @@ function renderHealth(){
       </div>
     </div>`:''}
 
+    ${!isToday&&hrows.length>1?`
+    <div class="section-head" style="margin-top:1.5rem">Wellness Trends</div>
+    <div class="chart-card" style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px">HRV &amp; Sleep Score</div>
+      <div style="height:160px;position:relative"><canvas id="chartHrvSleep" role="img" aria-label="HRV and sleep trend">HRV and sleep trend.</canvas></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="chart-card">
+        <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Body Battery — wake</div>
+        <div style="height:120px;position:relative"><canvas id="chartBB" role="img" aria-label="Body battery trend">Body battery trend.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Resting Heart Rate</div>
+        <div style="height:120px;position:relative"><canvas id="chartRhr" role="img" aria-label="Resting heart rate trend">RHR trend.</canvas></div>
+      </div>
+    </div>`:''}
+
     ${hrows.length>1?`
     <div class="section-head" style="margin-top:1.5rem">Daily History</div>
     <div class="tbl-wrap"><table>
@@ -888,7 +883,7 @@ function renderHealth(){
     const donut=document.getElementById('kcalDonut');
     if(donut&&activeKcal&&bmrKcal){
       destroyChartById('kcalDonut');
-      chartInstances['kcalDonut']=new Chart(donut,{type:'doughnut',data:{datasets:[{data:[activeKcal,bmrKcal],backgroundColor:['#c8f53a','#378ADD'],borderWidth:0,hoverOffset:0}]},options:{cutout:'72%',responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+      chartInstances['kcalDonut']=new Chart(donut,{type:'doughnut',data:{datasets:[{data:[activeKcal,bmrKcal],backgroundColor:['#c49078','#8b9cc4'],borderWidth:0,hoverOffset:0}]},options:{cutout:'72%',responsive:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
     } else if(tries<5){setTimeout(()=>_drawDonut(tries+1),100);}
   };
   setTimeout(()=>{
@@ -900,13 +895,39 @@ function renderHealth(){
         const el=document.getElementById(id);
         if(!el)return;
         destroyChartById(id);
-        chartInstances[id]=new Chart(el,{type:'line',data:{labels:compLabels,datasets:[{data,borderColor:color,backgroundColor:color+'22',borderWidth:2,fill:true,tension:.3,pointRadius:3,pointBackgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y.toFixed(1)}}},elements:{},scales:{x:{ticks:{color:'#6b6b80',font:{size:9},maxTicksLimit:6},grid:{color:'rgba(255,255,255,.04)'}},y:{min:ymin,max:ymax,ticks:{color:'#6b6b80',font:{size:9},maxTicksLimit:5},grid:{color:'rgba(255,255,255,.04)'}}}}});
+        chartInstances[id]=new Chart(el,{type:'line',data:{labels:compLabels,datasets:[{data,borderColor:color,backgroundColor:color+'22',borderWidth:2,fill:true,tension:.3,pointRadius:3,pointBackgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y.toFixed(1)}}},elements:{},scales:{x:{ticks:{color:'#7a6e64',font:{size:9},maxTicksLimit:6},grid:{color:'rgba(255,255,255,.04)'}},y:{min:ymin,max:ymax,ticks:{color:'#7a6e64',font:{size:9},maxTicksLimit:5},grid:{color:'rgba(255,255,255,.04)'}}}}});
       };
-      make('chartWeight',compRows.map(r=>r.weight),'#c8f53a',73,80);
-      make('chartFat',compRows.map(r=>r.bodyFat),'#ffb020',22,28);
-      make('chartMuscle',compRows.map(r=>r.muscleMass),'#3af58a',31.5,33.5);
-      make('chartWater',compRows.map(r=>r.bodyWater),'#7c6dfa',52,57);
+      make('chartWeight',compRows.map(r=>r.weight),'#c49078',73,80);
+      make('chartFat',compRows.map(r=>r.bodyFat),'#c9a84c',22,28);
+      make('chartMuscle',compRows.map(r=>r.muscleMass),'#7aab88',31.5,33.5);
+      make('chartWater',compRows.map(r=>r.bodyWater),'#8b9cc4',52,57);
       make('chartBmi',compRows.map(r=>r.bmi),'#60a5fa',24.5,28);
+    }
+
+    // Wellness trend charts
+    if(!isToday && hrows.length > 1) {
+      const wRows = [...hrows].sort((a,b) => a.date.localeCompare(b.date));
+      const wLabels = wRows.map(r => { const p=r.date.split('-'); return p[2]+'/'+p[1]; });
+      const mkW = (id, datasets, ymin, ymax) => {
+        const el = document.getElementById(id); if(!el) return;
+        destroyChartById(id);
+        const scaleOpts = { ticks:{color:'#7a6e64',font:{size:9},maxTicksLimit:5}, grid:{color:'rgba(255,255,255,.03)'}};
+        chartInstances[id] = new Chart(el, { type:'line', data:{labels:wLabels, datasets}, options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:datasets.length>1,labels:{color:'#a09488',font:{size:10},boxWidth:10,padding:12}},tooltip:{enabled:true}},scales:{x:{...scaleOpts,ticks:{...scaleOpts.ticks,maxTicksLimit:8}},y:{...scaleOpts,min:ymin,max:ymax}}}});
+      };
+      const line = (data,color,label,fill=false) => ({data,borderColor:color,backgroundColor:color+'28',borderWidth:1.5,fill,tension:.35,pointRadius:2.5,pointBackgroundColor:color,label});
+      // HRV + Sleep dual axis
+      const hrvEl = document.getElementById('chartHrvSleep'); if(hrvEl){ destroyChartById('chartHrvSleep');
+        chartInstances['chartHrvSleep'] = new Chart(hrvEl, { type:'line', data:{labels:wLabels, datasets:[
+          {...line(wRows.map(r=>r.hrvAvg),'#8b9cc4','HRV'),yAxisID:'y'},
+          {...line(wRows.map(r=>r.sleepScore),'#c49078','Sleep'),yAxisID:'y2'}
+        ]}, options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,labels:{color:'#a09488',font:{size:10},boxWidth:10,padding:12}}},scales:{
+          x:{ticks:{color:'#7a6e64',font:{size:9},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.03)'}},
+          y:{ticks:{color:'#7a6e64',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'},title:{display:true,text:'HRV',color:'#7a6e64',font:{size:9}}},
+          y2:{position:'right',ticks:{color:'#7a6e64',font:{size:9}},grid:{drawOnChartArea:false},title:{display:true,text:'Sleep',color:'#7a6e64',font:{size:9}}}
+        }}});
+      }
+      mkW('chartBB',[line(wRows.map(r=>r.bbWake),'#c49078','BB wake',true)],20,100);
+      mkW('chartRhr',[line(wRows.map(r=>r.rhr),'#c47878','RHR')],35,70);
     }
   },100);
 }
@@ -1332,7 +1353,7 @@ function renderNutrition() {
         </div>
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Burned${!isToday?' (total)':''}</div>
-          <div style="font-size:24px;font-weight:700;color:#7c6dfa">${Math.round(totalBurned).toLocaleString()}</div>
+          <div style="font-size:24px;font-weight:700;color:#8b9cc4">${Math.round(totalBurned).toLocaleString()}</div>
           ${!isToday && hRange.length>1 ? `<div style="font-size:11px;color:var(--muted)">${avgBurned.toLocaleString()} avg/day</div>` : ''}
         </div>
         <div>
@@ -1352,9 +1373,9 @@ function renderNutrition() {
     <div class="stat-grid" style="margin-bottom:1.5rem">
       <div class="stat-card">
         <div class="stat-label">Protein</div>
-        <div class="stat-value" style="color:#a89ef8">${n(pro,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
+        <div class="stat-value" style="color:#8b9cc4">${n(pro,1)}<span style="font-size:14px;color:var(--muted)">g</span></div>
         <div class="stat-sub">Target: ${TARGETS.protein}g · ${proPct != null ? proPct + '%' : '—'}</div>
-        ${macroBar(pro, TARGETS.protein, '#a89ef8')}
+        ${macroBar(pro, TARGETS.protein, '#8b9cc4')}
       </div>
       <div class="stat-card">
         <div class="stat-label">Carbohydrates</div>
@@ -1393,21 +1414,21 @@ function renderNutrition() {
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:12px;height:12px;border-radius:3px;background:#a89ef8;flex-shrink:0"></div>
+          <div style="width:12px;height:12px;border-radius:3px;background:#8b9cc4;flex-shrink:0"></div>
           <div>
             <div style="font-size:13px;font-weight:600">Protein ${totalMacroKcal ? Math.round(proKcal/totalMacroKcal*100) : 0}% <span style="font-size:11px;color:var(--muted);font-weight:400">/ goal ${Math.round(TARGETS.protein*4/(TARGETS.protein*4+TARGETS.carbs*4+TARGETS.fat*9)*100)}%</span></div>
             <div style="font-size:11px;color:var(--muted)">${n(pro,1)}g · ${Math.round(proKcal)} kcal</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:12px;height:12px;border-radius:3px;background:#c8f53a;flex-shrink:0"></div>
+          <div style="width:12px;height:12px;border-radius:3px;background:#c49078;flex-shrink:0"></div>
           <div>
             <div style="font-size:13px;font-weight:600">Carbs ${totalMacroKcal ? Math.round(carbKcal/totalMacroKcal*100) : 0}% <span style="font-size:11px;color:var(--muted);font-weight:400">/ goal ${Math.round(TARGETS.carbs*4/(TARGETS.protein*4+TARGETS.carbs*4+TARGETS.fat*9)*100)}%</span></div>
             <div style="font-size:11px;color:var(--muted)">${n(carb,1)}g · ${Math.round(carbKcal)} kcal</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:12px;height:12px;border-radius:3px;background:#ffb020;flex-shrink:0"></div>
+          <div style="width:12px;height:12px;border-radius:3px;background:#c9a84c;flex-shrink:0"></div>
           <div>
             <div style="font-size:13px;font-weight:600">Fat ${totalMacroKcal ? Math.round(fatKcal/totalMacroKcal*100) : 0}% <span style="font-size:11px;color:var(--muted);font-weight:400">/ goal ${Math.round(TARGETS.fat*9/(TARGETS.protein*4+TARGETS.carbs*4+TARGETS.fat*9)*100)}%</span></div>
             <div style="font-size:11px;color:var(--muted)">${n(fat,1)}g · ${Math.round(fatKcal)} kcal</div>
@@ -1419,23 +1440,26 @@ function renderNutrition() {
     ${showCharts ? `
     <div class="section-head">Trends</div>
     <div class="chart-card" style="margin-bottom:10px">
-      <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Calories per day</div>
+      <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px">Calories per day</div>
       <div style="height:160px;position:relative"><canvas id="calChart" role="img" aria-label="Daily calorie trend">Calorie trend.</canvas></div>
+    </div>
+    <div class="chart-card" style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px">Eaten vs Burned (kcal/day)</div>
+      <div style="height:160px;position:relative"><canvas id="balanceChart" role="img" aria-label="Eaten vs burned comparison">Eaten vs burned.</canvas></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem">
       <div class="chart-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Protein (g)</div>
+        <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Protein (g)</div>
         <div style="height:120px;position:relative"><canvas id="proChart" role="img" aria-label="Protein trend">Protein trend.</canvas></div>
       </div>
       <div class="chart-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Carbs (g)</div>
+        <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Carbs (g)</div>
         <div style="height:120px;position:relative"><canvas id="carbChart" role="img" aria-label="Carb trend">Carb trend.</canvas></div>
       </div>
       <div class="chart-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Fat (g)</div>
+        <div style="font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">Fat (g)</div>
         <div style="height:120px;position:relative"><canvas id="fatChart" role="img" aria-label="Fat trend">Fat trend.</canvas></div>
       </div>
-
     </div>` : ''}
 
     ${rows.length > 1 ? `
@@ -1454,25 +1478,22 @@ function renderNutrition() {
     </table></div>` : ''}
   `;
 
-  // Macro pie chart
+  // Macro pie charts
   setTimeout(() => {
     const pie = document.getElementById('macroPie');
     if (pie && totalMacroKcal > 0) {
       destroyChartById('macroPie');
       chartInstances['macroPie'] = new Chart(pie, {
         type: 'doughnut',
-        data: { datasets: [{ data: [proKcal, carbKcal, fatKcal], backgroundColor: ['#a89ef8','#c8f53a','#ffb020'], borderWidth: 0 }] },
+        data: { datasets: [{ data: [proKcal, carbKcal, fatKcal], backgroundColor: ['#8b9cc4','#c49078','#c9a84c'], borderWidth: 0 }] },
         options: { cutout: '65%', responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
       });
       const goalPie = document.getElementById('macroPieGoal');
       if (goalPie) {
         destroyChartById('macroPieGoal');
-        const goalProKcal = TARGETS.protein * 4;
-        const goalCarbKcal = TARGETS.carbs * 4;
-        const goalFatKcal = TARGETS.fat * 9;
         chartInstances['macroPieGoal'] = new Chart(goalPie, {
           type: 'doughnut',
-          data: { datasets: [{ data: [goalProKcal, goalCarbKcal, goalFatKcal], backgroundColor: ['#a89ef844','#c8f53a44','#ffb02044'], borderColor: ['#a89ef8','#c8f53a','#ffb020'], borderWidth: 2 }] },
+          data: { datasets: [{ data: [TARGETS.protein*4, TARGETS.carbs*4, TARGETS.fat*9], backgroundColor: ['#8b9cc444','#c4907844','#c9a84c44'], borderColor: ['#8b9cc4','#c49078','#c9a84c'], borderWidth: 2 }] },
           options: { cutout: '65%', responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
         });
       }
@@ -1480,29 +1501,50 @@ function renderNutrition() {
 
     if (showCharts) {
       const mkLine = (id, data, color, target) => {
-        const el = document.getElementById(id);
-        if (!el) return;
+        const el = document.getElementById(id); if (!el) return;
         destroyChartById(id);
-        const datasets = [{ data, borderColor: color, backgroundColor: color+'22', borderWidth: 2, fill: true, tension: .3, pointRadius: 3, pointBackgroundColor: color }];
-        if (target) datasets.push({ data: chartLabels.map(() => target), borderColor: 'rgba(255,255,255,.2)', borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false });
+        const datasets = [{ data, borderColor: color, backgroundColor: color+'22', borderWidth: 1.5, fill: true, tension: .3, pointRadius: 2.5, pointBackgroundColor: color }];
+        if (target) datasets.push({ data: chartLabels.map(() => target), borderColor: 'rgba(255,255,255,.15)', borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false });
         chartInstances[id] = new Chart(el, {
           type: 'line',
           data: { labels: chartLabels, datasets },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: {
-            x: { ticks: { color: '#6b6b80', font: { size: 9 }, maxTicksLimit: 6 }, grid: { color: 'rgba(255,255,255,.04)' } },
-            y: { ticks: { color: '#6b6b80', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.04)' } }
+            x: { ticks: { color: '#7a6e64', font: { size: 9 }, maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,.03)' } },
+            y: { ticks: { color: '#7a6e64', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.03)' } }
           }}
         });
       };
-      mkLine('calChart', chartRows.map(r => r.calories), 'var(--accent)', TARGETS.calories);
-      mkLine('proChart', chartRows.map(r => r.protein), '#a89ef8', TARGETS.protein);
-      mkLine('carbChart', chartRows.map(r => r.carbs), 'var(--accent)', TARGETS.carbs);
-      mkLine('fatChart', chartRows.map(r => r.fat), 'var(--amber)', TARGETS.fat);
+      mkLine('calChart', chartRows.map(r => r.calories), '#c49078', TARGETS.calories);
+      mkLine('proChart', chartRows.map(r => r.protein), '#8b9cc4', TARGETS.protein);
+      mkLine('carbChart', chartRows.map(r => r.carbs), '#c49078', TARGETS.carbs);
+      mkLine('fatChart', chartRows.map(r => r.fat), '#c9a84c', TARGETS.fat);
+
+      // Eaten vs Burned comparison bar chart
+      const bEl = document.getElementById('balanceChart');
+      if (bEl && hRange.length > 0) {
+        destroyChartById('balanceChart');
+        const allDates = [...new Set([...chartRows.map(r=>r.date), ...hRange.map(h=>h.date)])].sort();
+        const bLabels = allDates.map(d => { const p=d.split('-'); return p[2]+'/'+p[1]; });
+        const eatData = allDates.map(d => { const r=chartRows.find(r=>r.date===d); return r ? r.calories : null; });
+        const burnData = allDates.map(d => { const h=hRange.find(h=>h.date===d); return h ? h.totalKcal : null; });
+        chartInstances['balanceChart'] = new Chart(bEl, {
+          type: 'bar',
+          data: { labels: bLabels, datasets: [
+            { label: 'Eaten', data: eatData, backgroundColor: '#c4907860', borderColor: '#c49078', borderWidth: 1, borderRadius: 4 },
+            { label: 'Burned', data: burnData, backgroundColor: '#8b9cc460', borderColor: '#8b9cc4', borderWidth: 1, borderRadius: 4 }
+          ]},
+          options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { display: true, labels: { color: '#a09488', font: { size: 10 }, boxWidth: 10, padding: 10 } } },
+            scales: {
+              x: { ticks: { color: '#7a6e64', font: { size: 9 }, maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,.03)' } },
+              y: { ticks: { color: '#7a6e64', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.03)' } }
+            }
+          }
+        });
+      }
     }
   }, 100);
 }
-
-// setNutrPeriod replaced by setNutrPreset
 
 Promise.all([
   fetch(ACT_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
@@ -1518,16 +1560,7 @@ Promise.all([
   initReviewDates();
   initHealthDates();
   initNutrDates();
-  renderReviewHistory();
-  const lastDate=health.length?[...health].sort((a,b)=>b.date.localeCompare(a.date))[0].date:'—';
-  document.getElementById('last-updated').textContent='Health: '+lastDate;
-  // renderHealth called by initHealthDates
-  try{renderHealth();}catch(e){
-    console.error('renderHealth error:',e);
-    document.getElementById('health-content').innerHTML='<div style="padding:2rem;color:#ff4d4d">Health render error: '+e.message+'</div>';
-  }
-  try{renderNutrition();}catch(e){console.error('renderNutrition error:',e);}
-  try{renderReviewHistory();}catch(e){console.error('reviews error:',e);}
+  try{renderReviewHistory();}catch(e){console.error('renderReviewHistory error:',e);}
 });
 </script>
 </body>
