@@ -99,6 +99,9 @@ tr:hover td{background:var(--surface2)}
 .chart-card canvas{display:block}
 .acwr-explain{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
 
+.gc-links{display:flex;gap:4px;align-items:center}
+.gc-btn{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-decoration:none;letter-spacing:.03em;white-space:nowrap;transition:color .12s,border-color .12s}
+.gc-btn:hover{color:var(--text);border-color:var(--muted)}
 .date-picker{position:absolute;top:calc(100% + 4px);left:0;z-index:1000;background:#201c16;border:1px solid var(--border);border-radius:12px;padding:12px;width:240px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .date-picker-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .date-picker-header button{background:none;border:none;color:var(--text);cursor:pointer;font-size:16px;padding:2px 8px;border-radius:4px}
@@ -170,6 +173,7 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('runs','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('runs','label')">Effect</th>
+          <th>Open</th>
         </tr></thead>
         <tbody id="tbody-runs"></tbody>
       </table></div>
@@ -198,6 +202,7 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('bikes','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('bikes','label')">Effect</th>
+          <th>Open</th>
         </tr></thead>
         <tbody id="tbody-bikes"></tbody>
       </table></div>
@@ -227,6 +232,7 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('walks','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('walks','label')">Effect</th>
+          <th>Open</th>
         </tr></thead>
         <tbody id="tbody-walks"></tbody>
       </table></div>
@@ -238,7 +244,7 @@ tr:hover td{background:var(--surface2)}
         <input id="filter-search" type="text" placeholder="Search..." oninput="renderAll()" style="width:140px">
       </div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>Date</th><th>Type</th><th>Name</th><th>Dist</th><th>Duration</th><th>Pace/Speed</th><th>Avg HR</th><th>Max HR</th><th>Elev ↑</th><th>Load</th><th>VO₂max</th><th>kcal</th><th>BB ↓</th><th>Effect</th></tr></thead>
+        <thead><tr><th>Date</th><th>Type</th><th>Name</th><th>Dist</th><th>Duration</th><th>Pace/Speed</th><th>Avg HR</th><th>Max HR</th><th>Elev ↑</th><th>Load</th><th>VO₂max</th><th>kcal</th><th>BB ↓</th><th>Effect</th><th>Open</th></tr></thead>
         <tbody id="tbody-all"></tbody>
       </table></div>
     </div>
@@ -292,6 +298,7 @@ let activities=[],healthData=[],currentPeriod='today';
 const ss={runs:{col:'date',asc:false},bikes:{col:'date',asc:false},walks:{col:'date',asc:false}};
 let chartInstances={};
 
+const gcLinks=id=>id?`<div class="gc-links"><a class="gc-btn" href="https://connect.garmin.com/modern/activity/${id}" target="_blank" rel="noopener">🖥 GC</a><a class="gc-btn" href="https://connect.garmin.com/activity/${id}" target="_blank" rel="noopener">📱 App</a></div>`:'';
 const fmtEffect=t=>{
   if(!t||t==='—'||t==='NONE')return'—';
   if(!t.includes('_'))return t;
@@ -375,7 +382,7 @@ function renderRuns(){
     <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td>
     <td class="${r.vo2max>=47?'ok':''}">${n(r.vo2max)}</td>
     <td>${n(r.load,1)}</td><td class="muted-cell">-${n(r.bodyBatDrain)}</td><td>${n(r.calories)}</td>
-    <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(r.label)}</td>
+    <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(r.label)}</td><td>${gcLinks(r.activityId)}</td>
   </tr>`).join('');
 }
 function renderBikes(){
@@ -385,7 +392,7 @@ function renderBikes(){
     <td style="${hrCls(b.avgHR)}">${b.avgHR}</td><td class="${b.maxHR>=187?'hi':b.maxHR>=166?'warn':''}">${b.maxHR}</td>
     <td>${n(b.elevGain)}m</td><td class="muted-cell">${n(b.elevLoss)}m</td>
     <td>${fmt(b.durationSec)}</td><td>${n(b.load,1)}</td><td class="muted-cell">-${n(b.bodyBatDrain)}</td><td>${n(b.calories)}</td>
-    <td>${zbar(b)}</td><td class="muted-cell" style="font-size:11px">${b.label||'—'}</td>
+    <td>${zbar(b)}</td><td class="muted-cell" style="font-size:11px">${b.label||'—'}</td><td>${gcLinks(b.activityId)}</td>
   </tr>`).join('');
 }
 function renderWalks(){
@@ -396,7 +403,7 @@ function renderWalks(){
     <td>${n(w.elevGain)}m</td><td class="muted-cell">${n(w.elevLoss)}m</td>
     <td>${fmt(w.durationSec)}</td><td>${n(w.steps)}</td><td>${n(w.strideLen,1)}cm</td>
     <td>${n(w.load,1)}</td><td class="muted-cell">-${n(w.bodyBatDrain)}</td><td>${n(w.calories)}</td>
-    <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${w.label||'—'}</td>
+    <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${w.label||'—'}</td><td>${gcLinks(w.activityId)}</td>
   </tr>`).join('');
 }
 function renderAll(){
@@ -413,7 +420,7 @@ function renderAll(){
     <td>${n(a.elevGain)}m</td><td>${n(a.load,1)}</td>
     <td class="${a.vo2max>=47?'ok':''}">${a.vo2max||'—'}</td>
     <td>${n(a.calories)}</td><td class="muted-cell">-${n(a.bodyBatDrain)}</td>
-    <td class="muted-cell" style="font-size:11px">${a.label||'—'}</td>
+    <td class="muted-cell" style="font-size:11px">${a.label||'—'}</td><td>${gcLinks(a.activityId)}</td>
   </tr>`).join('');
 }
 function renderActivities(){renderRuns();renderBikes();renderWalks();renderAll();}
@@ -1584,6 +1591,12 @@ function renderNutrition() {
         const bLabels = allDates.map(d => { const p=d.split('-'); return p[2]+'/'+p[1]; });
         const eatData = allDates.map(d => { const r=chartRows.find(r=>r.date===d); return r ? r.calories : null; });
         const burnData = allDates.map(d => { const h=hRange.find(h=>h.date===d); return h ? h.totalKcal : null; });
+        chartInstances['balanceChart'] = new Chart(bEl, {
+          type: 'bar',
+          data: { labels: bLabels, datasets: [
+            { label: 'Eaten', data: eatData, backgroundColor: '#c4907860', borderColor: '#c49078', borderWidth: 1, borderRadius: 4 },
+            { label: 'Burned', data: burnData, backgroundColor: '#8b9cc460', borderColor: '#8b9cc4', borderWidth: 1, borderRadius: 4 }
+          ]},
         chartInstances['balanceChart'] = new Chart(bEl, {
           type: 'bar',
           data: { labels: bLabels, datasets: [
