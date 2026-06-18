@@ -466,11 +466,15 @@ function initHealthDates(){
   if(!healthData.length)return;
   const d=new Date(); d.setDate(d.getDate()-1);
   const yesterday=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
-  healthEndDate=yesterday;
-  healthStartDate=yesterday;
+  // Fall back to latest available date if yesterday has no entry
+  const hasYesterday=healthData.some(h=>h.date===yesterday);
+  const sorted=[...healthData].sort((a,b)=>b.date.localeCompare(a.date));
+  const defaultDate=hasYesterday?yesterday:sorted[0].date;
+  healthEndDate=defaultDate;
+  healthStartDate=defaultDate;
   healthSingleDay=true;
   const el=document.getElementById('health-date');
-  if(el)el.value=toDisplay(yesterday);
+  if(el)el.value=toDisplay(defaultDate);
   try{renderHealth();}catch(e){console.error('renderHealth:',e);}
 }
 
