@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WiggenApp">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#1a1714">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Jørgen — Training Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -114,6 +120,28 @@ tr:hover td{background:var(--surface2)}
 .date-picker-day.selected{background:var(--accent);color:#000;font-weight:700}
 .date-picker-day.empty{cursor:default}
 .date-picker-day.today{border:1px solid var(--accent2)}
+/* Work tab & shift correlation */
+.shift-day{background:rgba(212,176,100,.08);border-color:rgba(212,176,100,.25)}
+.shift-eve{background:rgba(124,109,250,.08);border-color:rgba(124,109,250,.25)}
+.shift-off{background:rgba(122,171,136,.06);border-color:rgba(122,171,136,.2)}
+.corr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:1.25rem}
+.corr-card{border-radius:10px;padding:12px 14px;border:1px solid var(--border)}
+.heatmap-grid{display:grid;grid-template-columns:repeat(53,1fr);gap:2px;margin-bottom:1.25rem}
+.hm-cell{aspect-ratio:1;border-radius:2px;background:var(--surface)}
+.hm-cell.lv1{background:#c4907840}
+.subnav{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.subnav-btn{font-size:11px;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;letter-spacing:.03em;transition:all .15s}
+.subnav-btn.active{background:var(--accent);color:#1a1714;border-color:var(--accent)}
+.sub-panel{display:none}.sub-panel.active{display:block}
+.hm-cell.lv2{background:#c49078}.hm-cell.lv3{background:#c8f53a60}.hm-cell.lv4{background:#c8f53a}
+.race-pred{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:1.25rem}
+.race-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px}
+.race-dist{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.race-time{font-size:19px;font-weight:700;color:var(--accent);letter-spacing:-.5px;margin-top:3px}
+.load-legend{display:flex;gap:12px;font-size:10px;color:var(--muted);margin-bottom:6px}
+.load-legend span{display:flex;align-items:center;gap:4px}
+.load-legend b{display:inline-block;width:12px;height:3px;border-radius:2px}
+
 .streak-banner{background:linear-gradient(135deg,rgba(122,171,136,.08),rgba(122,171,136,.04));border:1px solid rgba(122,171,136,.2);border-radius:12px;padding:14px 18px;margin-bottom:1.25rem;display:flex;align-items:center;gap:14px}
 .streak-num{font-size:36px;font-weight:700;letter-spacing:-2px;line-height:1;color:var(--green)}
 .delta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:1.25rem}
@@ -140,18 +168,27 @@ tr:hover td{background:var(--surface2)}
     <button class="nav-tab" onclick="showNav('health',this)">Health</button>
     <button class="nav-tab" onclick="showNav('nutrition',this)">Nutrition</button>
     <button class="nav-tab" onclick="showNav('reviews',this)">Reviews</button>
+    <button class="nav-tab" onclick="showNav('work',this)">Work</button>
   </div>
 </div>
 <div class="content">
 
   <!-- ACTIVITIES -->
   <div id="nav-activities" class="panel active">
-    <div id="act-summary"></div>
+    <div class="subnav" data-sect="act">
+      <button class="subnav-btn active" onclick="showSubTab('act','summary',this)">📊 Summary</button>
+      <button class="subnav-btn" onclick="showSubTab('act','runs',this)">🏃 Runs</button>
+      <button class="subnav-btn" onclick="showSubTab('act','bikes',this)">🚴 Bikes</button>
+      <button class="subnav-btn" onclick="showSubTab('act','walks',this)">🚶 Walks</button>
+      <button class="subnav-btn" onclick="showSubTab('act','all',this)">📋 All</button>
+    </div>
+    <div id="act-sub-summary" class="sub-panel active"><div id="act-summary"></div></div>
+    <div id="act-sub-runs" class="sub-panel">
     <div class="subtabs">
-      <button class="subtab active" onclick="showSub('runs',this)">Runs</button>
-      <button class="subtab" onclick="showSub('bikes',this)">Bikes</button>
-      <button class="subtab" onclick="showSub('walks',this)">Walks</button>
-      <button class="subtab" onclick="showSub('all',this)">All</button>
+      <button class="subtab active" onclick="showSub('runs',this)" style="display:none">Runs</button>
+      <button class="subtab" onclick="showSub('bikes',this)" style="display:none">Bikes</button>
+      <button class="subtab" onclick="showSub('walks',this)" style="display:none">Walks</button>
+      <button class="subtab" onclick="showSub('all',this)" style="display:none">All</button>
     </div>
 
     <div id="sub-runs" class="subpanel">
@@ -263,15 +300,44 @@ tr:hover td{background:var(--surface2)}
   </div>
 
   <!-- HEALTH -->
+    </div><!-- /act-sub-runs -->
+  </div><!-- /nav-activities -->
   <div id="nav-health" class="panel">
+    <div class="subnav" data-sect="health">
+      <button class="subnav-btn active" onclick="showSubTab('health','today',this)">📍 Today</button>
+      <button class="subnav-btn" onclick="showSubTab('health','trends',this)">📈 Trends</button>
+      <button class="subnav-btn" onclick="showSubTab('health','composition',this)">💪 Composition</button>
+    </div>
+    <div id="health-sub-today" class="sub-panel active">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
       <div style="position:relative;display:inline-block"><input type="text" id="health-date" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('health-picker','health-date')" style="font-size:16px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:150px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="health-picker" class="date-picker" style="display:none"></div></div>
     </div>
-    <div id="health-content"></div>
-  </div>
-
-  <!-- NUTRITION -->
+    </div><!-- /health-sub-today -->
+    <div id="health-sub-trends" class="sub-panel">
+      <div class="section-head">Sleep Quality (7d avg)</div>
+      <div class="chart-card"><canvas id="sleep-trend-chart" height="130"></canvas></div>
+      <div class="section-head">HRV Trend (7d avg)</div>
+      <div class="chart-card"><canvas id="hrv-trend-chart" height="130"></canvas></div>
+      <div class="section-head">Body Battery Peak (7d avg)</div>
+      <div class="chart-card"><canvas id="bb-trend-chart" height="130"></canvas></div>
+      <div class="section-head">Weight + Trend Line</div>
+      <div id="weight-goal-info" style="font-size:11px;color:var(--green);margin-bottom:6px"></div>
+      <div class="chart-card"><canvas id="weight-trend-chart" height="150"></canvas></div>
+      <div class="section-head">Body Fat %</div>
+      <div class="chart-card"><canvas id="bodyfat-trend-chart" height="130"></canvas></div>
+      <div class="section-head">RHR vs Training Load</div>
+      <div class="chart-card"><canvas id="rhr-load-scatter" height="150"></canvas></div>
+    </div><!-- /health-sub-trends -->
+    <div id="health-sub-composition" class="sub-panel">
+      <div id="health-comp-content"></div>
+    </div><!-- /health-sub-composition -->
+  </div><!-- /nav-health -->
   <div id="nav-nutrition" class="panel">
+    <div class="subnav" data-sect="nutr">
+      <button class="subnav-btn active" onclick="showSubTab('nutr','daily',this)">📍 Daily</button>
+      <button class="subnav-btn" onclick="showSubTab('nutr','insights',this);renderNutritionExtras()">📊 Insights</button>
+    </div>
+    <div id="nutr-sub-daily" class="sub-panel active">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
       <span style="font-size:12px;color:var(--muted);font-weight:600">From</span>
       <div style="position:relative;display:inline-block"><input type="text" id="nutr-start" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('nutr-start-picker','nutr-start')" style="font-size:14px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:140px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="nutr-start-picker" class="date-picker" style="display:none"></div></div>
@@ -282,6 +348,16 @@ tr:hover td{background:var(--surface2)}
   </div>
 
   <!-- REVIEWS -->
+    </div><!-- /nutr-sub-daily -->
+    <div id="nutr-sub-insights" class="sub-panel"><div id="nutr-extras"></div></div>
+  </div><!-- /nav-nutrition -->
+  <div id="nav-work" class="panel">
+    <div class="subnav" data-sect="work">
+      <button class="subnav-btn active" onclick="showSubTab('work','correlation',this)">📊 Correlation</button>
+      <button class="subnav-btn" onclick="showSubTab('work','schedule',this)">📅 Schedule</button>
+    </div>
+    <div id="work-sub-correlation" class="sub-panel active"><div id="work-content"><p style="color:var(--muted);padding:20px">Loading shifts…</p></div></div><!-- /work-content --></div><!-- /work-sub-correlation -->
+    <div id="work-sub-schedule" class="sub-panel"><div id="work-schedule"></div></div>
   <div id="nav-reviews" class="panel">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:8px">
@@ -305,8 +381,9 @@ tr:hover td{background:var(--surface2)}
 
 <script>
 const ACT_URL='https://raw.githubusercontent.com/snxz-y/WiggenApp/main/activities.json';
+const SHIFTS_URL='https://raw.githubusercontent.com/snxz-y/WiggenApp/main/shifts.json';
 const HEALTH_URL='https://raw.githubusercontent.com/snxz-y/WiggenApp/main/health.json';
-let activities=[],healthData=[],currentPeriod='today';
+let activities=[],healthData=[],shiftsData=[],currentPeriod='today';
 const ss={runs:{col:'date',asc:false},bikes:{col:'date',asc:false},walks:{col:'date',asc:false}};
 let chartInstances={};
 
@@ -436,6 +513,408 @@ function renderAll(){
   </tr>`).join('');
 }
 
+
+// ═══════════════════════════════════════════════
+// TRAINING LOAD (Acute 7d vs Chronic 42d EWMA)
+// ═══════════════════════════════════════════════
+function renderTrainingLoad(){
+  const el=document.getElementById('act-load-chart');if(!el)return;
+  const runs=activities.filter(a=>a.type==='running'&&a.load&&a.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if(runs.length<2)return;
+  const all=[];
+  const start=new Date(runs[0].date);const end=new Date();
+  for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    const ds=d.toISOString().slice(0,10);
+    const load=runs.filter(r=>r.date===ds).reduce((s,r)=>s+(r.load||0),0);
+    all.push({date:ds,load});
+  }
+  const labels=[];const acute=[];const chronic=[];
+  let a=0,c=0;
+  const ka=2/(7+1),kc=2/(42+1);
+  all.forEach((d,i)=>{
+    a=i===0?d.load:d.load*ka+a*(1-ka);
+    c=i===0?d.load:d.load*kc+c*(1-kc);
+    if(i>=41||i>=all.length-30){
+      labels.push(d.date.slice(5).replace('-','/'));
+      acute.push(+a.toFixed(1));
+      chronic.push(+c.toFixed(1));
+    }
+  });
+  destroyChartById('act-load-chart');
+  chartInstances['act-load-chart']=new Chart(el,{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Acute (7d)',data:acute,borderColor:'#c49078',backgroundColor:'#c4907820',borderWidth:2,fill:false,pointRadius:0,tension:.3},
+      {label:'Chronic (42d)',data:chronic,borderColor:'#7c6dfa',backgroundColor:'#7c6dfa20',borderWidth:2,fill:false,pointRadius:0,tension:.3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#7a6e64',font:{size:10},boxWidth:10}}},
+      scales:{x:{ticks:{color:'#7a6e64',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.03)'}},
+        y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},beginAtZero:true}}}
+  });
+}
+
+// ═══════════════════════════════════════════════
+// RACE PREDICTIONS from VO2max (Riegel formula)
+// ═══════════════════════════════════════════════
+function renderRacePreds(){
+  const el=document.getElementById('race-preds');if(!el)return;
+  const withVO2=activities.filter(a=>a.vo2max&&a.type==='running').sort((a,b)=>b.date.localeCompare(a.date));
+  if(!withVO2.length){el.innerHTML='<p style="color:var(--muted);font-size:12px">No VO₂max data yet</p>';return;}
+  const vo2=withVO2[0].vo2max;
+  // Jack Daniels VDOT tables approximation
+  // vVo2max (m/min) ≈ (vo2max × 29.54 + 5.000663 - 0.007546×vo2max²) / (0.000104×vo2max² + 0.1894393×vo2max + 29.381) × 100/4
+  // Simpler: pace at VO2max ≈ vo2max / 3.5 km/h → convert to seconds
+  // Use standard formula: time(d) = a × d^b where b=1.06, a from known 5k time
+  // Better: from VO2max, estimate 5k time using Daniels VDOT
+  // VDOT 45→5k=22:36, 50→20:03, 55→18:05, 60→16:31, 65→15:13
+  const vdot=vo2;
+  // Polynomial fit for VDOT→5k seconds
+  const p5k=Math.round((-0.0062*vdot*vdot + 0.1985*vdot*60 + 2340) / (0.005*vdot+0.76));
+  const riegel=(d,base_d,base_t)=>Math.round(base_t*Math.pow(d/base_d,1.06));
+  const preds=[
+    {dist:'5 km',sec:p5k},
+    {dist:'10 km',sec:riegel(10000,5000,p5k)},
+    {dist:'Half',sec:riegel(21097,5000,p5k)},
+    {dist:'Marathon',sec:riegel(42195,5000,p5k)}
+  ];
+  el.innerHTML=preds.map(p=>`<div class="race-card"><div class="race-dist">${p.dist}</div><div class="race-time">${fmt(p.sec)}</div></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// ACTIVITY HEATMAP CALENDAR
+// ═══════════════════════════════════════════════
+function renderHeatmap(){
+  const el=document.getElementById('act-heatmap');if(!el)return;
+  const runDates=new Set(activities.filter(a=>a.type==='running').map(a=>a.date));
+  const actDates=new Map();
+  activities.forEach(a=>{
+    const k=a.date;
+    actDates.set(k,(actDates.get(k)||0)+1);
+  });
+  // Last 52 weeks
+  const today=new Date();const oneYear=new Date(today);oneYear.setDate(today.getDate()-364);
+  // Start from last Monday before oneYear
+  const dow=(oneYear.getDay()+6)%7;
+  const gridStart=new Date(oneYear);gridStart.setDate(oneYear.getDate()-dow);
+  const cells=[];
+  for(let d=new Date(gridStart);d<=today;d.setDate(d.getDate()+1)){
+    const ds=d.toISOString().slice(0,10);
+    const cnt=actDates.get(ds)||0;
+    const lv=cnt===0?'':cnt===1?'lv1':cnt===2?'lv2':cnt>=3?'lv3':'lv1';
+    const isRun=runDates.has(ds);
+    cells.push(`<div class="hm-cell${lv?' '+lv:''}" title="${ds}: ${cnt} activit${cnt===1?'y':'ies'}"></div>`);
+  }
+  el.innerHTML=cells.join('');
+}
+
+// ═══════════════════════════════════════════════
+// HEALTH TRENDS (sleep, HRV, weight, body fat)
+// ═══════════════════════════════════════════════
+function renderHealthTrends(){
+  const sorted=[...healthData].sort((a,b)=>a.date.localeCompare(b.date));
+  if(sorted.length<3)return;
+
+  // Sleep 7d rolling avg
+  renderRollingChart('sleep-trend-chart','sleepScore',sorted,'Sleep Score (7d avg)','#8b9cc4');
+  // HRV trend
+  renderRollingChart('hrv-trend-chart','hrvAvg',sorted,'HRV avg (7d)','#7aab88');
+  // Body battery
+  renderRollingChart('bb-trend-chart','bbHigh',sorted,'Body Battery Peak (7d)','#c49078');
+
+  // Weight smoothed + goal line
+  renderWeightChart(sorted);
+
+  // Body fat trend
+  renderBodyFatChart(sorted);
+
+  // RHR vs load scatter
+  renderRHRLoadScatter();
+
+  // HRV warning
+  const hrv7=sorted.slice(-7).filter(h=>h.hrvAvg).map(h=>h.hrvAvg);
+  const hrv14=sorted.slice(-14,-7).filter(h=>h.hrvAvg).map(h=>h.hrvAvg);
+  const avg7=hrv7.length?hrv7.reduce((s,v)=>s+v,0)/hrv7.length:null;
+  const avg14=hrv14.length?hrv14.reduce((s,v)=>s+v,0)/hrv14.length:null;
+  const warnEl=document.getElementById('hrv-warning');
+  if(warnEl&&avg7&&avg14){
+    const drop=avg14-avg7;
+    if(drop>5){
+      warnEl.innerHTML=`<div style="background:rgba(196,120,120,.1);border:1px solid rgba(196,120,120,.3);border-radius:8px;padding:10px 14px;font-size:12px;color:#c47878;margin-bottom:1rem">⚠️ HRV dropped ${drop.toFixed(1)} ms this week vs last (${avg7.toFixed(0)} vs ${avg14.toFixed(0)}) — consider recovery.</div>`;
+    } else {
+      warnEl.innerHTML='';
+    }
+  }
+}
+
+function renderRollingChart(id,key,sorted,label,color){
+  const el=document.getElementById(id);if(!el)return;
+  const window7=7;
+  const pts=sorted.filter(d=>d[key]!=null);
+  if(pts.length<2)return;
+  const labels=[];const vals=[];
+  pts.forEach((d,i)=>{
+    const slice=pts.slice(Math.max(0,i-window7+1),i+1).map(p=>p[key]);
+    const avg=slice.reduce((s,v)=>s+v,0)/slice.length;
+    labels.push(d.date.slice(5).replace('-','/'));
+    vals.push(+avg.toFixed(1));
+  });
+  destroyChartById(id);
+  chartInstances[id]=new Chart(el,{
+    type:'line',data:{labels,datasets:[{label,data:vals,borderColor:color,backgroundColor:color+'20',borderWidth:2,fill:true,pointRadius:0,tension:.4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#7a6e64',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.03)'}},
+        y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}}}}
+  });
+}
+
+function renderWeightChart(sorted){
+  const el=document.getElementById('weight-trend-chart');if(!el)return;
+  const pts=sorted.filter(d=>d.weight!=null);
+  if(pts.length<2)return;
+  // 7d rolling average (noise reduction)
+  const labels=[];const raw=[];const smooth=[];
+  pts.forEach((d,i)=>{
+    const slice=pts.slice(Math.max(0,i-6),i+1).map(p=>p.weight);
+    labels.push(d.date.slice(5).replace('-','/'));
+    raw.push(d.weight);
+    smooth.push(+(slice.reduce((s,v)=>s+v,0)/slice.length).toFixed(2));
+  });
+  // Project goal: linear regression on smooth values
+  const n=smooth.length;
+  const xi=smooth.map((_,i)=>i);
+  const meanX=(n-1)/2,meanY=smooth.reduce((s,v)=>s+v,0)/n;
+  const slope=xi.reduce((s,x,i)=>s+(x-meanX)*(smooth[i]-meanY),0)/xi.reduce((s,x)=>s+(x-meanX)**2,0);
+  const intercept=meanY-slope*meanX;
+  let goalLabel='',goalDays='';
+  if(slope<0){
+    const daysToGoal=(65-intercept)/slope;
+    if(daysToGoal>0&&daysToGoal<500){
+      const g=new Date();g.setDate(g.getDate()+Math.round(daysToGoal-n));
+      goalLabel=`Goal 65kg: ${g.toLocaleDateString('no-NO',{day:'2-digit',month:'short',year:'numeric'})}`;
+    }
+  }
+  const goalLine=labels.map((_,i)=>+(intercept+slope*i).toFixed(2));
+  destroyChartById('weight-trend-chart');
+  chartInstances['weight-trend-chart']=new Chart(el,{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Daily',data:raw,borderColor:'#c4907840',borderWidth:1,pointRadius:2,pointBackgroundColor:'#c49078',tension:.3,fill:false},
+      {label:'7d avg',data:smooth,borderColor:'#c49078',borderWidth:2,pointRadius:0,tension:.4,fill:false},
+      {label:'Trend',data:goalLine,borderColor:'#7c6dfa60',borderWidth:1.5,borderDash:[4,4],pointRadius:0,tension:0,fill:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#7a6e64',font:{size:10},boxWidth:10}},
+        annotation:{}},
+      scales:{x:{ticks:{color:'#7a6e64',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.03)'}},
+        y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},
+          min:Math.max(60,Math.min(...raw)-1),max:Math.max(...raw)+1}}}
+  });
+  const infoEl=document.getElementById('weight-goal-info');
+  if(infoEl&&goalLabel)infoEl.textContent=goalLabel+(slope<0?` (${(slope*7).toFixed(2)} kg/wk)`:'');
+}
+
+function renderBodyFatChart(sorted){
+  const el=document.getElementById('bodyfat-trend-chart');if(!el)return;
+  const pts=sorted.filter(d=>d.bodyFat!=null);
+  if(pts.length<2)return;
+  const labels=pts.map(d=>d.date.slice(5).replace('-','/'));
+  const vals=pts.map(d=>d.bodyFat);
+  destroyChartById('bodyfat-trend-chart');
+  chartInstances['bodyfat-trend-chart']=new Chart(el,{
+    type:'line',data:{labels,datasets:[{label:'Body Fat %',data:vals,borderColor:'#c9a84c',backgroundColor:'#c9a84c15',borderWidth:2,pointRadius:2,pointBackgroundColor:'#c9a84c',tension:.4,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#7a6e64',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.03)'}},
+        y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}}}}
+  });
+}
+
+function renderRHRLoadScatter(){
+  const el=document.getElementById('rhr-load-scatter');if(!el)return;
+  const pts=[];
+  healthData.forEach(h=>{
+    if(!h.rhr)return;
+    const dayLoad=activities.filter(a=>a.date===h.date).reduce((s,a)=>s+(a.load||0),0);
+    pts.push({x:dayLoad,y:h.rhr});
+  });
+  if(pts.length<3)return;
+  destroyChartById('rhr-load-scatter');
+  chartInstances['rhr-load-scatter']=new Chart(el,{
+    type:'scatter',data:{datasets:[{label:'Load vs RHR',data:pts,backgroundColor:'#c4907880',pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:p=>`Load: ${p.parsed.x}, RHR: ${p.parsed.y} bpm`}}},
+      scales:{x:{title:{display:true,text:'Training Load',color:'#7a6e64',font:{size:10}},ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}},
+        y:{title:{display:true,text:'RHR (bpm)',color:'#7a6e64',font:{size:10}},ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}}}}
+  });
+}
+
+// ═══════════════════════════════════════════════
+// NUTRITION EXTRAS
+// ═══════════════════════════════════════════════
+function renderNutritionExtras(){
+  const el=document.getElementById('nutr-extras');if(!el)return;
+  if(!nutritionData||!nutritionData.length)return;
+
+  // Protein per kg (current weight)
+  const lastWeight=([...healthData].sort((a,b)=>b.date.localeCompare(a.date)).find(h=>h.weight)||{}).weight||76;
+  const recent=[...nutritionData].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
+  const avgProtein=recent.reduce((s,d)=>s+(d.protein||0),0)/recent.length;
+  const proteinPerKg=(avgProtein/lastWeight).toFixed(2);
+  const protTarget=2.0;
+
+  // Cumulative deficit (goal 1600 kcal, actual eaten)
+  const sorted=[...nutritionData].sort((a,b)=>a.date.localeCompare(b.date));
+  let cumDef=0;const defLabels=[];const defData=[];
+  sorted.forEach(d=>{
+    const eaten=d.calories||0;
+    const burned=([...healthData].find(h=>h.date===d.date)||{}).totalKcal||1900;
+    const deficit=burned-eaten;
+    cumDef+=deficit;
+    defLabels.push(d.date.slice(5).replace('-','/'));
+    defData.push(+cumDef.toFixed(0));
+  });
+
+  // Best/worst weekdays for macros
+  const dayGroups=[0,1,2,3,4,5,6].map(dow=>{
+    const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const entries=nutritionData.filter(d=>new Date(d.date).getDay()===dow&&d.calories);
+    const avgCal=entries.length?entries.reduce((s,d)=>s+(d.calories||0),0)/entries.length:0;
+    return{day:days[dow],avg:Math.round(avgCal),n:entries.length};
+  }).filter(d=>d.n>0).sort((a,b)=>a.avg-b.avg);
+
+  el.innerHTML=`
+    <div class="section-head">Protein per kg</div>
+    <div class="stat-grid" style="margin-bottom:1.25rem">
+      <div class="stat-card"><div class="stat-label">7d avg protein</div><div class="stat-value">${Math.round(avgProtein)}g</div></div>
+      <div class="stat-card"><div class="stat-label">per kg bodyweight</div><div class="stat-value" style="color:${+proteinPerKg>=protTarget?'var(--green)':'var(--red)'}">${proteinPerKg}g/kg</div><div class="stat-sub">target ${protTarget}g/kg</div></div>
+      <div class="stat-card"><div class="stat-label">bodyweight used</div><div class="stat-value">${lastWeight}kg</div></div>
+    </div>
+    <div class="section-head">Cumulative Calorie Deficit</div>
+    <div class="chart-card"><canvas id="deficit-chart" height="140"></canvas></div>
+    <div class="section-head">Avg Calories by Weekday</div>
+    <div class="delta-grid">
+      ${dayGroups.map(d=>`<div class="delta-card"><div class="stat-label">${d.day}</div><div class="delta-val">${d.avg}<span style="font-size:11px;color:var(--muted)"> kcal</span></div><div class="delta-chg" style="color:var(--muted)">${d.n} days</div></div>`).join('')}
+    </div>
+  `;
+
+  destroyChartById('deficit-chart');
+  const ctx=document.getElementById('deficit-chart');
+  if(ctx){
+    chartInstances['deficit-chart']=new Chart(ctx,{
+      type:'line',data:{labels:defLabels,datasets:[{label:'Cumulative deficit (kcal)',data:defData,borderColor:'#7aab88',backgroundColor:'#7aab8820',borderWidth:2,fill:true,pointRadius:0,tension:.3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#7a6e64',font:{size:10},maxTicksLimit:10},grid:{color:'rgba(255,255,255,.03)'}},
+          y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}}}}
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════
+// WORK / SHIFT CORRELATION TAB
+// ═══════════════════════════════════════════════
+function renderWork(){
+  const el=document.getElementById('work-content');if(!el)return;
+  if(!shiftsData||!shiftsData.length){el.innerHTML='<p style="color:var(--muted)">No shift data loaded.</p>';return;}
+
+  const join=(date)=>{
+    const h=healthData.find(h=>h.date===date)||{};
+    const acts=activities.filter(a=>a.date===date);
+    const n=nutritionData&&nutritionData.find?nutritionData.find(n=>n.date===date):null;
+    return{...h,activities:acts,nutrition:n};
+  };
+
+  const byType={day:[],evening:[],off:[]};
+  shiftsData.forEach(s=>{
+    const d=join(s.date);
+    const type=s.shiftType||'off';
+    if(byType[type])byType[type].push({shift:s,data:d});
+  });
+
+  const metric=(rows,key)=>{const v=rows.map(r=>r.data[key]).filter(x=>x!=null);return v.length?+(v.reduce((s,x)=>s+x,0)/v.length).toFixed(1):null;};
+  const metricAct=(rows,fn)=>{const v=rows.map(r=>fn(r)).filter(x=>x!=null);return v.length?+(v.reduce((s,x)=>s+x,0)/v.length).toFixed(1):null;};
+
+  const types=[
+    {key:'day',label:'Day (07–15)',cls:'shift-day',emoji:'☀️'},
+    {key:'evening',label:'Evening (14–22)',cls:'shift-eve',emoji:'🌆'},
+    {key:'off',label:'Day Off',cls:'shift-off',emoji:'😴'}
+  ];
+
+  const metrics=[
+    {key:'sleepScore',label:'Sleep Score',unit:''},
+    {key:'hrvAvg',label:'HRV avg',unit:''},
+    {key:'rhr',label:'Resting HR',unit:'bpm'},
+    {key:'steps',label:'Steps',unit:''},
+    {key:'bbHigh',label:'Body Battery',unit:''},
+    {key:'avgStress',label:'Avg Stress',unit:''}
+  ];
+
+  // Run frequency per shift type
+  const runFreq=(rows)=>rows.length?+(rows.filter(r=>r.data.activities.some(a=>a.type==='running')).length/rows.length*100).toFixed(0):0;
+  const avgCal=(rows)=>{const v=rows.filter(r=>r.data.nutrition&&r.data.nutrition.calories).map(r=>r.data.nutrition.calories);return v.length?Math.round(v.reduce((s,x)=>s+x,0)/v.length):null;};
+
+  let html=`
+    <div class="section-head" style="margin-top:0">Shift Overview</div>
+    <div class="stat-grid" style="margin-bottom:1.25rem">
+      ${types.map(t=>`<div class="stat-card"><div class="stat-label">${t.emoji} ${t.label}</div><div class="stat-value">${byType[t.key].length}<span style="font-size:14px;color:var(--muted)"> shifts</span></div></div>`).join('')}
+    </div>
+
+    <div class="section-head">Health Metrics by Shift Type</div>
+    <div style="overflow-x:auto;margin-bottom:1.25rem">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr><th style="text-align:left;padding:6px 10px;color:var(--muted);font-weight:600">Metric</th>
+        ${types.map(t=>`<th style="text-align:right;padding:6px 10px;color:var(--muted);font-weight:600">${t.emoji} ${t.label.split(' ')[0]}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${metrics.map(m=>`<tr style="border-top:1px solid var(--border)">
+          <td style="padding:7px 10px;color:var(--text)">${m.label}</td>
+          ${types.map(t=>{const v=metric(byType[t.key],m.key);return`<td style="text-align:right;padding:7px 10px;color:var(--accent)">${v!=null?v+''+m.unit:'—'}</td>`;}).join('')}
+        </tr>`).join('')}
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:7px 10px;color:var(--text)">🏃 Run day %</td>
+          ${types.map(t=>`<td style="text-align:right;padding:7px 10px;color:var(--accent)">${runFreq(byType[t.key])}%</td>`).join('')}
+        </tr>
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:7px 10px;color:var(--text)">🍽 Avg kcal</td>
+          ${types.map(t=>{const v=avgCal(byType[t.key]);return`<td style="text-align:right;padding:7px 10px;color:var(--accent)">${v||'—'}</td>`;}).join('')}
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="section-head">Bed/Wake Time by Shift Type</div>
+    <div class="corr-grid">
+      ${types.map(t=>{
+        const bedTimes=byType[t.key].filter(r=>r.data.bedTime).map(r=>r.data.bedTime);
+        const wakeTimes=byType[t.key].filter(r=>r.data.wakeTime).map(r=>r.data.wakeTime);
+        const avgTime=(times)=>{
+          if(!times.length)return'—';
+          const mins=times.map(t=>{const[h,m]=t.split(':');return+h*60+(+m);});
+          const avg=mins.reduce((s,v)=>s+v,0)/mins.length;
+          return Math.floor(avg/60)+':'+String(Math.round(avg%60)).padStart(2,'0');
+        };
+        return`<div class="corr-card ${t.cls}"><div class="stat-label">${t.emoji} ${t.label}</div>
+          <div style="margin-top:8px;font-size:11px;color:var(--muted)">Avg bedtime</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${avgTime(bedTimes)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px">Avg wake</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${avgTime(wakeTimes)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="section-head">Shift Schedule (recent)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:1rem">
+      ${[...shiftsData].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30).map(s=>`
+        <div class="stat-card ${s.shiftType==='day'?'shift-day':s.shiftType==='evening'?'shift-eve':'shift-off'}" style="padding:6px 10px;min-width:unset">
+          <div style="font-size:10px;color:var(--muted)">${s.date.slice(5).replace('-','/')}</div>
+          <div style="font-size:12px;font-weight:600">${s.shiftType==='day'?'☀️ Day':s.shiftType==='evening'?'🌆 Eve':'😴 Off'}</div>
+          ${s.start?`<div style="font-size:10px;color:var(--muted)">${s.start}–${s.end}</div>`:''}
+        </div>`).join('')}
+    </div>
+  `;
+
+  el.innerHTML=html;
+}
+
+
 function renderActSummary(){
   const runs=activities.filter(a=>a.type==='running').sort((a,b)=>a.date.localeCompare(b.date));
   if(!runs.length)return;
@@ -475,6 +954,13 @@ function renderActSummary(){
     </div>
     <div class="section-head">Weekly Run Volume</div>
     <div class="chart-card"><canvas id="weeklyKmChart" height="150"></canvas></div>
+    <div class="section-head">Training Load (Acute vs Chronic)</div>
+    <div class="load-legend"><span><b style="background:#c49078"></b>Acute 7d</span><span><b style="background:#7c6dfa"></b>Chronic 42d</span></div>
+    <div class="chart-card"><canvas id="act-load-chart" height="130"></canvas></div>
+    <div class="section-head">Race Predictions (VO₂max)</div>
+    <div id="race-preds" class="race-pred"></div>
+    <div class="section-head">Activity Heatmap (52 weeks)</div>
+    <div id="act-heatmap" class="heatmap-grid" style="grid-template-columns:repeat(53,1fr)"></div>
     <div class="section-head">Personal Records</div>
     <div class="pr-grid">
       ${maxDist?`<div class="pr-card"><div class="pr-crown">🏅</div><div class="stat-label">Longest Run</div><div class="pr-val">${(maxDist.distanceM/1000).toFixed(2)} km</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(maxDist.date)}</div></div>`:''}
@@ -484,6 +970,9 @@ function renderActSummary(){
       ${bestVO2?`<div class="pr-card"><div class="pr-crown">💪</div><div class="stat-label">Best VO₂max</div><div class="pr-val">${bestVO2.vo2max}</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(bestVO2.date)}</div></div>`:''}
     </div>
   `;
+  renderTrainingLoad();
+  renderRacePreds();
+  renderHeatmap();
   destroyChartById('weeklyKmChart');
   const ctx=document.getElementById('weeklyKmChart');
   if(ctx&&wkKeys.length){
@@ -734,6 +1223,11 @@ function renderHealth(){
     };
     const zynHtml=`<div class="streak-banner"><div class="streak-num">${zynDays}</div><div><div style="font-size:15px;font-weight:700;color:var(--green)">Days Zyn-Free 🚭</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Since June 5, 2026 — keep it up!</div></div></div>`;
     const deltaHtmlBlock=`<div class="section-head">This Week vs Last Week</div><div class="delta-grid">${deltaHtml('rhr','Resting HR','',true)}${deltaHtml('hrvAvg','HRV','')}${deltaHtml('sleepScore','Sleep Score','')}${deltaHtml('steps','Steps','')}${deltaHtml('bbHigh','Body Batt High','')}${deltaHtml('avgStress','Avg Stress','',true)}</div>`;
+  // Render new trend sections into sub-tab
+  setTimeout(()=>{
+    renderHealthTrends();
+    renderNutritionExtras();
+  },50);
   document.getElementById('health-content').innerHTML=zynHtml+deltaHtmlBlock+`
     <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem"><div class="section-head">Recovery & Readiness</div>
     <div class="stat-grid">
@@ -1088,7 +1582,33 @@ function renderHealth(){
   },100);
 }
 
+
+function showSubTab(sect, tab, el) {
+  // Hide all sub-panels for this section
+  const panel = el.closest('.panel');
+  panel.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
+  panel.querySelectorAll('.subnav-btn').forEach(b=>b.classList.remove('active'));
+  const target = document.getElementById(sect+'-sub-'+tab);
+  if(target) target.classList.add('active');
+  el.classList.add('active');
+  // For activities, trigger the right showSub
+  if(sect==='act'&&tab!=='summary'){
+    // All list tabs share act-sub-runs, just trigger showSub for inner tabs
+    const listPanel=document.getElementById('act-sub-runs');
+    if(listPanel){listPanel.classList.add('active');}
+    if(tab==='runs'||tab==='bikes'||tab==='walks'||tab==='all'){
+      const fakeBtn=null;
+      // Trigger showSub for the right sub-tab
+      const innerBtn=document.querySelector(`.subtab[onclick*="showSub('${tab}"]`);
+      showSub(tab,innerBtn);
+    }
+  }
+  // Trigger trend rendering
+  if(sect==='health'&&tab==='trends'){renderHealthTrends();}
+}
+
 function showNav(id,el){
+  if(id==='work'){setTimeout(renderWork,50);}
   destroyCharts();
   if(id==='nutrition'){renderNutrition();}
   if(id==='health'){renderHealth();}
@@ -1714,12 +2234,14 @@ Promise.all([
   fetch(ACT_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
   fetch(HEALTH_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
   fetch(NUTR_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
-  fetch(REVIEWS_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[])
-]).then(([acts,health,nutr,revs])=>{
+  fetch(REVIEWS_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
+  fetch(SHIFTS_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[])
+]).then(([acts,health,nutr,revs,shifts])=>{
   activities=acts;
   healthData=health;
   nutritionData=nutr;
   reviewsData=revs;
+  shiftsData=shifts||[];
   try{renderActivities();}catch(e){console.error('renderActivities error:',e);}
   initReviewDates();
   initCompDates();
@@ -1727,6 +2249,9 @@ Promise.all([
   initNutrDates();
   try{renderReviewHistory();}catch(e){console.error('renderReviewHistory error:',e);}
 });
+</script>
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
 </script>
 </body>
 </html>
