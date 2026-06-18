@@ -311,6 +311,23 @@ let activities=[],healthData=[],currentPeriod='today';
 const ss={runs:{col:'date',asc:false},bikes:{col:'date',asc:false},walks:{col:'date',asc:false}};
 let chartInstances={};
 
+const fmtEffect=t=>{
+  if(!t)return'—';
+  const map={
+    'IMPACTING_TEMPO':'Tempo',
+    'IMPACTING_BASE':'Base',
+    'IMPACTING_THRESHOLD':'Threshold',
+    'IMPACTING_VO2MAX':'VO2 Max',
+    'IMPACTING_ANAEROBIC':'Anaerobic',
+    'IMPACTING_SPRINT':'Sprint',
+    'MAINTAINING_TEMPO':'Maintaining Tempo',
+    'MAINTAINING_BASE':'Maintaining Base',
+    'MAINTAINING_THRESHOLD':'Maintaining Threshold',
+    'NO_IMPACT':'Recovery',
+    'NONE':'—',
+  };
+  return map[t.toUpperCase()]||t.replace(/_/g,' ').replace(/\w/g,c=>c.toUpperCase());
+};
 const fmtDate=d=>{
   if(!d)return'—';
   const [y,m,day]=d.split('-');
@@ -375,7 +392,7 @@ function renderRuns(){
     <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td>
     <td class="${r.vo2max>=47?'ok':''}">${n(r.vo2max)}</td>
     <td>${n(r.load,1)}</td><td class="muted-cell">-${n(r.bodyBatDrain)}</td><td>${n(r.calories)}</td>
-    <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${r.label||'—'}</td>
+    <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(r.label)}</td>
   </tr>`).join('');
 }
 function renderBikes(){
@@ -544,6 +561,11 @@ function renderHealth(){
       'LOW_SS_POOR':'Poor sleep score',
       'LOW_RT_MOD':'Recovery metrics below baseline',
       'UNKNOWN':'Data unavailable',
+      'LOW_RT_MOD_OR_LOW_SS_GOOD_SLEEP_HISTORY_NEG':'Below-baseline recovery, good sleep but poor sleep history',
+      'MOD_RT_LOW_SS_MOD':'Moderate recovery, moderate sleep',
+      'HIGH_RT_AVAILABLE_SS_UNKNOWN':'Well recovered, sleep data pending',
+      'MOD_RT_HIGH_SS':'Moderate recovery, good sleep',
+      'LOW_RT_MOD_SS':'Below-baseline recovery, moderate sleep',
     };
     const key=t.replace(/ /g,'_').toUpperCase();
     return map[key]||(t.replace(/_/g,' ').charAt(0).toUpperCase()+t.replace(/_/g,' ').slice(1).toLowerCase());
@@ -585,9 +607,9 @@ function renderHealth(){
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Training Readiness</div>
-        <div class="stat-value" style="color:${scoreColor(d.trainingReadiness)}">${A('trainingReadiness')}</div>
-        <div class="stat-sub">${d.trainingReadinessLevel?d.trainingReadinessLevel:''}</div>
-        ${d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${readinessFeedback(d.trainingReadinessFeedback)}</div>`:''}
+        <div class="stat-value" style="color:${isToday?scoreColor(d.trainingReadiness):'var(--text)'}">${A('trainingReadiness')}</div>
+        <div class="stat-sub">${isToday&&d.trainingReadinessLevel?d.trainingReadinessLevel:''}</div>
+        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${readinessFeedback(d.trainingReadinessFeedback)}</div>`:''}
       </div>
       <div class="stat-card">
         <div class="stat-label">HRV Last Night</div>
@@ -703,7 +725,7 @@ function renderHealth(){
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Training Status</div>
-        <div class="stat-value" style="font-size:16px;color:var(--green)">${d.trainingStatus?(typeof d.trainingStatus==='object'?d.trainingStatus.trainingStatusKey||'—':d.trainingStatus):'—'}</div>
+        <div class="stat-value" style="font-size:16px;color:var(--green)">${isToday&&d.trainingStatus?(typeof d.trainingStatus==='object'?d.trainingStatus.trainingStatusKey||'—':d.trainingStatus):'—'}</div>
         <div class="stat-sub">Sport: Running</div>
       </div>
       <div class="stat-card">
@@ -777,7 +799,7 @@ function renderHealth(){
             '<div style="position:absolute;top:-2px;bottom:-2px;left:'+rangeLow+'%;width:3px;background:#fff;z-index:10;border-radius:2px;opacity:.95"></div>'+
             '<div style="position:absolute;top:-2px;bottom:-2px;left:'+rangeHigh+'%;width:3px;background:#fff;z-index:10;border-radius:2px;opacity:.6"></div>'+
             '</div><span class="load-val" style="color:'+valColor+'">'+(vv!=null?vv:'—')+' <span style="color:#666;font-size:10px">('+v.min+'-'+v.max+')</span></span></div>';
-        }).join('')+'<div class="load-focus-label">Focus: '+(d.loadFocus?d.loadFocus.replace(/_/g,' '):'—')+'</div>';
+        }).join('')+'<div class="load-focus-label">Focus: '+(isToday&&d.loadFocus?d.loadFocus.replace(/_/g,' '):'—')+'</div>';
       })()}
     </div>
 
