@@ -439,26 +439,31 @@ function renderAll(){
 function renderActSummary(){
   const runs=activities.filter(a=>a.type==='running').sort((a,b)=>a.date.localeCompare(b.date));
   if(!runs.length)return;
-  // Weekly volume — last 12 weeks
-  const weeks={};
+  const isInterval=r=>/interval|tempo|fartlek|speedwork/i.test(r.activityName||r.name||'');
+  const steadyRuns=runs.filter(r=>!isInterval(r));
+  // Weekly volume — last 12 weeks (all runs, intervals in different color)
+  const weeks={};const iweeks={};
   runs.forEach(r=>{
     const d=new Date(r.date);
     const mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));
     const wk=mon.toISOString().slice(0,10);
-    weeks[wk]=(weeks[wk]||0)+(r.distanceM||0)/1000;
+    const km=(r.distanceM||0)/1000;
+    if(isInterval(r)){iweeks[wk]=(iweeks[wk]||0)+km;}
+    else{weeks[wk]=(weeks[wk]||0)+km;}
   });
-  const wkKeys=Object.keys(weeks).sort().slice(-12);
-  const wkLabels=wkKeys.map(k=>{const d=new Date(k);return d.getDate()+'/'+(d.getMonth()+1);});
-  const wkData=wkKeys.map(k=>+weeks[k].toFixed(1));
+  const allWkKeys=[...new Set([...Object.keys(weeks),...Object.keys(iweeks)])].sort().slice(-12);
+  const wkLabels=allWkKeys.map(k=>{const d=new Date(k);return d.getDate()+'/'+(d.getMonth()+1);});
+  const wkData=allWkKeys.map(k=>+((weeks[k]||0).toFixed(1)));
+  const wkDataI=allWkKeys.map(k=>+((iweeks[k]||0).toFixed(1)));
   // This week km
   const now=new Date();const mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));mon.setHours(0,0,0,0);
   const thisWkKm=runs.filter(r=>new Date(r.date)>=mon).reduce((s,r)=>s+(r.distanceM||0)/1000,0);
   const totalKm=runs.reduce((s,r)=>s+(r.distanceM||0)/1000,0);
-  // PRs
-  const maxDist=runs.reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
-  const fastPace=runs.filter(r=>r.distanceM>=1000).reduce((b,r)=>{const p=r.durationSec/r.distanceM*1000;return b===null||p<b.p?{r,p}:b;},null);
-  const best5k=runs.filter(r=>r.fastest5k).reduce((b,r)=>!b||r.fastest5k<b.fastest5k?r:b,null);
-  const mostElev=runs.reduce((b,r)=>(r.elevGain||0)>(b?.elevGain||0)?r:b,null);
+  // PRs — steady runs only
+  const maxDist=steadyRuns.reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
+  const fastPace=steadyRuns.filter(r=>r.distanceM>=1000).reduce((b,r)=>{const p=r.durationSec/r.distanceM*1000;return b===null||p<b.p?{r,p}:b;},null);
+  const best5k=steadyRuns.filter(r=>r.fastest5k).reduce((b,r)=>!b||r.fastest5k<b.fastest5k?r:b,null);
+  const mostElev=steadyRuns.reduce((b,r)=>(r.elevGain||0)>(b?.elevGain||0)?r:b,null);
   const bestVO2=runs.filter(r=>r.vo2max).reduce((b,r)=>(r.vo2max||0)>(b?.vo2max||0)?r:b,null);
   const el=document.getElementById('act-summary');if(!el)return;
   el.innerHTML=`
@@ -483,10 +488,14 @@ function renderActSummary(){
   const ctx=document.getElementById('weeklyKmChart');
   if(ctx&&wkKeys.length){
     chartInstances['weeklyKmChart']=new Chart(ctx,{
-      type:'bar',data:{labels:wkLabels,datasets:[{label:'km',data:wkData,backgroundColor:'#c4907860',borderColor:'#c49078',borderWidth:1,borderRadius:4}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'}},
-          y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},beginAtZero:true}}}
+      type:'bar',data:{labels:wkLabels,datasets:[
+        {label:'Easy/Long',data:wkData,backgroundColor:'#c4907860',borderColor:'#c49078',borderWidth:1,borderRadius:2,stack:'s'},
+        {label:'Intervals',data:wkDataI,backgroundColor:'#7c6dfa80',borderColor:'#7c6dfa',borderWidth:1,borderRadius:2,stack:'s'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,labels:{color:'#7a6e64',font:{size:10},boxWidth:10}}},
+        scales:{x:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},stacked:true},
+          y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},beginAtZero:true,stacked:true}}}
     });
   }
 }
