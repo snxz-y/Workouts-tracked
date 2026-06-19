@@ -1399,26 +1399,22 @@ function renderHealth(){
         <div class="stat-label">Training Status</div>
         <div class="stat-value" style="font-size:16px;color:var(--green)">${(()=>{const ts=d.trainingStatus||gLatest('trainingStatus');if(!ts)return'—';return typeof ts==='object'?ts.trainingStatusKey||'—':ts;})()}</div>
         <div class="stat-sub">Sport: Running</div>
-        ${staleLbl('trainingStatus')}
       </div>
       <div class="stat-card">
         <div class="stat-label">VO₂ Max</div>
         <div class="stat-value" style="color:var(--accent2)">${GL('vo2max')}</div>
         <div class="stat-sub">ml/kg/min</div>
-        ${staleLbl('vo2max')}
       </div>
       <div class="stat-card">
         <div class="stat-label">Endurance Score</div>
         <div class="stat-value" style="font-size:20px">${GL('enduranceScore')}</div>
         <div class="stat-sub" style="color:var(--accent2);font-weight:600">${endClass}</div>
-        ${staleLbl('enduranceScore')}
 
       </div>
       <div class="stat-card">
         <div class="stat-label">Fitness Age</div>
         <div class="stat-value" style="color:var(--green)">${GL('fitnessAge',1)}</div>
         <div class="stat-sub">Biological age (chronological: 28)</div>
-        ${staleLbl('fitnessAge')}
       </div>
       <div class="stat-card">
         <div class="stat-label">ACWR</div>
