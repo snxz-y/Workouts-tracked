@@ -992,9 +992,13 @@ function renderWorkSchedule(){
   const el=document.getElementById('work-schedule');if(!el)return;
   if(!shiftsData||!shiftsData.length){el.innerHTML='<p style="color:var(--muted);padding:20px">No shift data.</p>';return;}
 
+  // Parse date strings as local time (avoids UTC offset shifting dates by 1 in Norway UTC+2)
+  const parseLocal=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
+  const fmtIso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
   const sorted=[...shiftsData].sort((a,b)=>a.date.localeCompare(b.date));
-  const firstDate=new Date(sorted[0].date);
-  const lastDate=new Date(sorted[sorted.length-1].date);
+  const firstDate=parseLocal(sorted[0].date);
+  const lastDate=parseLocal(sorted[sorted.length-1].date);
 
   // Find Monday of the first week
   const start=new Date(firstDate);
@@ -1008,7 +1012,8 @@ function renderWorkSchedule(){
   sorted.forEach(s=>{shiftMap[s.date]=s;});
 
   const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const today=new Date().toISOString().slice(0,10);
+  const now=new Date();
+  const today=fmtIso(now);
 
   let rows='';
   const cur=new Date(start);
@@ -1016,7 +1021,7 @@ function renderWorkSchedule(){
     const weekLabel=`${String(cur.getDate()).padStart(2,'0')}/${String(cur.getMonth()+1).padStart(2,'0')}`;
     let cells=`<td style="font-size:10px;color:var(--muted);padding:4px 6px;white-space:nowrap;vertical-align:middle">${weekLabel}</td>`;
     for(let d=0;d<7;d++){
-      const ds=cur.toISOString().slice(0,10);
+      const ds=fmtIso(cur);
       const s=shiftMap[ds];
       const isToday=ds===today;
       const isFuture=ds>today;
