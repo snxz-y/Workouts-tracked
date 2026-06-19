@@ -1141,6 +1141,8 @@ function renderHealth(){
   const _gS=[...healthData].sort((a,b)=>b.date.localeCompare(a.date));
   const GL=(k,dec=0)=>{const v=latestt(_gS,k);return v!=null?n(v,dec):'—';};
   const gLatest=(k)=>{for(const r of _gS){if(r[k]!=null)return r[k];}return null;};
+  const gDate=(k)=>{for(const r of _gS){if(r[k]!=null){const p=r.date.split('-');return p[2]+'/'+p[1];}}return null;};
+  const staleLbl=(k)=>{const dt=gDate(k);return dt&&dt!==fmtDate(d.date)?`<div style="font-size:9px;color:var(--muted);margin-top:2px">as of ${dt}</div>`:'';};
 
   const sleepH=isToday&&d.sleepSec?`${Math.floor(d.sleepSec/3600)}h ${Math.round((d.sleepSec%3600)/60)}m`:'—';
   const deepPct=isToday&&d.sleepSec?Math.round(d.deepSec/d.sleepSec*100):0;
@@ -1385,22 +1387,26 @@ function renderHealth(){
         <div class="stat-label">Training Status</div>
         <div class="stat-value" style="font-size:16px;color:var(--green)">${(()=>{const ts=d.trainingStatus||gLatest('trainingStatus');if(!ts)return'—';return typeof ts==='object'?ts.trainingStatusKey||'—':ts;})()}</div>
         <div class="stat-sub">Sport: Running</div>
+        ${staleLbl('trainingStatus')}
       </div>
       <div class="stat-card">
         <div class="stat-label">VO₂ Max</div>
         <div class="stat-value" style="color:var(--accent2)">${GL('vo2max')}</div>
         <div class="stat-sub">ml/kg/min</div>
+        ${staleLbl('vo2max')}
       </div>
       <div class="stat-card">
         <div class="stat-label">Endurance Score</div>
         <div class="stat-value" style="font-size:20px">${GL('enduranceScore')}</div>
         <div class="stat-sub" style="color:var(--accent2);font-weight:600">${endClass}</div>
+        ${staleLbl('enduranceScore')}
 
       </div>
       <div class="stat-card">
         <div class="stat-label">Fitness Age</div>
         <div class="stat-value" style="color:var(--green)">${GL('fitnessAge',1)}</div>
         <div class="stat-sub">Biological age (chronological: 28)</div>
+        ${staleLbl('fitnessAge')}
       </div>
       <div class="stat-card">
         <div class="stat-label">ACWR</div>
@@ -2328,5 +2334,13 @@ function renderNutrition() {
       fetch(REVIEWS_URL + nc).then(r => r.json()),
       fetch(SHIFTS_URL + nc).then(r => r.json()).catch(() => [])
     ]);
-    activities = acts || [];
-    healthData = 
+    activities = acts || []; healthData = health || [];
+    nutritionData = nutr || []; reviewsData = reviews || [];
+    shiftsData = shifts || [];
+  } catch(e) { console.error('Init load failed:', e); }
+  initCompDates(); initHealthDates(); initNutrDates();
+  renderActivities(); renderReviewHistory();
+})();
+</script>
+</body>
+</html>
