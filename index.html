@@ -979,16 +979,31 @@ function renderActSummary(){
   const el=document.getElementById('act-summary');if(!el)return;
   el.innerHTML=`
     <div class="section-head" style="margin-top:0">Overview</div>
-    <div class="stat-grid" style="margin-bottom:1.25rem">
-      <div class="stat-card"><div class="stat-label">🏃 This Week</div><div class="stat-value">${thisWkRunKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
-      <div class="stat-card"><div class="stat-label">🚴 This Week</div><div class="stat-value">${thisWkBikeKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
-      <div class="stat-card"><div class="stat-label">🏃 All-Time km</div><div class="stat-value">${totalRunKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
-      <div class="stat-card"><div class="stat-label">🚴 All-Time km</div><div class="stat-value">${totalBikeKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
-      <div class="stat-card"><div class="stat-label">🚶 This Week</div><div class="stat-value">${thisWkWalkKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
-      <div class="stat-card"><div class="stat-label">🚶 All-Time km</div><div class="stat-value">${totalWalkKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
-      <div class="stat-card"><div class="stat-label">Total Runs</div><div class="stat-value">${runs.length}</div></div>
-      <div class="stat-card"><div class="stat-label">Total Rides</div><div class="stat-value">${bikes.length}</div></div>
-      <div class="stat-card"><div class="stat-label">Total Walks</div><div class="stat-value">${walks.length}</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem">
+      <div class="stat-card">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">🏃 Running</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div><div class="stat-label">This Week</div><div class="stat-value" style="font-size:20px">${thisWkRunKm.toFixed(1)}<span style="font-size:12px;color:var(--muted)"> km</span></div></div>
+          <div><div class="stat-label">All-Time</div><div class="stat-value" style="font-size:20px">${totalRunKm.toFixed(0)}<span style="font-size:12px;color:var(--muted)"> km</span></div></div>
+          <div><div class="stat-label">Total</div><div class="stat-value" style="font-size:20px">${runs.length}<span style="font-size:12px;color:var(--muted)"> runs</span></div></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">🚴 Cycling</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div><div class="stat-label">This Week</div><div class="stat-value" style="font-size:20px">${thisWkBikeKm.toFixed(1)}<span style="font-size:12px;color:var(--muted)"> km</span></div></div>
+          <div><div class="stat-label">All-Time</div><div class="stat-value" style="font-size:20px">${totalBikeKm.toFixed(0)}<span style="font-size:12px;color:var(--muted)"> km</span></div></div>
+          <div><div class="stat-label">Total</div><div class="stat-value" style="font-size:20px">${bikes.length}<span style="font-size:12px;color:var(--muted)"> rides</span></div></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">🚶 Walking</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div><div class="stat-label">This Week</div><div class="stat-value" style="font-size:20px">${thisWkWalkKm.toFixed(1)}<span style="font-size:12px;color:var(--muted)"> km</span></div></div>
+          <div><div class="stat-label">All-Time</div><div class="stat-value" style="font-size:20px">${totalWalkKm.toFixed(0)}<span style="font-size:12px;color:var(--muted)"> km</span></div></div>
+          <div><div class="stat-label">Total</div><div class="stat-value" style="font-size:20px">${walks.length}<span style="font-size:12px;color:var(--muted)"> walks</span></div></div>
+        </div>
+      </div>
     </div>
     <div class="section-head">Race Predictions (VO₂max)</div>
     <div id="race-preds" class="race-pred"></div>
