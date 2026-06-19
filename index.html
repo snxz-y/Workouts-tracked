@@ -1284,46 +1284,7 @@ function renderHealth(){
     renderHealthTrends();
     renderNutritionExtras();
   },50);
-  // Build sleep compact for top
-  const sleepTopHtml=isToday&&d.sleepScore?`<div style="display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:1.25rem"><div><div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">Sleep Score</div><div style="font-size:32px;font-weight:700;color:${scoreColor(d.sleepScore)};line-height:1">${d.sleepScore}</div></div><div><div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">Duration</div><div style="font-size:18px;font-weight:700">${sleepH}</div></div><div><div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">Bedtime → Wake</div><div style="font-size:14px;font-weight:600;color:var(--accent2)">${d.bedTime||'?'} → ${d.wakeTime||'?'}</div></div></div>`:''
-  document.getElementById('health-content').innerHTML=zynHtml+sleepTopHtml+`
-    <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem"><div class="section-head">Recovery & Readiness</div>
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label">Training Readiness</div>
-        <div class="stat-value" style="color:${isToday?scoreColor(d.trainingReadiness):'var(--text)'}">${A('trainingReadiness')}</div>
-        <div class="stat-sub">${isToday&&d.trainingReadinessLevel?d.trainingReadinessLevel:''}</div>
-        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${readinessFeedback(d.trainingReadinessFeedback)}</div>`:''}
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">HRV Last Night</div>
-        <div class="stat-value" style="color:var(--accent2)">${A('hrvAvg')}</div>
-        <div class="stat-sub">Weekly avg: ${A('hrvWeeklyAvg')}</div>
-        ${isToday&&d.hrvStatus?`<div class="stat-badge ${d.hrvStatus==='BALANCED'?'badge-good':'badge-warn'}">${d.hrvStatus}</div>`:''}
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Body Battery</div>
-        <div class="stat-value" style="color:var(--accent)">${A('bbHigh')}<span style="font-size:16px;color:var(--muted)"> / ${A('bbLow')}</span></div>
-        <div class="stat-sub">High / Low</div>
-        <div class="stat-sub" style="margin-top:4px">+${A('bbCharged')} charged  /  -${A('bbDrained')} drained</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Recovery Time</div>
-        <div class="stat-value">${A('recoveryTimeHrs')}<span style="font-size:14px;color:var(--muted)">h</span></div>
-        <div class="stat-sub">Until next hard effort</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Avg Stress</div>
-        <div class="stat-value" style="color:${isToday?scoreColor(100-d.avgStress):'var(--text)'}">${A('avgStress')}</div>
-        ${isToday&&d.avgStress!=null?`<div class="stat-badge ${stressBadge(d.avgStress)}">${d.avgStress<=25?'LOW':d.avgStress<=50?'MODERATE':'HIGH'}</div>`:''}
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Resting HR</div>
-        <div class="stat-value" style="color:var(--accent2)">${A('rhr')}<span style="font-size:14px;color:var(--muted)"> bpm</span></div>
-        <div class="stat-sub">Lowest recorded: ${A('minHR')} bpm</div>
-      </div>
-    </div>
-
+  document.getElementById('health-content').innerHTML=zynHtml+`
     <div class="section-head">Sleep</div>
     ${isToday&&d.sleepSec?`
     <div class="sleep-card">
@@ -1365,6 +1326,43 @@ function renderHealth(){
       <div class="stat-card"><div class="stat-label">Sleep Score (avg)</div><div class="stat-value">${A('sleepScore')}</div></div>
       <div class="stat-card"><div class="stat-label">Sleep Duration (avg)</div><div class="stat-value" style="font-size:18px">${(()=>{const v=avgg(hrows,'sleepSec');return v?`${Math.floor(v/3600)}h ${Math.round((v%3600)/60)}m`:'—'})()}</div></div>
     </div>`}
+
+    <div style="font-size:11px;color:var(--muted);margin-bottom:1.25rem"><div class="section-head">Recovery & Readiness</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Training Readiness</div>
+        <div class="stat-value" style="color:${isToday?scoreColor(d.trainingReadiness):'var(--text)'}">${A('trainingReadiness')}</div>
+        <div class="stat-sub">${isToday&&d.trainingReadinessLevel?d.trainingReadinessLevel:''}</div>
+        ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}">${readinessFeedback(d.trainingReadinessFeedback)}</div>`:''}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">HRV Last Night</div>
+        <div class="stat-value" style="color:var(--accent2)">${A('hrvAvg')}</div>
+        <div class="stat-sub">Weekly avg: ${A('hrvWeeklyAvg')}</div>
+        ${isToday&&d.hrvStatus?`<div class="stat-badge ${d.hrvStatus==='BALANCED'?'badge-good':'badge-warn'}">${d.hrvStatus}</div>`:''}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Body Battery</div>
+        <div class="stat-value" style="color:var(--accent)">${A('bbHigh')}<span style="font-size:16px;color:var(--muted)"> / ${A('bbLow')}</span></div>
+        <div class="stat-sub">High / Low</div>
+        <div class="stat-sub" style="margin-top:4px">+${A('bbCharged')} charged  /  -${A('bbDrained')} drained</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Recovery Time</div>
+        <div class="stat-value">${A('recoveryTimeHrs')}<span style="font-size:14px;color:var(--muted)">h</span></div>
+        <div class="stat-sub">Until next hard effort</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Stress</div>
+        <div class="stat-value" style="color:${isToday?scoreColor(100-d.avgStress):'var(--text)'}">${A('avgStress')}</div>
+        ${isToday&&d.avgStress!=null?`<div class="stat-badge ${stressBadge(d.avgStress)}">${d.avgStress<=25?'LOW':d.avgStress<=50?'MODERATE':'HIGH'}</div>`:''}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Resting HR</div>
+        <div class="stat-value" style="color:var(--accent2)">${A('rhr')}<span style="font-size:14px;color:var(--muted)"> bpm</span></div>
+        <div class="stat-sub">Lowest recorded: ${A('minHR')} bpm</div>
+      </div>
+    </div>
 
     <div class="section-head">Activity & Load</div>
     <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(155px,1fr))">
