@@ -960,8 +960,7 @@ function renderActSummary(){
     <div class="chart-card"><canvas id="act-load-chart" height="130"></canvas></div>
     <div class="section-head">Race Predictions (VO₂max)</div>
     <div id="race-preds" class="race-pred"></div>
-    <div class="section-head">Activity Heatmap (52 weeks)</div>
-    <div id="act-heatmap" class="heatmap-grid"></div>
+
     <div class="section-head">Personal Records</div>
     <div class="pr-grid">
       ${maxDist?`<div class="pr-card"><div class="pr-crown">🏅</div><div class="stat-label">Longest Run</div><div class="pr-val">${(maxDist.distanceM/1000).toFixed(2)} km</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(maxDist.date)}</div></div>`:''}
