@@ -943,11 +943,6 @@ function renderActSummary(){
       <div class="stat-card"><div class="stat-label">All-Time km</div><div class="stat-value">${totalKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
       <div class="stat-card"><div class="stat-label">Total Runs</div><div class="stat-value">${runs.length}</div></div>
     </div>
-    <div class="section-head">Weekly Run Volume</div>
-    <div class="chart-card"><canvas id="weeklyKmChart" height="150"></canvas></div>
-    <div class="section-head">Training Load (Acute vs Chronic)</div>
-    <div class="load-legend"><span><b style="background:#c49078"></b>Acute 7d</span><span><b style="background:#7c6dfa"></b>Chronic 42d</span></div>
-    <div class="chart-card"><canvas id="act-load-chart" height="130"></canvas></div>
     <div class="section-head">Race Predictions (VO₂max)</div>
     <div id="race-preds" class="race-pred"></div>
 
@@ -961,26 +956,6 @@ function renderActSummary(){
     </div>
   `;
   renderRacePreds();
-  // Defer chart creation so dynamically-inserted canvases are fully laid out
-  setTimeout(()=>{
-    try{renderTrainingLoad();}catch(e){console.error('TrainingLoad error:',e);}
-    try{
-      destroyChartById('weeklyKmChart');
-      const ctx=document.getElementById('weeklyKmChart');
-      if(ctx&&allWkKeys.length){
-        chartInstances['weeklyKmChart']=new Chart(ctx,{
-          type:'bar',data:{labels:wkLabels,datasets:[
-            {label:'Easy/Long',data:wkData,backgroundColor:'#c4907860',borderColor:'#c49078',borderWidth:1,borderRadius:2,stack:'s'},
-            {label:'Intervals',data:wkDataI,backgroundColor:'#7c6dfa80',borderColor:'#7c6dfa',borderWidth:1,borderRadius:2,stack:'s'}
-          ]},
-          options:{responsive:true,maintainAspectRatio:false,
-            plugins:{legend:{display:true,labels:{color:'#7a6e64',font:{size:10},boxWidth:10}}},
-            scales:{x:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},stacked:true},
-              y:{ticks:{color:'#7a6e64',font:{size:10}},grid:{color:'rgba(255,255,255,.03)'},beginAtZero:true,stacked:true}}}
-        });
-      }
-    }catch(e){console.error('weeklyKmChart error:',e);}
-  },50);
 }
 
 function renderActivities(){renderActSummary();renderRuns();renderBikes();renderWalks();renderAll();}
