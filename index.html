@@ -875,7 +875,21 @@ function renderWork(){
     return{...h,activities:acts,nutrition:nutr};
   };
 
-  // Correlation: only shifts with health data
+  // Current month bounds
+  const _now=new Date();
+  const _y=_now.getFullYear(), _m=_now.getMonth();
+  const _monthKey=`${_y}-${String(_m+1).padStart(2,'0')}`;
+  const _monthName=_now.toLocaleString('en-GB',{month:'long'});
+  const _lastDay=new Date(_y,_m+1,0).getDate();
+  const _mm=String(_m+1).padStart(2,'0');
+  const _monthRange=`01/${_mm} – ${_lastDay}/${_mm}`;
+
+  // Shift overview: this month only (all shifts, no health filter needed for counts)
+  const monthShifts=shiftsData.filter(s=>s.date.startsWith(_monthKey));
+  const byTypeMonth={day:[],evening:[],night:[],off:[]};
+  monthShifts.forEach(s=>{const t=s.shiftType||'off';if(byTypeMonth[t])byTypeMonth[t].push(s);});
+
+  // Correlation: all shifts with health data (for metrics & sleep)
   const corrShifts=shiftsData.filter(s=>hasHealth(s.date));
   const byType={day:[],evening:[],night:[],off:[]};
   corrShifts.forEach(s=>{
@@ -885,7 +899,7 @@ function renderWork(){
   });
 
   const corrDates=corrShifts.map(s=>s.date).sort();
-  const corrRange=corrDates.length?`${corrDates[0].split('-').reverse().slice(0,2).join('/')} – ${corrDates[corrDates.length-1].split('-').reverse().slice(0,2).join('/')}`:'no data';
+  const dataFrom=corrDates.length?corrDates[0].split('-').reverse().slice(0,2).join('/'):'—';
 
   const metric=(rows,key)=>{const v=rows.map(r=>r.data[key]).filter(x=>x!=null);return v.length?+(v.reduce((s,x)=>s+x,0)/v.length).toFixed(1):null;};
 
@@ -934,11 +948,11 @@ function renderWork(){
   };
 
   let html=`
-    <div class="section-head" style="margin-top:0">Shift Overview
-      <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:10px">Correlation based on ${corrShifts.length} shifts with health data (${corrRange})</span>
+    <div class="section-head" style="margin-top:0">Shift Overview — ${_monthName} ${_y}
+      <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:10px">${_monthRange}</span>
     </div>
     <div class="stat-grid" style="margin-bottom:1.25rem">
-      ${types.map(t=>`<div class="stat-card"><div class="stat-label">${t.emoji} ${t.label}</div><div class="stat-value">${byType[t.key].length}<span style="font-size:14px;color:var(--muted)"> shifts</span></div></div>`).join('')}
+      ${types.map(t=>`<div class="stat-card"><div class="stat-label">${t.emoji} ${t.label}</div><div class="stat-value">${byTypeMonth[t.key].length}<span style="font-size:14px;color:var(--muted)"> shifts</span></div></div>`).join('')}
     </div>
 
     <div class="section-head">Health Metrics by Shift Type
@@ -970,7 +984,9 @@ function renderWork(){
     </table>
     </div>
 
-    <div class="section-head">Sleep by Shift Type</div>
+    <div class="section-head">Sleep by Shift Type
+      <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:8px">Data from ${dataFrom}</span>
+    </div>
     <div class="stat-grid" style="margin-bottom:1.25rem">
       ${types.map(t=>{
         const bedTimes=byType[t.key].filter(r=>r.data.bedTime).map(r=>r.data.bedTime);
