@@ -549,7 +549,7 @@ function renderTrainingLoad(){
     a=i===0?d.load:d.load*ka+a*(1-ka);
     c=i===0?d.load:d.load*kc+c*(1-kc);
     if(i>=41||i>=all.length-30){
-      labels.push(d.date.slice(5).replace('-','/'));
+      const _dp=d.date.split('-');labels.push(_dp[2]+'/'+_dp[1]);
       acute.push(+a.toFixed(1));
       chronic.push(+c.toFixed(1));
     }
