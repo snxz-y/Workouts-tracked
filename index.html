@@ -126,6 +126,7 @@ tr:hover td{background:var(--surface2)}
 /* Work tab & shift correlation */
 .shift-day{background:rgba(212,176,100,.08);border-color:rgba(212,176,100,.25)}
 .shift-eve{background:rgba(124,109,250,.08);border-color:rgba(124,109,250,.25)}
+.shift-night{background:rgba(30,80,160,.1);border-color:rgba(30,80,160,.3)}
 .shift-off{background:rgba(122,171,136,.06);border-color:rgba(122,171,136,.2)}
 .corr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:1.25rem}
 .corr-card{border-radius:10px;padding:12px 14px;border:1px solid var(--border)}
@@ -876,7 +877,7 @@ function renderWork(){
 
   // Correlation: only shifts with health data
   const corrShifts=shiftsData.filter(s=>hasHealth(s.date));
-  const byType={day:[],evening:[],off:[]};
+  const byType={day:[],evening:[],night:[],off:[]};
   corrShifts.forEach(s=>{
     const d=join(s.date);
     const type=s.shiftType||'off';
@@ -891,6 +892,7 @@ function renderWork(){
   const types=[
     {key:'day',label:'Day (07–15)',cls:'shift-day',emoji:'☀️'},
     {key:'evening',label:'Evening (14–22)',cls:'shift-eve',emoji:'🌆'},
+    {key:'night',label:'Night',cls:'shift-night',emoji:'🌙'},
     {key:'off',label:'Day Off',cls:'shift-off',emoji:'😴'}
   ];
 
@@ -1026,10 +1028,10 @@ function renderWorkSchedule(){
       const s=shiftMap[ds];
       const isToday=ds===today;
       const isFuture=ds>today;
-      const bg=s?s.shiftType==='day'?'rgba(212,176,100,.15)':s.shiftType==='evening'?'rgba(124,109,250,.15)':'rgba(122,171,136,.1)':'transparent';
+      const bg=s?s.shiftType==='day'?'rgba(212,176,100,.15)':s.shiftType==='evening'?'rgba(124,109,250,.15)':s.shiftType==='night'?'rgba(30,80,160,.2)':'rgba(122,171,136,.1)':'transparent';
       const border=isToday?'2px solid var(--accent)':'1px solid var(--border)';
       const dd=String(cur.getDate()).padStart(2,'0');
-      const label=s?(s.shiftType==='day'?'☀️ Day':s.shiftType==='evening'?'🌆 Eve':'😴 Off'):'';
+      const label=s?(s.shiftType==='day'?'☀️ Day':s.shiftType==='evening'?'🌆 Eve':s.shiftType==='night'?'🌙 Night':'😴 Off'):'';
       const time=s&&s.start?`<div style="font-size:9px;color:var(--muted)">${s.start}–${s.end}</div>`:'';
       cells+=`<td style="padding:0;width:${100/7}%"><div style="background:${bg};border:${border};border-radius:6px;padding:5px 6px;margin:2px;min-height:52px;opacity:${isFuture?'.6':'1'}">
         <div style="font-size:10px;color:${isToday?'var(--accent)':'var(--muted)'};font-weight:${isToday?700:400}">${dd}</div>
@@ -1046,6 +1048,7 @@ function renderWorkSchedule(){
     <div style="display:flex;gap:12px;margin-bottom:12px;font-size:11px">
       <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(212,176,100,.3);display:inline-block"></span>Day</span>
       <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(124,109,250,.3);display:inline-block"></span>Evening</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(30,80,160,.3);display:inline-block"></span>Night</span>
       <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(122,171,136,.2);display:inline-block"></span>Off</span>
     </div>
     <div style="overflow-x:auto">
