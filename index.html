@@ -760,7 +760,7 @@ function renderNutritionExtras(){
     const burned=([...healthData].find(h=>h.date===d.date)||{}).totalKcal||1900;
     const deficit=burned-eaten;
     cumDef+=deficit;
-    defLabels.push(d.date.slice(5).replace('-','/'));
+    const [,_m,_day]=d.date.split('-'); defLabels.push(_day+'/'+_m);
     defData.push(+cumDef.toFixed(0));
   });
 
@@ -1592,7 +1592,14 @@ function showNav(id,el){
   document.getElementById('nav-'+id).classList.add('active');
   el.classList.add('active');
   if(id==='work'){setTimeout(renderWork,50);}
-  if(id==='nutrition'){try{renderNutrition();}catch(e){console.error('renderNutrition:',e);}}
+  if(id==='nutrition'){
+    // Reset to daily sub-tab to avoid stale insights content
+    document.querySelectorAll('#nav-nutrition .sub-panel').forEach(p=>p.classList.remove('active'));
+    const ds=document.getElementById('nutr-sub-daily');if(ds)ds.classList.add('active');
+    document.querySelectorAll('[data-sect="nutr"] .subnav-btn').forEach(b=>b.classList.remove('active'));
+    const fb=document.querySelector('[data-sect="nutr"] .subnav-btn');if(fb)fb.classList.add('active');
+    try{renderNutrition();}catch(e){console.error('renderNutrition:',e);}
+  }
   if(id==='health'){try{renderHealth();}catch(e){console.error('renderHealth:',e);}}
   if(id==='reviews'){try{renderReviewHistory();}catch(e){console.error('renderReviewHistory:',e);}}
 }
@@ -1622,10 +1629,9 @@ let nutrSingleDay = true;
 function initNutrDates() {
   if (!nutritionData.length) return;
   const end = new Date(); end.setDate(end.getDate()-1);
-  const start = new Date(end); start.setDate(start.getDate()-6);
   const fmt = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
   nutrEndDate = fmt(end);
-  nutrStartDate = fmt(start);
+  nutrStartDate = '2026-06-01';
   nutrSingleDay = false;
   const s = document.getElementById('nutr-start'); if(s) s.value = toDisplay(nutrStartDate);
   const e = document.getElementById('nutr-end');   if(e) e.value = toDisplay(nutrEndDate);
@@ -2235,47 +2241,51 @@ function renderNutrition() {
         const bLabels = allDates.map(d => { const p=d.split('-'); return p[2]+'/'+p[1]; });
         const eatData = allDates.map(d => { const r=chartRows.find(r=>r.date===d); return r ? r.calories : null; });
         const burnData = allDates.map(d => { const h=hRange.find(h=>h.date===d); return h ? h.totalKcal : null; });
+        destroyChartById('balanceChart');
         chartInstances['balanceChart'] = new Chart(bEl, {
           type: 'bar',
           data: { labels: bLabels, datasets: [
-            { label: 'Eaten', data: eatData, backgroundColor: '#c4907860', borderColor: '#c49078', borderWidth: 1, borderRadius: 4 },
-            { label: 'Burned', data: burnData, backgroundColor: '#8b9cc460', borderColor: '#8b9cc4', borderWidth: 1, borderRadius: 4 }
+            { label: 'Eaten', data: eatData, backgroundColor: '#c4907880', borderColor: '#c49078', borderWidth: 1 },
+            { label: 'Burned', data: burnData, backgroundColor: '#7c6dfa80', borderColor: '#7c6dfa', borderWidth: 1 }
           ]},
-          options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { display: true, labels: { color: '#a09488', font: { size: 10 }, boxWidth: 10, padding: 10 } } },
+          options: { responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: true, labels: { color: '#7a6e64', font: { size: 9 }, boxWidth: 12 } } },
             scales: {
               x: { ticks: { color: '#7a6e64', font: { size: 9 }, maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,.03)' } },
               y: { ticks: { color: '#7a6e64', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,.03)' } }
             }
           }
         });
-      }
-    }
-  }, 100);
-}
+      } // end balanceChart
+    } // end showCharts
+  }, 0); // end setTimeout
+} // end renderNutrition
 
-Promise.all([
-  fetch(ACT_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
-  fetch(HEALTH_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
-  fetch(NUTR_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
-  fetch(REVIEWS_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[]),
-  fetch(SHIFTS_URL+'?nc='+Date.now()).then(r=>r.json()).catch(()=>[])
-]).then(([acts,health,nutr,revs,shifts])=>{
-  activities=acts;
-  healthData=health;
-  nutritionData=nutr;
-  reviewsData=revs;
-  shiftsData=shifts||[];
-  try{renderActivities();}catch(e){console.error('renderActivities error:',e);}
-  initReviewDates();
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async () => {
+  const nc = '?nc=' + Date.now();
+  try {
+    const [acts, health, nutr, reviews, shifts] = await Promise.all([
+      fetch(ACT_URL + nc).then(r => r.json()),
+      fetch(HEALTH_URL + nc).then(r => r.json()),
+      fetch(NUTR_URL + nc).then(r => r.json()),
+      fetch(REVIEWS_URL + nc).then(r => r.json()),
+      fetch(SHIFTS_URL + nc).then(r => r.json()).catch(() => [])
+    ]);
+    activities = acts || [];
+    healthData = health || [];
+    nutritionData = nutr || [];
+    reviewsData = reviews || [];
+    shiftsData = shifts || [];
+  } catch(e) {
+    console.error('Init load failed:', e);
+  }
   initCompDates();
   initHealthDates();
   initNutrDates();
-  try{renderReviewHistory();}catch(e){console.error('renderReviewHistory error:',e);}
-});
-</script>
-<script>
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+  renderActivities();
+  renderReviewHistory();
+})();
 </script>
 </body>
 </html>
