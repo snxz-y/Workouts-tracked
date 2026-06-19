@@ -1,5 +1,12 @@
 [
   {
+    "date": "2026-06-19",
+    "calories": 1500,
+    "protein": 120,
+    "carbs": 100,
+    "fat": 50
+  },
+  {
     "date": "2026-06-18",
     "calories": 2946.9,
     "protein": 85.5,
