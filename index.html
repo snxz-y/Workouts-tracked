@@ -316,6 +316,7 @@ tr:hover td{background:var(--surface2)}
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap">
       <div style="position:relative;display:inline-block"><input type="text" id="health-date" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('health-picker','health-date')" style="font-size:16px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:150px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="health-picker" class="date-picker" style="display:none"></div></div>
     </div>
+    <div id="health-content"></div>
     </div><!-- /health-sub-today -->
     <div id="health-sub-trends" class="sub-panel">
       <div class="section-head">Sleep Quality (7d avg)</div>
@@ -349,9 +350,6 @@ tr:hover td{background:var(--surface2)}
       <div style="position:relative;display:inline-block"><input type="text" id="nutr-end" readonly placeholder="DD/MM/YYYY" onclick="togglePicker('nutr-end-picker','nutr-end')" style="font-size:14px;padding:7px 14px;border:1px solid var(--accent2);border-radius:20px;background:var(--surface2);color:var(--text);width:140px;cursor:pointer;font-weight:600;letter-spacing:.02em;text-align:center"><div id="nutr-end-picker" class="date-picker" style="display:none"></div></div>
     </div>
     <div id="nutrition-content"></div>
-  </div>
-
-  <!-- REVIEWS -->
     </div><!-- /nutr-sub-daily -->
     <div id="nutr-sub-insights" class="sub-panel"><div id="nutr-extras"></div></div>
   </div><!-- /nav-nutrition -->
