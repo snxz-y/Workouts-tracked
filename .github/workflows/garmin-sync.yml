@@ -1,0 +1,29 @@
+name: Garmin Sync
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run Garmin sync
+        env:
+          GARMIN_OAUTH1_TOKEN:  ${{ secrets.GARMIN_OAUTH1_TOKEN }}
+          GARMIN_OAUTH1_SECRET: ${{ secrets.GARMIN_OAUTH1_SECRET }}
+          GARMIN_DISPLAY_NAME:  ${{ secrets.GARMIN_DISPLAY_NAME }}
+          GH_PAT:               ${{ secrets.GH_PAT }}
+        run: python garmin_sync.py
