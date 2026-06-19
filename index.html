@@ -207,6 +207,7 @@ tr:hover td{background:var(--surface2)}
       <div class="tbl-wrap"><table>
         <thead><tr>
           <th onclick="sort('runs','date')">Date</th>
+          <th>GC</th>
           <th onclick="sort('runs','distanceM')">Dist</th>
           <th onclick="sort('runs','pace')">Pace</th>
           <th onclick="sort('runs','avgHR')">Avg HR</th>
@@ -226,7 +227,6 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('runs','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('runs','label')">Effect</th>
-          <th>Open</th>
         </tr></thead>
         <tbody id="tbody-runs"></tbody>
       </table></div>
@@ -243,6 +243,7 @@ tr:hover td{background:var(--surface2)}
       <div class="tbl-wrap"><table>
         <thead><tr>
           <th onclick="sort('bikes','date')">Date</th>
+          <th>GC</th>
           <th onclick="sort('bikes','distanceM')">Dist</th>
           <th onclick="sort('bikes','speed')">Speed</th>
           <th onclick="sort('bikes','avgHR')">Avg HR</th>
@@ -255,7 +256,6 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('bikes','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('bikes','label')">Effect</th>
-          <th>Open</th>
         </tr></thead>
         <tbody id="tbody-bikes"></tbody>
       </table></div>
@@ -271,6 +271,7 @@ tr:hover td{background:var(--surface2)}
       <div class="tbl-wrap"><table>
         <thead><tr>
           <th onclick="sort('walks','date')">Date</th>
+          <th>GC</th>
           <th onclick="sort('walks','distanceM')">Dist</th>
           <th onclick="sort('walks','pace')">Pace</th>
           <th onclick="sort('walks','avgHR')">Avg HR</th>
@@ -285,7 +286,6 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('walks','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('walks','label')">Effect</th>
-          <th>Open</th>
         </tr></thead>
         <tbody id="tbody-walks"></tbody>
       </table></div>
@@ -297,7 +297,7 @@ tr:hover td{background:var(--surface2)}
         <input id="filter-search" type="text" placeholder="Search..." oninput="renderAll()" style="width:140px">
       </div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>Date</th><th>Type</th><th>Name</th><th>Dist</th><th>Duration</th><th>Pace/Speed</th><th>Avg HR</th><th>Max HR</th><th>Elev ↑</th><th>Load</th><th>VO₂max</th><th>kcal</th><th>BB ↓</th><th>Effect</th><th>Open</th></tr></thead>
+        <thead><tr><th>Date</th><th>GC</th><th>Type</th><th>Name</th><th>Dist</th><th>Duration</th><th>Pace/Speed</th><th>Avg HR</th><th>Max HR</th><th>Elev ↑</th><th>Load</th><th>VO₂max</th><th>kcal</th><th>BB ↓</th><th>Effect</th></tr></thead>
         <tbody id="tbody-all"></tbody>
       </table></div>
     </div>
@@ -388,7 +388,7 @@ let activities=[],healthData=[],shiftsData=[],currentPeriod='today';
 const ss={runs:{col:'date',asc:false},bikes:{col:'date',asc:false},walks:{col:'date',asc:false}};
 let chartInstances={};
 
-const gcLinks=id=>id?`<div class="gc-links"><a class="gc-btn" href="https://connect.garmin.com/modern/activity/${id}" target="_blank" rel="noopener">🖥 GC</a><a class="gc-btn" href="https://connect.garmin.com/activity/${id}" target="_blank" rel="noopener">📱 App</a></div>`:'';
+const gcLinks=id=>id?`<a class="gc-btn" href="https://connect.garmin.com/activity/${id}" target="_blank" rel="noopener">GC</a>`:'';
 const fmtEffect=t=>{
   if(!t||t==='—'||t==='NONE')return'—';
   if(!t.includes('_'))return t;
@@ -464,7 +464,7 @@ function sort(tab,col){if(ss[tab].col===col)ss[tab].asc=!ss[tab].asc;else{ss[tab
 function renderRuns(){
   const rows=getSorted(activities.filter(a=>a.type==='running'),'runs');
   document.getElementById('tbody-runs').innerHTML=rows.map(r=>`<tr>
-    <td>${fmtDate(r.date)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td><td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
+    <td>${fmtDate(r.date)}</td><td>${gcLinks(r.activityId)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td><td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
     <td style="${hrCls(r.avgHR)}">${r.avgHR}</td><td class="${r.maxHR>=187?'hi':r.maxHR>=166?'warn':''}">${r.maxHR}</td>
     <td>${n(r.elevGain)}m</td><td class="muted-cell">${n(r.elevLoss)}m</td>
     <td>${n(r.cadence)} spm</td><td>${n(r.strideLen,1)}cm</td><td>${n(r.gct)}ms</td>
@@ -472,28 +472,28 @@ function renderRuns(){
     <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td>
     <td class="${r.vo2max>=47?'ok':''}">${n(r.vo2max)}</td>
     <td>${n(r.load,1)}</td><td class="muted-cell">-${n(r.bodyBatDrain)}</td><td>${n(r.calories)}</td>
-    <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(r.label)}</td><td>${gcLinks(r.activityId)}</td>
+    <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(r.label)}</td>
   </tr>`).join('');
 }
 function renderBikes(){
   const rows=getSorted(activities.filter(a=>a.type==='cycling'),'bikes');
   document.getElementById('tbody-bikes').innerHTML=rows.map(b=>`<tr>
-    <td>${fmtDate(b.date)}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td>
+    <td>${fmtDate(b.date)}</td><td>${gcLinks(b.activityId)}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td>
     <td style="${hrCls(b.avgHR)}">${b.avgHR}</td><td class="${b.maxHR>=187?'hi':b.maxHR>=166?'warn':''}">${b.maxHR}</td>
     <td>${n(b.elevGain)}m</td><td class="muted-cell">${n(b.elevLoss)}m</td>
     <td>${fmt(b.durationSec)}</td><td>${n(b.load,1)}</td><td class="muted-cell">-${n(b.bodyBatDrain)}</td><td>${n(b.calories)}</td>
-    <td>${zbar(b)}</td><td class="muted-cell" style="font-size:11px">${b.label||'—'}</td><td>${gcLinks(b.activityId)}</td>
+    <td>${zbar(b)}</td><td class="muted-cell" style="font-size:11px">${b.label||'—'}</td>
   </tr>`).join('');
 }
 function renderWalks(){
   const rows=getSorted(activities.filter(a=>a.type==='walking'),'walks');
   document.getElementById('tbody-walks').innerHTML=rows.map(w=>`<tr>
-    <td>${fmtDate(w.date)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
+    <td>${fmtDate(w.date)}</td><td>${gcLinks(w.activityId)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
     <td style="${hrCls(w.avgHR)}">${w.avgHR}</td><td class="${w.maxHR>=187?'hi':w.maxHR>=166?'warn':''}">${w.maxHR}</td>
     <td>${n(w.elevGain)}m</td><td class="muted-cell">${n(w.elevLoss)}m</td>
     <td>${fmt(w.durationSec)}</td><td>${n(w.steps)}</td><td>${n(w.strideLen,1)}cm</td>
     <td>${n(w.load,1)}</td><td class="muted-cell">-${n(w.bodyBatDrain)}</td><td>${n(w.calories)}</td>
-    <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${w.label||'—'}</td><td>${gcLinks(w.activityId)}</td>
+    <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${w.label||'—'}</td>
   </tr>`).join('');
 }
 function renderAll(){
@@ -502,7 +502,7 @@ function renderAll(){
   const rows=activities.filter(a=>{if(tf&&a.type!==tf)return false;if(s&&!a.name.toLowerCase().includes(s))return false;return true;}).sort((a,b)=>b.date.localeCompare(a.date));
   const tbadge=t=>t==='running'?'<span class="type-badge tb-run">RUN</span>':t==='cycling'?'<span class="type-badge tb-bike">BIKE</span>':'<span class="type-badge tb-walk">WALK</span>';
   document.getElementById('tbody-all').innerHTML=rows.map(a=>`<tr>
-    <td>${fmtDate(a.date)}</td><td>${tbadge(a.type)}</td>
+    <td>${fmtDate(a.date)}</td><td>${gcLinks(a.activityId)}</td><td>${tbadge(a.type)}</td>
     <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis">${a.name}</td>
     <td>${fmtD(a.distanceM)}</td><td>${fmt(a.durationSec)}</td>
     <td style="font-weight:600">${a.type==='cycling'?fmtSpd(a.distanceM/a.durationSec):pace(a.distanceM,a.durationSec)}</td>
@@ -510,7 +510,7 @@ function renderAll(){
     <td>${n(a.elevGain)}m</td><td>${n(a.load,1)}</td>
     <td class="${a.vo2max>=47?'ok':''}">${a.vo2max||'—'}</td>
     <td>${n(a.calories)}</td><td class="muted-cell">-${n(a.bodyBatDrain)}</td>
-    <td class="muted-cell" style="font-size:11px">${a.label||'—'}</td><td>${gcLinks(a.activityId)}</td>
+    <td class="muted-cell" style="font-size:11px">${a.label||'—'}</td>
   </tr>`).join('');
 }
 
