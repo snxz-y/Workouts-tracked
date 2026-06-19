@@ -808,8 +808,9 @@ function renderNutritionExtras(){
 
   // Protein per kg (current weight)
   const lastWeight=([...healthData].sort((a,b)=>b.date.localeCompare(a.date)).find(h=>h.weight)||{}).weight||76;
-  const recent=[...nutritionData].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
-  const avgProtein=recent.reduce((s,d)=>s+(d.protein||0),0)/recent.length;
+  const recent=[...nutritionData].filter(d=>d.calories>0).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
+  const recentWithProtein=recent.filter(d=>d.protein!=null&&d.protein>0);
+  const avgProtein=recentWithProtein.length?recentWithProtein.reduce((s,d)=>s+d.protein,0)/recentWithProtein.length:0;
   const proteinPerKg=(avgProtein/lastWeight).toFixed(2);
   const protTarget=2.0;
 
@@ -2192,17 +2193,22 @@ function renderNutrition() {
   const isToday = nutrSingleDay;
   const d = rows[0];
 
-  const cal = isToday ? d.calories : nutrAvg(rows, 'calories');
-  const pro = isToday ? d.protein : nutrAvg(rows, 'protein');
-  const carb = isToday ? d.carbs : nutrAvg(rows, 'carbs');
-  const fat = isToday ? d.fat : nutrAvg(rows, 'fat');
-  const satFat = isToday ? d.saturatedFat : nutrAvg(rows, 'saturatedFat');
-  const fiber = isToday ? d.fiber : nutrAvg(rows, 'fiber');
-  const sugar = isToday ? d.sugar : nutrAvg(rows, 'sugar');
+  // Only include days actually logged (calories > 0) in all stat calculations
+  // Missing days (no entry) are excluded so they don't drag averages down
+  const statsRows = rows.filter(r => r.calories != null && r.calories > 0);
 
-  // Calorie balance: compare nutrition kcal eaten vs Garmin total kcal burned
-  const hRange = healthData.filter(h => h.date >= nutrStartDate && h.date <= nutrEndDate && h.totalKcal != null);
-  const totalEaten = rows.reduce((a,r) => a + (r.calories||0), 0);
+  const cal = isToday ? d.calories : nutrAvg(statsRows, 'calories');
+  const pro = isToday ? d.protein : nutrAvg(statsRows, 'protein');
+  const carb = isToday ? d.carbs : nutrAvg(statsRows, 'carbs');
+  const fat = isToday ? d.fat : nutrAvg(statsRows, 'fat');
+  const satFat = isToday ? d.saturatedFat : nutrAvg(statsRows, 'saturatedFat');
+  const fiber = isToday ? d.fiber : nutrAvg(statsRows, 'fiber');
+  const sugar = isToday ? d.sugar : nutrAvg(statsRows, 'sugar');
+
+  // Calorie balance: only match Garmin burn data to days that have nutrition logged
+  const loggedDates = new Set(statsRows.map(r => r.date));
+  const hRange = healthData.filter(h => loggedDates.has(h.date) && h.totalKcal != null);
+  const totalEaten = statsRows.reduce((a,r) => a + (r.calories||0), 0);
   const totalBurned = hRange.reduce((a,h) => a + (h.totalKcal||0), 0);
   const avgBurned = hRange.length ? Math.round(totalBurned / hRange.length) : null;
   const netBalance = hRange.length ? totalEaten - totalBurned : null;
@@ -2249,7 +2255,7 @@ function renderNutrition() {
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Eaten${!isToday?' (total)':''}</div>
           <div style="font-size:24px;font-weight:700;color:var(--accent)">${Math.round(totalEaten).toLocaleString()}</div>
-          ${!isToday && rows.length>1 ? `<div style="font-size:11px;color:var(--muted)">${Math.round(totalEaten/rows.length).toLocaleString()} avg/day</div>` : ''}
+          ${!isToday && statsRows.length>1 ? `<div style="font-size:11px;color:var(--muted)">${Math.round(totalEaten/statsRows.length).toLocaleString()} avg/day</div>` : ''}
         </div>
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Burned${!isToday?' (total)':''}</div>
@@ -2259,7 +2265,7 @@ function renderNutrition() {
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">${netBalance < 0 ? 'Deficit' : 'Surplus'}${!isToday?' (total)':''}</div>
           <div style="font-size:24px;font-weight:700;color:${netBalance < 0 ? 'var(--green)' : 'var(--red)'}">${netBalance < 0 ? '' : '+'}${Math.round(netBalance).toLocaleString()}</div>
-          ${!isToday && rows.length>1 ? `<div style="font-size:11px;color:var(--muted)">${Math.round(netBalance/Math.max(rows.length,hRange.length)) > 0 ? '+' : ''}${Math.round(netBalance/Math.max(rows.length,hRange.length)).toLocaleString()} avg/day</div>` : ''}
+          ${!isToday && hRange.length>1 ? `<div style="font-size:11px;color:var(--muted)">${Math.round(netBalance/hRange.length) > 0 ? '+' : ''}${Math.round(netBalance/hRange.length).toLocaleString()} avg/day</div>` : ''}
         </div>
       </div>
       <div style="height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;position:relative">
