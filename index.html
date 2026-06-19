@@ -962,7 +962,7 @@ function renderWork(){
     <div style="overflow-x:auto;margin-bottom:1.25rem">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
       <thead><tr><th style="text-align:left;padding:6px 10px;color:var(--muted);font-weight:600">Metric</th>
-        ${types.map(t=>`<th style="text-align:right;padding:6px 10px;color:var(--muted);font-weight:600">${t.emoji} ${t.label.split(' ')[0]}</th>`).join('')}
+        ${types.map(t=>`<th style="text-align:right;padding:6px 10px;color:var(--muted);font-weight:600">${t.emoji} ${t.key==='off'?'Day Off':t.label.split(' ')[0]}</th>`).join('')}
       </tr></thead>
       <tbody>
         ${metrics.map(m=>`<tr style="border-top:1px solid var(--border)">
@@ -988,20 +988,56 @@ function renderWork(){
     <div class="section-head">Sleep by Shift Type
       <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:8px">Data from ${dataFrom}</span>
     </div>
-    <div class="stat-grid" style="margin-bottom:1.25rem">
-      ${types.map(t=>{
-        const bedTimes=byType[t.key].filter(r=>r.data.bedTime).map(r=>r.data.bedTime);
-        const wakeTimes=byType[t.key].filter(r=>r.data.wakeTime).map(r=>r.data.wakeTime);
-        return`<div class="stat-card ${t.cls}">
-          <div class="stat-label">${t.emoji} ${t.label}</div>
-          <div style="margin-top:10px;display:grid;gap:8px">
-            <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Avg Bedtime</div><div style="font-size:20px;font-weight:700">${avgTime(bedTimes)}</div></div>
-            <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Avg Wake</div><div style="font-size:20px;font-weight:700">${avgTime(wakeTimes)}</div></div>
-            <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Avg Sleep</div><div style="font-size:18px;font-weight:700">${avgSleepDur(byType[t.key])}</div></div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
+
+    ${(()=>{
+      const spread=(rows,key)=>{const v=rows.map(r=>r.data[key]).filter(x=>x!=null);if(!v.length)return null;return{min:Math.min(...v),avg:+(v.reduce((s,x)=>s+x,0)/v.length).toFixed(1),max:Math.max(...v)};};
+      const stages=(rows)=>{const valid=rows.filter(r=>r.data.sleepSec>0&&r.data.deepSec!=null);if(!valid.length)return null;const avg=(k)=>valid.reduce((s,r)=>s+(r.data[k]||0),0)/valid.length;const tot=avg('sleepSec')||1;return{deep:+(avg('deepSec')/tot*100).toFixed(0),rem:+(avg('remSec')/tot*100).toFixed(0),light:+(avg('lightSec')/tot*100).toFixed(0),awake:+(avg('awakeSec')/tot*100).toFixed(0)};};
+      const scoreClr=(v)=>v>=80?'#c8f53a':v>=65?'#f5c53a':v>=50?'#f57c3a':'#f53a3a';
+      const rangeBar=(sp,clr)=>{if(!sp)return'<span style="color:var(--muted)">—</span>';const p=(v)=>Math.max(0,Math.min(100,v));return`<div style="position:relative;height:6px;background:var(--surface2);border-radius:3px;margin:5px 0"><div style="position:absolute;left:${p(sp.min)}%;width:${p(sp.max-sp.min)}%;height:100%;background:${clr};opacity:.35;border-radius:3px"></div><div style="position:absolute;left:calc(${p(sp.avg)}% - 3px);width:6px;height:6px;background:${clr};border-radius:50%;top:0"></div></div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted)"><span>${sp.min}</span><span style="color:${clr};font-weight:700">${sp.avg}</span><span>${sp.max}</span></div>`;};
+      const stageBar=(st)=>{if(!st)return'<span style="color:var(--muted);font-size:11px">—</span>';const segs=[{p:st.deep,c:'#7c6dfa',l:'Deep'},{p:st.rem,c:'#c8f53a',l:'REM'},{p:st.light,c:'#4ab4f5',l:'Light'},{p:st.awake,c:'#444',l:'Awake'}];return`<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;margin:6px 0">${segs.map(s=>`<div style="width:${s.p}%;background:${s.c}" title="${s.l} ${s.p}%"></div>`).join('')}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${segs.map(s=>`<span style="font-size:9px;color:var(--muted)"><span style="color:${s.c}">●</span> ${s.l} ${s.p}%</span>`).join('')}</div>`;};
+      const activeTypes=types.filter(t=>byType[t.key].length>0);
+
+      const timingCards=activeTypes.map(t=>{
+        const beds=byType[t.key].filter(r=>r.data.bedTime).map(r=>r.data.bedTime);
+        const wakes=byType[t.key].filter(r=>r.data.wakeTime).map(r=>r.data.wakeTime);
+        const n=byType[t.key].length;
+        return`<div class="stat-card ${t.cls}"><div class="stat-label">${t.emoji} ${t.label} <span style="font-size:10px;color:var(--muted)">${n} nights</span></div>
+          <div style="margin-top:10px;display:grid;gap:10px">
+            <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Avg Bedtime</div><div style="font-size:22px;font-weight:700">${avgTime(beds)}</div></div>
+            <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Avg Wake</div><div style="font-size:22px;font-weight:700">${avgTime(wakes)}</div></div>
+            <div><div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Avg Duration</div><div style="font-size:20px;font-weight:700">${avgSleepDur(byType[t.key])}</div></div>
+          </div></div>`;
+      }).join('');
+
+      const scoreCards=activeTypes.map(t=>{
+        const sp=spread(byType[t.key],'sleepScore');
+        const clr=sp?scoreClr(sp.avg):'var(--muted)';
+        return`<div class="stat-card ${t.cls}"><div class="stat-label">${t.emoji} ${t.label}</div>
+          <div style="margin-top:10px">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Score — min / avg / max</div>
+            <div style="font-size:30px;font-weight:700;color:${clr};margin:4px 0">${sp?sp.avg:'—'}</div>
+            ${rangeBar(sp,clr)}
+          </div></div>`;
+      }).join('');
+
+      const stageCards=activeTypes.map(t=>{
+        const st=stages(byType[t.key]);
+        return`<div class="stat-card ${t.cls}"><div class="stat-label">${t.emoji} ${t.label}</div>
+          <div style="margin-top:10px">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Stage Breakdown</div>
+            ${stageBar(st)}
+          </div></div>`;
+      }).join('');
+
+      return`
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:1rem 0 .5rem">Timing</div>
+        <div class="stat-grid" style="margin-bottom:1.5rem">${timingCards}</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Score Distribution</div>
+        <div class="stat-grid" style="margin-bottom:1.5rem">${scoreCards}</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Stage Breakdown</div>
+        <div class="stat-grid" style="margin-bottom:1.5rem">${stageCards}</div>
+      `;
+    })()}
   `;
 
   el.innerHTML=html;
