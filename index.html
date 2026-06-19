@@ -909,6 +909,7 @@ function renderWork(){
 function renderActSummary(){
   const runs=activities.filter(a=>a.type==='running').sort((a,b)=>a.date.localeCompare(b.date));
   const bikes=activities.filter(a=>a.type==='cycling').sort((a,b)=>a.date.localeCompare(b.date));
+  const walks=activities.filter(a=>a.type==='walking').sort((a,b)=>a.date.localeCompare(b.date));
   if(!runs.length&&!bikes.length)return;
   const isInterval=r=>/interval|tempo|fartlek|speedwork/i.test(r.name||'');
   const steadyRuns=runs.filter(r=>!isInterval(r));
@@ -916,8 +917,10 @@ function renderActSummary(){
   const now=new Date();const mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));mon.setHours(0,0,0,0);
   const thisWkRunKm=runs.filter(r=>new Date(r.date)>=mon).reduce((s,r)=>s+(r.distanceM||0)/1000,0);
   const thisWkBikeKm=bikes.filter(b=>new Date(b.date)>=mon).reduce((s,b)=>s+(b.distanceM||0)/1000,0);
+  const thisWkWalkKm=walks.filter(w=>new Date(w.date)>=mon).reduce((s,w)=>s+(w.distanceM||0)/1000,0);
   const totalRunKm=runs.reduce((s,r)=>s+(r.distanceM||0)/1000,0);
   const totalBikeKm=bikes.reduce((s,b)=>s+(b.distanceM||0)/1000,0);
+  const totalWalkKm=walks.reduce((s,w)=>s+(w.distanceM||0)/1000,0);
   // Run PRs
   const maxRunDist=steadyRuns.reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
   const fastPace=steadyRuns.filter(r=>r.distanceM>=1000).reduce((b,r)=>{const p=r.durationSec/r.distanceM*1000;return b===null||p<b.p?{r,p}:b;},null);
@@ -936,8 +939,11 @@ function renderActSummary(){
       <div class="stat-card"><div class="stat-label">🚴 This Week</div><div class="stat-value">${thisWkBikeKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
       <div class="stat-card"><div class="stat-label">🏃 All-Time km</div><div class="stat-value">${totalRunKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
       <div class="stat-card"><div class="stat-label">🚴 All-Time km</div><div class="stat-value">${totalBikeKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
+      <div class="stat-card"><div class="stat-label">🚶 This Week</div><div class="stat-value">${thisWkWalkKm.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
+      <div class="stat-card"><div class="stat-label">🚶 All-Time km</div><div class="stat-value">${totalWalkKm.toFixed(0)}<span style="font-size:14px;color:var(--muted)"> km</span></div></div>
       <div class="stat-card"><div class="stat-label">Total Runs</div><div class="stat-value">${runs.length}</div></div>
       <div class="stat-card"><div class="stat-label">Total Rides</div><div class="stat-value">${bikes.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Walks</div><div class="stat-value">${walks.length}</div></div>
     </div>
     <div class="section-head">Race Predictions (VO₂max)</div>
     <div id="race-preds" class="race-pred"></div>
