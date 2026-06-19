@@ -427,7 +427,7 @@ const toDisplay=d=>{
   const [y,m,day]=d.split('-');
   return day+'/'+m+'/'+y;
 };
-const fmt=s=>{const m=Math.floor(s/60),sc=Math.round(s%60);return m+':'+(sc<10?'0':'')+sc};
+const fmt=s=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=Math.round(s%60);return h>0?h+':'+(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc:m+':'+(sc<10?'0':'')+sc};
 const fmtD=m=>(m/1000).toFixed(2)+'km';
 const fmtSpd=mps=>((mps*3.6).toFixed(1))+'km/h';
 const pace=(d,s)=>fmt(s/(d/1000))+'/km';
@@ -964,7 +964,7 @@ function renderActSummary(){
     <div class="section-head">Personal Records</div>
     <div class="pr-grid">
       ${maxDist?`<div class="pr-card"><div class="pr-crown">🏅</div><div class="stat-label">Longest Run</div><div class="pr-val">${(maxDist.distanceM/1000).toFixed(2)} km</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(maxDist.date)}</div></div>`:''}
-      ${fastPace?`<div class="pr-card"><div class="pr-crown">⚡</div><div class="stat-label">Best Pace</div><div class="pr-val">${pace(1000,fastPace.p)}/km</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(fastPace.r.date)}</div></div>`:''}
+      ${fastPace?`<div class="pr-card"><div class="pr-crown">⚡</div><div class="stat-label">Best Pace</div><div class="pr-val">${pace(1000,fastPace.p)}</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(fastPace.r.date)}</div></div>`:''}
       ${best5k?`<div class="pr-card"><div class="pr-crown">🏃</div><div class="stat-label">Best 5km</div><div class="pr-val">${fmt(best5k.fastest5k)}</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(best5k.date)}</div></div>`:''}
       ${mostElev?`<div class="pr-card"><div class="pr-crown">⛰️</div><div class="stat-label">Most Elevation</div><div class="pr-val">${mostElev.elevGain}m</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(mostElev.date)}</div></div>`:''}
       ${bestVO2?`<div class="pr-card"><div class="pr-crown">💪</div><div class="stat-label">Best VO₂max</div><div class="pr-val">${bestVO2.vo2max}</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(bestVO2.date)}</div></div>`:''}
@@ -1612,15 +1612,15 @@ function showSubTab(sect, tab, el) {
 }
 
 function showNav(id,el){
-  if(id==='work'){setTimeout(renderWork,50);}
   destroyCharts();
-  if(id==='nutrition'){renderNutrition();}
-  if(id==='health'){renderHealth();}
-  if(id==='reviews'){renderReviewHistory();}
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('nav-'+id).classList.add('active');
   el.classList.add('active');
+  if(id==='work'){setTimeout(renderWork,50);}
+  if(id==='nutrition'){try{renderNutrition();}catch(e){console.error('renderNutrition:',e);}}
+  if(id==='health'){try{renderHealth();}catch(e){console.error('renderHealth:',e);}}
+  if(id==='reviews'){try{renderReviewHistory();}catch(e){console.error('renderReviewHistory:',e);}}
 }
 function showSub(id,el){
   document.querySelectorAll('.subpanel').forEach(p=>p.style.display='none');
