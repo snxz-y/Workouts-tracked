@@ -181,8 +181,8 @@ tr:hover td{background:var(--surface2)}
     <div class="subnav" data-sect="act" style="align-items:center">
       <button class="subnav-btn active" onclick="showSubTab('act','summary',this)">📊 Summary</button>
       <button class="subnav-btn" onclick="showSubTab('act','runs',this)">🏃 Runs</button>
-      <button class="subnav-btn" onclick="showSubTab('act','bikes',this)">🚴 Bikes</button>
       <button class="subnav-btn" onclick="showSubTab('act','walks',this)">🚶 Walks</button>
+      <button class="subnav-btn" onclick="showSubTab('act','bikes',this)">🚴 Bikes</button>
       <button class="subnav-btn" onclick="showSubTab('act','all',this)">📋 All</button>
       <button id="garmin-sync-btn" onclick="triggerGarminSync()" style="margin-left:auto;font-size:11px;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;letter-spacing:.03em;transition:all .15s;white-space:nowrap">⟳ Sync Garmin</button>
     </div>
@@ -212,21 +212,15 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('runs','pace')">Pace</th>
           <th onclick="sort('runs','avgHR')">Avg HR</th>
           <th onclick="sort('runs','maxHR')">Max HR</th>
-          <th onclick="sort('runs','elevGain')">Elev ↑</th>
-          <th onclick="sort('runs','elevLoss')">Elev ↓</th>
-          <th onclick="sort('runs','cadence')">Cadence</th>
-          <th onclick="sort('runs','strideLen')">Stride</th>
-          <th onclick="sort('runs','gct')">GCT</th>
-          <th onclick="sort('runs','avgPower')">Avg W</th>
-          <th onclick="sort('runs','normPower')">NP</th>
           <th onclick="sort('runs','fastest1k')">Best 1km</th>
           <th onclick="sort('runs','fastest5k')">Best 5km</th>
+          <th onclick="sort('runs','fastest10k')">Best 10km</th>
           <th onclick="sort('runs','vo2max')">VO₂max</th>
           <th onclick="sort('runs','load')">Load</th>
-          <th onclick="sort('runs','bodyBatDrain')">BB ↓</th>
           <th onclick="sort('runs','calories')">kcal</th>
           <th>Zones</th>
           <th onclick="sort('runs','label')">Effect</th>
+          <th></th>
         </tr></thead>
         <tbody id="tbody-runs"></tbody>
       </table></div>
@@ -245,7 +239,8 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('bikes','date')">Date</th>
           <th>GC</th>
           <th onclick="sort('bikes','distanceM')">Dist</th>
-          <th onclick="sort('bikes','speed')">Speed</th>
+          <th onclick="sort('bikes','speed')">Avg Speed</th>
+          <th onclick="sort('bikes','maxSpeed')">Max Speed</th>
           <th onclick="sort('bikes','avgHR')">Avg HR</th>
           <th onclick="sort('bikes','maxHR')">Max HR</th>
           <th onclick="sort('bikes','elevGain')">Elev ↑</th>
@@ -280,7 +275,6 @@ tr:hover td{background:var(--surface2)}
           <th onclick="sort('walks','elevLoss')">Elev ↓</th>
           <th onclick="sort('walks','durationSec')">Duration</th>
           <th onclick="sort('walks','steps')">Steps</th>
-          <th onclick="sort('walks','strideLen')">Stride</th>
           <th onclick="sort('walks','load')">Load</th>
           <th onclick="sort('walks','bodyBatDrain')">BB ↓</th>
           <th onclick="sort('walks','calories')">kcal</th>
@@ -461,24 +455,43 @@ function getSorted(arr,tab){
 }
 function sort(tab,col){if(ss[tab].col===col)ss[tab].asc=!ss[tab].asc;else{ss[tab].col=col;ss[tab].asc=false;}renderActivities();}
 
+function toggleMore(btn){
+  const detail=btn.closest('tr').nextElementSibling;
+  const show=detail.style.display==='none';
+  detail.style.display=show?'':'none';
+  btn.textContent=show?'Less':'More';
+}
 function renderRuns(){
   const rows=getSorted(activities.filter(a=>a.type==='running'),'runs');
   document.getElementById('tbody-runs').innerHTML=rows.map(r=>`<tr>
-    <td>${fmtDate(r.date)}</td><td>${gcLinks(r.activityId)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td><td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
+    <td>${fmtDate(r.date)}</td><td>${gcLinks(r.activityId)}</td>
+    <td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td>
+    <td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
     <td style="${hrCls(r.avgHR)}">${r.avgHR}</td><td class="${r.maxHR>=187?'hi':r.maxHR>=166?'warn':''}">${r.maxHR}</td>
-    <td>${n(r.elevGain)}m</td><td class="muted-cell">${n(r.elevLoss)}m</td>
-    <td>${n(r.cadence)} spm</td><td>${n(r.strideLen,1)}cm</td><td>${n(r.gct)}ms</td>
-    <td>${n(r.avgPower)}W</td><td>${n(r.normPower)}W</td>
-    <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td>
+    <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td><td>${r.fastest10k?fmt(r.fastest10k):'—'}</td>
     <td class="${r.vo2max>=47?'ok':''}">${n(r.vo2max)}</td>
-    <td>${n(r.load,1)}</td><td class="muted-cell">-${n(r.bodyBatDrain)}</td><td>${n(r.calories)}</td>
+    <td>${n(r.load,1)}</td><td>${n(r.calories)}</td>
     <td>${zbar(r)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(r.label)}</td>
-  </tr>`).join('');
+    <td><button onclick="toggleMore(this)" style="font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap">More</button></td>
+  </tr><tr style="display:none"><td colspan="15" style="padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border)">
+    <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px">
+      <span><span style="color:var(--muted)">Elev ↑</span> ${n(r.elevGain)}m</span>
+      <span><span style="color:var(--muted)">Elev ↓</span> ${n(r.elevLoss)}m</span>
+      <span><span style="color:var(--muted)">Cadence</span> ${n(r.cadence)} spm</span>
+      <span><span style="color:var(--muted)">Stride</span> ${n(r.strideLen,1)}cm</span>
+      <span><span style="color:var(--muted)">GCT</span> ${n(r.gct)}ms</span>
+      <span><span style="color:var(--muted)">Avg Power</span> ${n(r.avgPower)}W</span>
+      <span><span style="color:var(--muted)">NP</span> ${n(r.normPower)}W</span>
+      <span><span style="color:var(--muted)">BB ↓</span> ${n(r.bodyBatDrain)}</span>
+      <span><span style="color:var(--muted)">Vert Osc</span> ${n(r.vo,1)}cm</span>
+      <span><span style="color:var(--muted)">Vert Ratio</span> ${n(r.vertRatio,1)}%</span>
+    </div>
+  </td></tr>`).join('');
 }
 function renderBikes(){
   const rows=getSorted(activities.filter(a=>a.type==='cycling'),'bikes');
   document.getElementById('tbody-bikes').innerHTML=rows.map(b=>`<tr>
-    <td>${fmtDate(b.date)}</td><td>${gcLinks(b.activityId)}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td>
+    <td>${fmtDate(b.date)}</td><td>${gcLinks(b.activityId)}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td><td>${b.maxSpeed?fmtSpd(b.maxSpeed):'—'}</td>
     <td style="${hrCls(b.avgHR)}">${b.avgHR}</td><td class="${b.maxHR>=187?'hi':b.maxHR>=166?'warn':''}">${b.maxHR}</td>
     <td>${n(b.elevGain)}m</td><td class="muted-cell">${n(b.elevLoss)}m</td>
     <td>${fmt(b.durationSec)}</td><td>${n(b.load,1)}</td><td class="muted-cell">-${n(b.bodyBatDrain)}</td><td>${n(b.calories)}</td>
@@ -491,7 +504,7 @@ function renderWalks(){
     <td>${fmtDate(w.date)}</td><td>${gcLinks(w.activityId)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
     <td style="${hrCls(w.avgHR)}">${w.avgHR}</td><td class="${w.maxHR>=187?'hi':w.maxHR>=166?'warn':''}">${w.maxHR}</td>
     <td>${n(w.elevGain)}m</td><td class="muted-cell">${n(w.elevLoss)}m</td>
-    <td>${fmt(w.durationSec)}</td><td>${n(w.steps)}</td><td>${n(w.strideLen,1)}cm</td>
+    <td>${fmt(w.durationSec)}</td><td>${n(w.steps)}</td>
     <td>${n(w.load,1)}</td><td class="muted-cell">-${n(w.bodyBatDrain)}</td><td>${n(w.calories)}</td>
     <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${w.label||'—'}</td>
   </tr>`).join('');
