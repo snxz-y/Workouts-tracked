@@ -3,7 +3,7 @@
     "activityId": 23281632041,
     "date": "2026-06-17",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 4874.4,
     "durationSec": 1704,
     "elevGain": 64.6,
@@ -16,14 +16,14 @@
     "bodyBatDrain": 12,
     "cadence": 159,
     "maxCadence": 183,
-    "strideLen": 107.0,
+    "strideLen": 107,
     "gct": 278.6,
     "vo": 9.51,
     "vertRatio": 8.95,
     "avgPower": 304,
     "maxPower": 574,
     "normPower": 316,
-    "avgResp": 38.0,
+    "avgResp": 38,
     "minResp": 31.9,
     "maxResp": 45.2,
     "fastest1k": 325,
@@ -40,53 +40,53 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 385.725,
-        "avgHR": 161.0,
-        "maxHR": 183.0,
+        "avgHR": 161,
+        "maxHR": 183,
         "avgSpeed": 2.5929999351501465,
         "elevGain": 39.16,
-        "calories": 78.0
+        "calories": 78
       },
       {
         "lap": 2,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 334.091,
-        "avgHR": 176.0,
-        "maxHR": 183.0,
+        "avgHR": 176,
+        "maxHR": 183,
         "avgSpeed": 2.9930000305175777,
         "elevGain": 13.3,
-        "calories": 73.0
+        "calories": 73
       },
       {
         "lap": 3,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 342.198,
-        "avgHR": 173.0,
-        "maxHR": 180.0,
+        "avgHR": 173,
+        "maxHR": 180,
         "avgSpeed": 2.921999931335449,
-        "elevGain": 0.0,
-        "calories": 72.0
+        "elevGain": 0,
+        "calories": 72
       },
       {
         "lap": 4,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 338.122,
-        "avgHR": 177.0,
-        "maxHR": 185.0,
+        "avgHR": 177,
+        "maxHR": 185,
         "avgSpeed": 2.9579999446868896,
         "elevGain": 3.68,
-        "calories": 73.0
+        "calories": 73
       },
       {
         "lap": 5,
         "distanceM": 874.38,
         "durationSec": 303.641,
-        "avgHR": 182.0,
-        "maxHR": 195.0,
+        "avgHR": 182,
+        "maxHR": 195,
         "avgSpeed": 2.880000114440918,
         "elevGain": 8.48,
-        "calories": 65.0
+        "calories": 65
       }
     ]
   },
@@ -94,7 +94,7 @@
     "activityId": 23256138671,
     "date": "2026-06-15",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 6394.6,
     "durationSec": 2367,
     "elevGain": 28.6,
@@ -107,7 +107,7 @@
     "bodyBatDrain": 14,
     "cadence": 161,
     "maxCadence": 181,
-    "strideLen": 101.0,
+    "strideLen": 101,
     "gct": 281.2,
     "vo": 9.22,
     "vertRatio": 9.13,
@@ -131,73 +131,73 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 357.424,
-        "avgHR": 143.0,
-        "maxHR": 154.0,
+        "avgHR": 143,
+        "maxHR": 154,
         "avgSpeed": 2.7980000972747803,
         "elevGain": 2.29,
-        "calories": 65.0
+        "calories": 65
       },
       {
         "lap": 2,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 361.453,
-        "avgHR": 159.0,
-        "maxHR": 165.0,
+        "avgHR": 159,
+        "maxHR": 165,
         "avgSpeed": 2.7669999599456787,
-        "elevGain": 0.0,
-        "calories": 74.0
+        "elevGain": 0,
+        "calories": 74
       },
       {
         "lap": 3,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 374.554,
-        "avgHR": 161.0,
-        "maxHR": 167.0,
+        "avgHR": 161,
+        "maxHR": 167,
         "avgSpeed": 2.670000076293945,
-        "elevGain": 0.0,
-        "calories": 75.0
+        "elevGain": 0,
+        "calories": 75
       },
       {
         "lap": 4,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 397.022,
-        "avgHR": 171.0,
-        "maxHR": 176.0,
+        "avgHR": 171,
+        "maxHR": 176,
         "avgSpeed": 2.5190000534057613,
         "elevGain": 25.27,
-        "calories": 83.0
+        "calories": 83
       },
       {
         "lap": 5,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 363.649,
-        "avgHR": 174.0,
-        "maxHR": 177.0,
+        "avgHR": 174,
+        "maxHR": 177,
         "avgSpeed": 2.75,
         "elevGain": 1.04,
-        "calories": 78.0
+        "calories": 78
       },
       {
         "lap": 6,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 370.176,
-        "avgHR": 173.0,
-        "maxHR": 178.0,
+        "avgHR": 173,
+        "maxHR": 178,
         "avgSpeed": 2.7009999752044678,
-        "elevGain": 0.0,
-        "calories": 79.0
+        "elevGain": 0,
+        "calories": 79
       },
       {
         "lap": 7,
         "distanceM": 394.6,
         "durationSec": 143.057,
-        "avgHR": 176.0,
-        "maxHR": 179.0,
+        "avgHR": 176,
+        "maxHR": 179,
         "avgSpeed": 2.757999897003174,
-        "elevGain": 0.0,
-        "calories": 31.0
+        "elevGain": 0,
+        "calories": 31
       }
     ]
   },
@@ -205,7 +205,7 @@
     "activityId": 23262389246,
     "date": "2026-06-15",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
+    "name": "Trondheim Gåtur",
     "distanceM": 4960.6,
     "durationSec": 3300,
     "elevGain": 145.3,
@@ -230,11 +230,11 @@
         "lap": 1,
         "distanceM": 4960.64,
         "durationSec": 3356.685,
-        "avgHR": 103.0,
-        "maxHR": 130.0,
+        "avgHR": 103,
+        "maxHR": 130,
         "avgSpeed": 1.4780000448226929,
         "elevGain": 145.33,
-        "calories": 334.0
+        "calories": 334
       }
     ]
   },
@@ -242,7 +242,7 @@
     "activityId": 23232617941,
     "date": "2026-06-13",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 8318.5,
     "durationSec": 3381,
     "elevGain": 145.1,
@@ -279,93 +279,138 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 439.702,
-        "avgHR": 149.0,
-        "maxHR": 163.0,
+        "avgHR": 149,
+        "maxHR": 163,
         "avgSpeed": 2.2739999294281006,
         "elevGain": 37.68,
-        "calories": 83.0
+        "calories": 83
       },
       {
         "lap": 2,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 441.133,
-        "avgHR": 159.0,
-        "maxHR": 165.0,
+        "avgHR": 159,
+        "maxHR": 165,
         "avgSpeed": 2.2669999599456787,
         "elevGain": 25.7,
-        "calories": 85.0
+        "calories": 85
       },
       {
         "lap": 3,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 392.77,
-        "avgHR": 155.0,
-        "maxHR": 161.0,
+        "avgHR": 155,
+        "maxHR": 161,
         "avgSpeed": 2.5460000038146973,
-        "elevGain": 0.0,
-        "calories": 73.0
+        "elevGain": 0,
+        "calories": 73
       },
       {
         "lap": 4,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 400.363,
-        "avgHR": 164.0,
-        "maxHR": 178.0,
+        "avgHR": 164,
+        "maxHR": 178,
         "avgSpeed": 2.497999906539917,
         "elevGain": 22.41,
-        "calories": 81.0
+        "calories": 81
       },
       {
         "lap": 5,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 420.417,
-        "avgHR": 173.0,
-        "maxHR": 178.0,
+        "avgHR": 173,
+        "maxHR": 178,
         "avgSpeed": 2.378999948501587,
         "elevGain": 33.14,
-        "calories": 87.0
+        "calories": 87
       },
       {
         "lap": 6,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 419.598,
-        "avgHR": 175.0,
-        "maxHR": 179.0,
+        "avgHR": 175,
+        "maxHR": 179,
         "avgSpeed": 2.382999897003174,
         "elevGain": 24.81,
-        "calories": 86.0
+        "calories": 86
       },
       {
         "lap": 7,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 389.576,
-        "avgHR": 169.0,
-        "maxHR": 176.0,
+        "avgHR": 169,
+        "maxHR": 176,
         "avgSpeed": 2.566999912261963,
-        "elevGain": 0.0,
-        "calories": 77.0
+        "elevGain": 0,
+        "calories": 77
       },
       {
         "lap": 8,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 363.749,
-        "avgHR": 170.0,
-        "maxHR": 174.0,
+        "avgHR": 170,
+        "maxHR": 174,
         "avgSpeed": 2.7490000724792476,
         "elevGain": 1.32,
-        "calories": 74.0
+        "calories": 74
       },
       {
         "lap": 9,
         "distanceM": 318.54,
         "durationSec": 114.139,
-        "avgHR": 168.0,
-        "maxHR": 172.0,
+        "avgHR": 168,
+        "maxHR": 172,
         "avgSpeed": 2.790999889373779,
-        "elevGain": 0.0,
-        "calories": 23.0
+        "elevGain": 0,
+        "calories": 23
+      }
+    ]
+  },
+  {
+    "activityId": 23316918539,
+    "date": "2026-06-20",
+    "type": "cycling",
+    "name": "Trondheim Sykling",
+    "distanceM": 6416.6,
+    "durationSec": 931,
+    "elevGain": 37.4,
+    "elevLoss": 120,
+    "avgHR": 141,
+    "maxHR": 177,
+    "calories": 146,
+    "load": 35.8,
+    "bodyBatDrain": 4,
+    "z1": 134,
+    "z2": 356,
+    "z3": 291,
+    "z4": 106,
+    "z5": 0,
+    "label": "Recovery",
+    "fastest10k": null,
+    "maxSpeed": 11.541999816894531,
+    "splits": [
+      {
+        "lap": 1,
+        "distanceM": 5000,
+        "durationSec": 664.401,
+        "avgHR": 136,
+        "maxHR": 177,
+        "avgSpeed": 7.526000022888184,
+        "elevGain": 24.08,
+        "calories": 96
+      },
+      {
+        "lap": 2,
+        "distanceM": 1416.58,
+        "durationSec": 266.964,
+        "avgHR": 152,
+        "maxHR": 169,
+        "avgSpeed": 5.306000232696533,
+        "elevGain": 13.32,
+        "calories": 49
       }
     ]
   },
@@ -394,23 +439,23 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 5000.0,
+        "distanceM": 5000,
         "durationSec": 1136.63,
-        "avgHR": 153.0,
-        "maxHR": 192.0,
+        "avgHR": 153,
+        "maxHR": 192,
         "avgSpeed": 4.39900016784668,
         "elevGain": 146.45,
-        "calories": 201.0
+        "calories": 201
       },
       {
         "lap": 2,
         "distanceM": 10.21,
         "durationSec": 9.133,
-        "avgHR": 129.0,
-        "maxHR": 130.0,
+        "avgHR": 129,
+        "maxHR": 130,
         "avgSpeed": 1.1180000305175781,
-        "elevGain": 0.0,
-        "calories": 1.0
+        "elevGain": 0,
+        "calories": 1
       }
     ]
   },
@@ -441,11 +486,11 @@
         "lap": 1,
         "distanceM": 4924.89,
         "durationSec": 694.513,
-        "avgHR": 137.0,
-        "maxHR": 168.0,
+        "avgHR": 137,
+        "maxHR": 168,
         "avgSpeed": 7.091000080108643,
         "elevGain": 65.67,
-        "calories": 105.0
+        "calories": 105
       }
     ]
   },
@@ -453,7 +498,7 @@
     "activityId": 23174231477,
     "date": "2026-06-08",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
+    "name": "Trondheim Gåtur",
     "distanceM": 5150.1,
     "durationSec": 3611,
     "elevGain": 70.7,
@@ -478,11 +523,11 @@
         "lap": 1,
         "distanceM": 5150.08,
         "durationSec": 3611.345,
-        "avgHR": 96.0,
-        "maxHR": 126.0,
+        "avgHR": 96,
+        "maxHR": 126,
         "avgSpeed": 1.4259999990463257,
         "elevGain": 70.71,
-        "calories": 315.0
+        "calories": 315
       }
     ]
   },
@@ -490,10 +535,10 @@
     "activityId": 23162734902,
     "date": "2026-06-07",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 4859.6,
     "durationSec": 1798,
-    "elevGain": 63.0,
+    "elevGain": 63,
     "elevLoss": 139.8,
     "avgHR": 164,
     "maxHR": 182,
@@ -504,7 +549,7 @@
     "cadence": 153,
     "maxCadence": 166,
     "strideLen": 104.9,
-    "gct": 293.0,
+    "gct": 293,
     "vo": 9.64,
     "vertRatio": 9.23,
     "avgPower": 295,
@@ -527,53 +572,53 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 399.448,
-        "avgHR": 153.0,
-        "maxHR": 176.0,
+        "avgHR": 153,
+        "maxHR": 176,
         "avgSpeed": 2.503000020980835,
         "elevGain": 36.41,
-        "calories": 77.0
+        "calories": 77
       },
       {
         "lap": 2,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 381.755,
-        "avgHR": 168.0,
-        "maxHR": 176.0,
+        "avgHR": 168,
+        "maxHR": 176,
         "avgSpeed": 2.6189999580383296,
         "elevGain": 12.93,
-        "calories": 80.0
+        "calories": 80
       },
       {
         "lap": 3,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 352.988,
-        "avgHR": 160.0,
-        "maxHR": 168.0,
+        "avgHR": 160,
+        "maxHR": 168,
         "avgSpeed": 2.8329999446868896,
-        "elevGain": 0.0,
-        "calories": 70.0
+        "elevGain": 0,
+        "calories": 70
       },
       {
         "lap": 4,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 348.829,
-        "avgHR": 166.0,
-        "maxHR": 178.0,
+        "avgHR": 166,
+        "maxHR": 178,
         "avgSpeed": 2.867000102996826,
         "elevGain": 5.92,
-        "calories": 72.0
+        "calories": 72
       },
       {
         "lap": 5,
         "distanceM": 859.59,
         "durationSec": 315.309,
-        "avgHR": 176.0,
-        "maxHR": 182.0,
+        "avgHR": 176,
+        "maxHR": 182,
         "avgSpeed": 2.7260000705718994,
         "elevGain": 7.78,
-        "calories": 68.0
+        "calories": 68
       }
     ]
   },
@@ -581,7 +626,7 @@
     "activityId": 23154929194,
     "date": "2026-06-06",
     "type": "running",
-    "name": "Trondheim L\u00f8ping (short)",
+    "name": "Trondheim Løping (short)",
     "distanceM": 1792.5,
     "durationSec": 626,
     "elevGain": 1.3,
@@ -595,7 +640,7 @@
     "cadence": 150,
     "maxCadence": 166,
     "strideLen": 113.75,
-    "gct": 284.0,
+    "gct": 284,
     "vo": 9.88,
     "vertRatio": 8.67,
     "avgPower": 275,
@@ -618,23 +663,23 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 328.8,
-        "avgHR": 147.0,
-        "maxHR": 163.0,
+        "avgHR": 147,
+        "maxHR": 163,
         "avgSpeed": 3.0409998893737793,
         "elevGain": 1.31,
-        "calories": 59.0
+        "calories": 59
       },
       {
         "lap": 2,
         "distanceM": 792.48,
         "durationSec": 297.481,
-        "avgHR": 161.0,
-        "maxHR": 167.0,
+        "avgHR": 161,
+        "maxHR": 167,
         "avgSpeed": 2.6640000343322754,
-        "elevGain": 0.0,
-        "calories": 58.0
+        "elevGain": 0,
+        "calories": 58
       }
     ]
   },
@@ -642,10 +687,10 @@
     "activityId": 23148568475,
     "date": "2026-06-06",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur (long)",
+    "name": "Trondheim Gåtur (long)",
     "distanceM": 7941.5,
     "durationSec": 5439,
-    "elevGain": 157.0,
+    "elevGain": 157,
     "elevLoss": 152.1,
     "avgHR": 112,
     "maxHR": 186,
@@ -667,11 +712,11 @@
         "lap": 1,
         "distanceM": 7941.55,
         "durationSec": 5438.785,
-        "avgHR": 112.0,
-        "maxHR": 186.0,
+        "avgHR": 112,
+        "maxHR": 186,
         "avgSpeed": 1.4600000381469727,
         "elevGain": 156.99,
-        "calories": 532.0
+        "calories": 532
       }
     ]
   },
@@ -679,7 +724,7 @@
     "activityId": 23140264237,
     "date": "2026-06-05",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
+    "name": "Trondheim Gåtur",
     "distanceM": 4923.5,
     "durationSec": 3514,
     "elevGain": 145.4,
@@ -704,11 +749,11 @@
         "lap": 1,
         "distanceM": 4923.46,
         "durationSec": 3514.067,
-        "avgHR": 113.0,
-        "maxHR": 137.0,
+        "avgHR": 113,
+        "maxHR": 137,
         "avgSpeed": 1.4010000228881836,
         "elevGain": 145.39,
-        "calories": 333.0
+        "calories": 333
       }
     ]
   },
@@ -716,7 +761,7 @@
     "activityId": 23123707230,
     "date": "2026-06-04",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
+    "name": "Trondheim Gåtur",
     "distanceM": 4949.7,
     "durationSec": 3337,
     "elevGain": 63.6,
@@ -741,11 +786,11 @@
         "lap": 1,
         "distanceM": 4949.68,
         "durationSec": 3336.571,
-        "avgHR": 112.0,
-        "maxHR": 153.0,
+        "avgHR": 112,
+        "maxHR": 153,
         "avgSpeed": 1.4830000400543213,
         "elevGain": 63.58,
-        "calories": 306.0
+        "calories": 306
       }
     ]
   },
@@ -753,7 +798,7 @@
     "activityId": 23102300035,
     "date": "2026-06-02",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 4874.4,
     "durationSec": 1737,
     "elevGain": 63.5,
@@ -790,53 +835,53 @@
     "splits": [
       {
         "lap": 1,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 389.196,
-        "avgHR": 167.0,
-        "maxHR": 186.0,
+        "avgHR": 167,
+        "maxHR": 186,
         "avgSpeed": 2.5690000057220455,
         "elevGain": 39.43,
-        "calories": 78.0
+        "calories": 78
       },
       {
         "lap": 2,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 369.85,
-        "avgHR": 179.0,
-        "maxHR": 185.0,
+        "avgHR": 179,
+        "maxHR": 185,
         "avgSpeed": 2.7039999961853027,
         "elevGain": 10.78,
-        "calories": 77.0
+        "calories": 77
       },
       {
         "lap": 3,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 329.528,
-        "avgHR": 179.0,
-        "maxHR": 183.0,
+        "avgHR": 179,
+        "maxHR": 183,
         "avgSpeed": 3.0350000858306885,
-        "elevGain": 0.0,
-        "calories": 70.0
+        "elevGain": 0,
+        "calories": 70
       },
       {
         "lap": 4,
-        "distanceM": 1000.0,
+        "distanceM": 1000,
         "durationSec": 338.747,
-        "avgHR": 183.0,
-        "maxHR": 188.0,
+        "avgHR": 183,
+        "maxHR": 188,
         "avgSpeed": 2.9519999027252197,
         "elevGain": 5.77,
-        "calories": 72.0
+        "calories": 72
       },
       {
         "lap": 5,
         "distanceM": 874.38,
         "durationSec": 309.609,
-        "avgHR": 188.0,
-        "maxHR": 195.0,
+        "avgHR": 188,
+        "maxHR": 195,
         "avgSpeed": 2.8239998817443848,
         "elevGain": 7.54,
-        "calories": 67.0
+        "calories": 67
       }
     ]
   },
@@ -844,7 +889,7 @@
     "activityId": 23080792498,
     "date": "2026-05-31",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
+    "name": "Trondheim Gåtur",
     "distanceM": 4916.1,
     "durationSec": 3587,
     "elevGain": 144.8,
@@ -867,11 +912,11 @@
     "activityId": 23074508393,
     "date": "2026-05-31",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur (AM)",
+    "name": "Trondheim Gåtur (AM)",
     "distanceM": 5332.5,
     "durationSec": 4065,
     "elevGain": 67.1,
-    "elevLoss": 155.0,
+    "elevLoss": 155,
     "avgHR": 109,
     "maxHR": 150,
     "calories": 342,
@@ -898,7 +943,7 @@
     "avgHR": 152,
     "maxHR": 181,
     "calories": 231,
-    "load": 68.0,
+    "load": 68,
     "bodyBatDrain": 5,
     "z1": 45,
     "z2": 266,
@@ -911,11 +956,11 @@
     "activityId": 23060337746,
     "date": "2026-05-29",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 4904.1,
     "durationSec": 2333,
     "elevGain": 147.5,
-    "elevLoss": 60.0,
+    "elevLoss": 60,
     "avgHR": 160,
     "maxHR": 179,
     "calories": 406,
@@ -925,7 +970,7 @@
     "cadence": 142,
     "maxCadence": 166,
     "strideLen": 87.2,
-    "gct": 299.0,
+    "gct": 299,
     "vo": 8.05,
     "vertRatio": 9.23,
     "avgPower": 250,
@@ -948,8 +993,8 @@
     "activityId": 23008692281,
     "date": "2026-05-25",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
-    "distanceM": 4738.0,
+    "name": "Trondheim Gåtur",
+    "distanceM": 4738,
     "durationSec": 3420,
     "elevGain": 134.8,
     "elevLoss": 59.8,
@@ -971,7 +1016,7 @@
     "activityId": 22941236620,
     "date": "2026-05-15",
     "type": "walking",
-    "name": "Trondheim G\u00e5tur",
+    "name": "Trondheim Gåtur",
     "distanceM": 4976.3,
     "durationSec": 3470,
     "elevGain": 151.4,
@@ -994,10 +1039,10 @@
     "activityId": 22865958448,
     "date": "2026-05-13",
     "type": "running",
-    "name": "Trondheim L\u00f8ping",
+    "name": "Trondheim Løping",
     "distanceM": 4891.1,
     "durationSec": 1891,
-    "elevGain": 68.0,
+    "elevGain": 68,
     "elevLoss": 147.8,
     "avgHR": 174,
     "maxHR": 192,
@@ -1007,7 +1052,7 @@
     "bodyBatDrain": 11,
     "cadence": 153,
     "maxCadence": 163,
-    "strideLen": 101.0,
+    "strideLen": 101,
     "gct": 298.3,
     "vo": 9.45,
     "vertRatio": 9.39,
