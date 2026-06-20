@@ -1387,7 +1387,7 @@ function getCompRows(){
 }
 
 function initCompDates(){
-  const d=new Date(); d.setDate(d.getDate()-1);
+  const d=new Date();
   compEndDate=d.toISOString().slice(0,10);
   compStartDate='2026-06-01';
 }
@@ -1403,12 +1403,12 @@ function applyCompEnd(){
 
 function initHealthDates(){
   if(!healthData.length)return;
-  const d=new Date(); d.setDate(d.getDate()-1);
-  const yesterday=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
-  // Fall back to latest available date if yesterday has no entry
-  const hasYesterday=healthData.some(h=>h.date===yesterday);
+  const d=new Date();
+  const today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  // Fall back to latest available date if today has no entry yet
+  const hasToday=healthData.some(h=>h.date===today);
   const sorted=[...healthData].sort((a,b)=>b.date.localeCompare(a.date));
-  const defaultDate=hasYesterday?yesterday:sorted[0].date;
+  const defaultDate=hasToday?today:sorted[0].date;
   healthEndDate=defaultDate;
   healthStartDate=defaultDate;
   healthSingleDay=true;
@@ -2000,7 +2000,7 @@ let nutrSingleDay = true;
 
 function initNutrDates() {
   if (!nutritionData.length) return;
-  const end = new Date(); end.setDate(end.getDate()-1);
+  const end = new Date();
   const fmt = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
   nutrEndDate = fmt(end);
   nutrStartDate = '2026-06-01';
