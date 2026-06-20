@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="WiggenApp">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="theme-color" content="#1a1714">
+  <meta name="theme-color" content="#f1ebe0">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Jørgen — Training Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -240,6 +240,52 @@ th{font-family:var(--font-body);letter-spacing:.04em}
 .recovery-support .stat-value{font-size:21px}
 @media(max-width:580px){.readiness-feature,.metric-hero{grid-template-columns:1fr;gap:18px}}
 
+/* ───────────────────────── MOBILE ───────────────────────── */
+@media(max-width:680px){
+  body{font-size:13px}
+  .header{padding:0 1rem}
+  .header-inner{height:54px}
+  .logo{font-size:19px}
+  .theme-toggle{width:34px;height:34px}
+  /* nav: horizontal scroll instead of wrap/overflow */
+  .nav{padding:0 .5rem;-webkit-overflow-scrolling:touch}
+  .nav-inner{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;gap:2px;padding:7px 0;scrollbar-width:none}
+  .nav-inner::-webkit-scrollbar{display:none}
+  .nav-tab{flex:0 0 auto;padding:7px 12px;font-size:13px}
+  .content{padding:1rem .85rem}
+  .subtabs,.subnav{gap:6px;margin-bottom:1rem}
+  /* stat grids: clean 2-up, tighter */
+  .stat-grid,.recovery-support,.activity-support,.training-support{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:12px 13px;border-radius:12px}
+  .stat-value{font-size:20px}
+  .recovery-support .stat-value{font-size:18px}
+  /* heroes */
+  .readiness-feature,.metric-hero{padding:18px;gap:14px}
+  .rf-score{font-size:44px}
+  .rf-word{font-size:27px}
+  .hero-pair{gap:16px}
+  .hero-pair-v{font-size:24px}
+  /* sleep card */
+  .sleep-top{flex-wrap:wrap;gap:.5rem 1.25rem;align-items:baseline}
+  .sleep-score-big{font-size:44px}
+  .sleep-time{font-size:17px}
+  /* charts a touch shorter */
+  .chart-card{padding:14px}
+  /* date controls full-width & finger-friendly */
+  #health-date,#nutrition-date,input[readonly][id$="-date"]{font-size:15px!important;width:100%!important;box-sizing:border-box}
+  .date-picker{width:min(92vw,300px);left:50%;transform:translateX(-50%)}
+  /* big numbers elsewhere */
+  .streak-num{font-size:34px}
+  .im-num{font-size:28px}
+}
+@media(max-width:400px){
+  .content{padding:.85rem .7rem}
+  .stat-grid,.recovery-support,.activity-support,.training-support{grid-template-columns:1fr}
+  .hero-pair{grid-template-columns:1fr 1fr}
+  .rf-score{font-size:40px}
+  .nav-tab{padding:7px 10px;font-size:12px}
+}
+
 </style>
 <script>
 (function(){try{var t=localStorage.getItem('wiggen-theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();
@@ -261,7 +307,7 @@ function setTheme(t){
   rethemeCharts();
 }
 function toggleTheme(){var cur=document.documentElement.getAttribute('data-theme')||'light';setTheme(cur==='light'?'dark':'light');}
-document.addEventListener('DOMContentLoaded',function(){var t=document.documentElement.getAttribute('data-theme')||'light';var btn=document.getElementById('theme-toggle');if(btn)btn.textContent=(t==='light'?'☾':'☀');});
+document.addEventListener('DOMContentLoaded',function(){var t=document.documentElement.getAttribute('data-theme')||'light';var btn=document.getElementById('theme-toggle');if(btn)btn.textContent=(t==='light'?'☾':'☀');var meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',t==='light'?'#f1ebe0':'#1a1611');});
 </script>
 </head>
 <body>
