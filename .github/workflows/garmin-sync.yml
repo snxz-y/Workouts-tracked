@@ -2,7 +2,7 @@ name: Garmin Sync
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '*/15 4-22 * * *'   # every 15 min, ~06:00-00:00 Norway time (UTC+2)
   workflow_dispatch:
 
 permissions:
@@ -14,12 +14,23 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: pip install requests
+
+      - name: Restore OAuth2 token cache
+        uses: actions/cache/restore@v4
+        with:
+          path: oauth2_token.json
+          key: garmin-oauth2
+          restore-keys: |
+            garmin-oauth2
+
       - name: Run Garmin sync
         env:
           GARMIN_OAUTH1_TOKEN:  ${{ secrets.GARMIN_OAUTH1_TOKEN }}
@@ -27,3 +38,10 @@ jobs:
           GARMIN_DISPLAY_NAME:  ${{ secrets.GARMIN_DISPLAY_NAME }}
           GH_PAT:               ${{ secrets.GH_PAT }}
         run: python garmin_sync.py
+
+      - name: Save OAuth2 token cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: oauth2_token.json
+          key: garmin-oauth2-${{ github.run_id }}
