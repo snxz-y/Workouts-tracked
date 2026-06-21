@@ -45,3 +45,4 @@ jobs:
         with:
           path: oauth2_token.json
           key: garmin-oauth2-${{ github.run_id }}
+
