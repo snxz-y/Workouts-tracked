@@ -2,7 +2,7 @@ name: Garmin Sync
 
 on:
   schedule:
-    - cron: '*/15 4-22 * * *'   # every 15 min, ~06:00-00:00 Norway time (UTC+2)
+    - cron: '*/30 4-22 * * *'   # every 30 min, ~06:00-00:00 Norway time (UTC+2)
   workflow_dispatch:
 
 permissions:
