@@ -76,8 +76,27 @@ def load_tokens():
     display_name  = os.environ.get("GARMIN_DISPLAY_NAME")
 
     if oauth1_token and oauth1_secret and display_name:
-        print("  Cloud mode: exchanging OAuth1 → OAuth2...")
+        # Cloud mode: reuse cached OAuth2 token if still valid
+        cache_path = "oauth2_token.json"
+        if os.path.exists(cache_path):
+            try:
+                with open(cache_path) as f:
+                    tokens = json.load(f)
+                remaining = tokens.get("expires_at", 0) - time.time()
+                if remaining > 300:
+                    print(f"  Cloud mode: using cached OAuth2 (expires in {int(remaining/60)}m)")
+                    return tokens, display_name
+                print(f"  Cloud mode: cached token expiring ({int(remaining)}s), refreshing...")
+            except Exception as e:
+                print(f"  Cloud mode: cache unreadable ({e}), exchanging fresh...")
+        else:
+            print("  Cloud mode: no cached token, exchanging OAuth1 → OAuth2...")
         tokens = get_oauth2_via_oauth1(oauth1_token, oauth1_secret)
+        try:
+            with open(cache_path, "w") as f:
+                json.dump(tokens, f)
+        except Exception as e:
+            print(f"  Warning: could not save token cache: {e}")
         return tokens, display_name
 
     # Local fallback
