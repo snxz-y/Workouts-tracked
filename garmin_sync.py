@@ -151,8 +151,8 @@ def gh_put(filename, data, sha, message):
     r = requests.put(f"https://api.github.com/repos/{REPO}/contents/{filename}", headers=GH_HEADERS, json=body)
     return r.ok
 
-def sync_health(hdrs, dn):
-    TARGET = YESTERDAY
+def sync_health(hdrs, dn, target_date=None):
+    TARGET = target_date or YESTERDAY
     print(f"\nFetching health data for {TARGET} (user: {dn[:8]}...)...")
 
     stats    = gget(f"{BASE}/usersummary-service/usersummary/daily/{dn}?calendarDate={TARGET}", hdrs) or {}
@@ -354,13 +354,11 @@ def sync_activities(hdrs):
         return
 
     existing, sha = gh_get("activities.json")
-    existing_ids = {a.get("activityId") for a in existing}
-    new_count = 0
+    existing_by_id = {a.get("activityId"): a for a in existing}
+    changed = 0
 
     for act in acts:
         aid = act.get("activityId")
-        if aid in existing_ids:
-            continue
 
         zones = [0,0,0,0,0]
         try:
@@ -371,12 +369,30 @@ def sync_activities(hdrs):
                     zones[idx] = z.get("secsInZone", 0)
         except: pass
 
+        splits = []
+        try:
+            sp = gget(f"{BASE}/activity-service/activity/{aid}/splits", hdrs) or {}
+            raw_splits = sp.get("lapDTOs") or sp.get("splits") or (sp if isinstance(sp, list) else [])
+            for lap in raw_splits:
+                splits.append({
+                    "lap": lap.get("lapIndex") or lap.get("messageIndex"),
+                    "distanceM": lap.get("distance"),
+                    "durationSec": lap.get("duration"),
+                    "avgHR": lap.get("averageHR"),
+                    "maxHR": lap.get("maxHR"),
+                    "avgPace": lap.get("averageSpeed"),
+                    "elevGain": lap.get("elevationGain"),
+                    "calories": lap.get("calories"),
+                })
+        except: pass
+
         t = act.get("activityType", {}).get("typeKey", "")
         atype = "running" if "running" in t else "cycling" if ("cycling" in t or "biking" in t) else "walking" if "walking" in t else t
 
         entry = {
             "activityId": aid,
             "date": (act.get("startTimeLocal") or TODAY)[:10],
+            "startTime": act.get("startTimeLocal") or TODAY,
             "type": atype,
             "name": act.get("activityName", "Activity"),
             "distanceM": act.get("distance"),
@@ -404,20 +420,47 @@ def sync_activities(hdrs):
             "fastest1k": act.get("fastestSplit_1000"),
             "fastest1609": act.get("fastestSplit_1609"),
             "fastest5k": act.get("fastestSplit_5000"),
+            "fastest10k": act.get("fastestSplit_10000"),
+            "maxSpeed": act.get("maxSpeed"),
             "steps": act.get("steps"),
             "z1": zones[0], "z2": zones[1], "z3": zones[2], "z4": zones[3], "z5": zones[4],
             "label": _translate_label(act.get("aerobicTrainingEffectMessage")),
+            "splits": splits,
         }
-        existing.append(entry)
-        new_count += 1
-        print(f"  Added: {entry['name']} ({entry['date']}, {entry['type']})")
+        # Upsert: insert new activities, repair partial/foreign-schema entries,
+        # and refresh recent ones so metrics Garmin computes a few minutes after
+        # the activity (power, running dynamics, HR zones, VO2max, training load)
+        # are filled in on a later run instead of being frozen as nulls.
+        prior = existing_by_id.get(aid)
+        if prior is None:
+            existing.append(entry)
+            existing_by_id[aid] = entry
+            changed += 1
+            print(f"  Added: {entry['name']} ({entry['date']}, {entry['type']})")
+        elif "distanceM" not in prior:
+            # Entry was written with a different/partial schema (e.g. hand-added
+            # via Garmin MCP). Replace it with the canonical full entry.
+            prior.clear()
+            prior.update(entry)
+            changed += 1
+            print(f"  Repaired: {entry['name']} ({entry['date']}, {entry['type']})")
+        else:
+            updated = False
+            for k, v in entry.items():
+                # Only overwrite with real values; never clobber good data with a null.
+                if v is not None and v != [] and prior.get(k) != v:
+                    prior[k] = v
+                    updated = True
+            if updated:
+                changed += 1
+                print(f"  Updated: {entry['name']} ({entry['date']}, {entry['type']})")
 
-    if new_count > 0:
-        new_data = sorted(existing, key=lambda x: x.get("date",""), reverse=True)
-        ok = gh_put("activities.json", new_data, sha, f"Activity sync {TODAY} (+{new_count})")
-        print(f"  activities.json: {'OK' if ok else 'FAILED'} ({new_count} new)")
+    if changed > 0:
+        new_data = sorted(existing, key=lambda x: x.get("startTime") or x.get("date",""), reverse=True)
+        ok = gh_put("activities.json", new_data, sha, f"Activity sync {TODAY} ({changed} changed)")
+        print(f"  activities.json: {'OK' if ok else 'FAILED'} ({changed} changed)")
     else:
-        print("  No new activities to add.")
+        print("  No activity changes.")
 
 if __name__ == "__main__":
     print(f"=== Garmin Sync {TODAY} ===")
@@ -425,9 +468,10 @@ if __name__ == "__main__":
         tokens, display_name = load_tokens()
         hdrs = garmin_headers(tokens)
         print(f"  Expires: {datetime.fromtimestamp(tokens['expires_at']).strftime('%Y-%m-%d %H:%M')}")
-        sync_health(hdrs, display_name)
+        sync_health(hdrs, display_name)        # yesterday (finalized)
+        sync_health(hdrs, display_name, TODAY)  # today (live)
         sync_activities(hdrs)
-        print(f"\nDone. Synced health for {YESTERDAY}, activities for {YESTERDAY}-{TODAY}.")
+        print(f"\nDone. Synced health for {YESTERDAY}+{TODAY}, activities for {YESTERDAY}-{TODAY}.")
     except Exception as e:
         print(f"\nFailed: {e}")
         import traceback
