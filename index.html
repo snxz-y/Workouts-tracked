@@ -1990,8 +1990,8 @@ function initReviewDates() {
   const today = new Date();
   const end = today.toISOString().slice(0,10);
   const start = new Date(today - 7*24*60*60*1000).toISOString().slice(0,10);
-  document.getElementById('review-end').value=end;
-  document.getElementById('review-start').value=start;
+  document.getElementById('review-end').value=fmtDate(end);
+  document.getElementById('review-start').value=fmtDate(start);
 }
 
 let nutrStartDate = null;
@@ -2133,9 +2133,11 @@ async function pushReviewToGithub(review) {
 }
 
 async function generateReview() {
-  const start = document.getElementById('review-start').value;
-  const end = document.getElementById('review-end').value;
-  if (!start || !end) { alert('Enter dates in DD/MM/YYYY format'); return; }
+  const startRaw = document.getElementById('review-start').value;
+  const endRaw = document.getElementById('review-end').value;
+  if (!startRaw || !endRaw) { alert('Enter dates in DD/MM/YYYY format'); return; }
+  const start = parseDate(startRaw);
+  const end = parseDate(endRaw);
 
   const btn = document.getElementById('review-btn');
   btn.disabled = true;
