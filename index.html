@@ -74,6 +74,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .period-tab.active{background:var(--accent2);color:var(--on-accent);border-color:var(--accent2)}
 .period-tab:hover:not(.active){color:var(--text)}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:1.5rem}
+.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+@media(max-width:680px){.overview-grid{grid-template-columns:1fr}}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px 17px;box-shadow:var(--shadow)}
 .stat-label{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
 .stat-value{font-family:var(--font-display);font-size:24px;font-weight:600;letter-spacing:-.2px;line-height:1}
@@ -1309,7 +1311,7 @@ function renderActSummary(){
   const el=document.getElementById('act-summary');if(!el)return;
   el.innerHTML=`
     <div class="section-head" style="margin-top:0">Overview</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem">
+    <div class="overview-grid">
       <div class="stat-card">
         <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">🏃 Running</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
@@ -2062,6 +2064,7 @@ function renderReviewHistory() {
   const el = document.getElementById('review-history');
   if (!reviewsData.length) { el.innerHTML = ''; return; }
   const sorted = [...reviewsData].sort((a,b) => b.date.localeCompare(a.date));
+  window._revSorted = sorted;
   el.innerHTML = '<div class="section-head" style="margin-top:1.5rem">Past Reviews</div>' +
     sorted.map((r,i) => `
       <div style="border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden">
@@ -2070,10 +2073,62 @@ function renderReviewHistory() {
           <div style="display:flex;align-items:center;gap:12px">
             <div style="font-size:11px;color:var(--muted)">${fmtDate(r.date)}</div>
             <div id="review-chevron-${i}" style="color:var(--muted);font-size:12px;transition:transform .2s">&#9660;</div>
+            <div onclick="event.stopPropagation();confirmDeleteReview(${i})" title="Delete review" style="color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:2px 5px;border-radius:6px;transition:color .15s,background .15s" onmouseover="this.style.color='#c47878';this.style.background='rgba(196,120,120,.12)'" onmouseout="this.style.color='var(--muted)';this.style.background='transparent'">&#10005;</div>
           </div>
         </div>
         <div id="review-body-${i}" style="display:none;padding:16px;font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;border-top:1px solid var(--border)">${r.content.replace(/([\u{1F300}-\u{1F9FF}])/gu,"\n\n$1").trim()}</div>
       </div>`).join('');
+}
+
+function confirmDeleteReview(i) {
+  const rev = (window._revSorted || [])[i];
+  if (!rev) return;
+  const ov = document.createElement('div');
+  ov.id = 'del-review-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px';
+  ov.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 24px;max-width:320px;width:100%;box-shadow:var(--shadow);text-align:center">
+      <div style="font-size:15px;font-weight:600;margin-bottom:8px">Delete this review?</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:18px">Weekly Review — ${rev.period}<br>This can't be undone.</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button onclick="closeDeleteReview()" style="padding:9px 18px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:13px;font-weight:600">Cancel</button>
+        <button id="del-review-confirm" style="padding:9px 18px;border-radius:20px;border:1px solid #c47878;background:#c47878;color:#fff;cursor:pointer;font-size:13px;font-weight:600">Delete</button>
+      </div>
+    </div>`;
+  ov.onclick = (e) => { if (e.target === ov) closeDeleteReview(); };
+  document.body.appendChild(ov);
+  document.getElementById('del-review-confirm').onclick = () => doDeleteReview(rev);
+}
+
+function closeDeleteReview() {
+  const o = document.getElementById('del-review-overlay');
+  if (o) o.remove();
+}
+
+async function doDeleteReview(rev) {
+  const btn = document.getElementById('del-review-confirm');
+  if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; btn.style.opacity = '0.6'; }
+  try {
+    const r = await fetch('https://nutrition-reciever.margidowiggen.workers.dev/delete-review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: rev.date, period: rev.period, content: rev.content })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok && data.ok) {
+      // Remove the first matching entry locally and re-render.
+      const idx = reviewsData.findIndex(x => x.date === rev.date && x.period === rev.period && x.content === rev.content);
+      if (idx !== -1) reviewsData.splice(idx, 1);
+      closeDeleteReview();
+      renderReviewHistory();
+    } else {
+      if (btn) { btn.textContent = 'Failed — retry'; btn.disabled = false; btn.style.opacity = '1'; }
+      console.error('Delete review failed:', data);
+    }
+  } catch (e) {
+    if (btn) { btn.textContent = 'Error — retry'; btn.disabled = false; btn.style.opacity = '1'; }
+    console.error('Delete review error:', e);
+  }
 }
 
 async function triggerGarminSync() {
