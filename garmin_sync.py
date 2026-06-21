@@ -474,5 +474,8 @@ if __name__ == "__main__":
         print(f"\nDone. Synced health for {YESTERDAY}+{TODAY}, activities for {YESTERDAY}-{TODAY}.")
     except Exception as e:
         print(f"\nFailed: {e}")
-        import traceback
+        import traceback, sys
         traceback.print_exc()
+        # Exit non-zero so a failed run shows red in GitHub Actions instead of
+        # silently passing (e.g. a Garmin 429 on the OAuth token exchange).
+        sys.exit(1)
