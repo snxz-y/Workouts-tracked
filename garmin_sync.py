@@ -28,43 +28,65 @@ def get_oauth2_via_oauth1(oauth1_token, oauth1_secret):
     cr = requests.get("https://thegarth.s3.amazonaws.com/oauth_consumer.json", timeout=10)
     consumer = cr.json()
     EXCHANGE_URL = "https://connectapi.garmin.com/oauth-service/oauth/exchange/user/2.0"
-    ts    = str(int(time.time()))
-    nonce = _secrets.token_hex(16)
-    oauth_params = {
-        "oauth_consumer_key":     consumer["consumer_key"],
-        "oauth_nonce":            nonce,
-        "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp":        ts,
-        "oauth_token":            oauth1_token,
-        "oauth_version":          "1.0",
-    }
-    sorted_params = "&".join(
-        f"{urllib.parse.quote(k,'')  }={urllib.parse.quote(v,'')}"
-        for k, v in sorted(oauth_params.items())
-    )
-    base_str = f"POST&{urllib.parse.quote(EXCHANGE_URL,'')}&{urllib.parse.quote(sorted_params,'')}"
-    signing_key = f"{urllib.parse.quote(consumer['consumer_secret'],'')}&{urllib.parse.quote(oauth1_secret,'')}"
-    sig = hmac.new(signing_key.encode(), base_str.encode(), hashlib.sha1).digest()
     import base64 as _b64
-    oauth_params["oauth_signature"] = _b64.b64encode(sig).decode()
-    auth_header = "OAuth " + ", ".join(
-        f'{k}="{urllib.parse.quote(str(v),"")}"' for k, v in oauth_params.items()
-    )
-    r = requests.post(
-        EXCHANGE_URL,
-        headers={
-            "Authorization": auth_header,
-            "User-Agent": "com.garmin.android.apps.connectmobile",
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-        data="",
-        timeout=15,
-    )
-    r.raise_for_status()
-    new_tokens = r.json()
-    new_tokens["expires_at"] = int(time.time()) + new_tokens.get("expires_in", 3600)
-    print(f"  OAuth2 token obtained. Expires: {datetime.fromtimestamp(new_tokens['expires_at']).strftime('%Y-%m-%d %H:%M')}")
-    return new_tokens
+
+    def _signed_post():
+        # Fresh nonce + timestamp each attempt (an OAuth1 signature is single-use).
+        ts    = str(int(time.time()))
+        nonce = _secrets.token_hex(16)
+        oauth_params = {
+            "oauth_consumer_key":     consumer["consumer_key"],
+            "oauth_nonce":            nonce,
+            "oauth_signature_method": "HMAC-SHA1",
+            "oauth_timestamp":        ts,
+            "oauth_token":            oauth1_token,
+            "oauth_version":          "1.0",
+        }
+        sorted_params = "&".join(
+            f"{urllib.parse.quote(k,'')  }={urllib.parse.quote(v,'')}"
+            for k, v in sorted(oauth_params.items())
+        )
+        base_str = f"POST&{urllib.parse.quote(EXCHANGE_URL,'')}&{urllib.parse.quote(sorted_params,'')}"
+        signing_key = f"{urllib.parse.quote(consumer['consumer_secret'],'')}&{urllib.parse.quote(oauth1_secret,'')}"
+        sig = hmac.new(signing_key.encode(), base_str.encode(), hashlib.sha1).digest()
+        oauth_params["oauth_signature"] = _b64.b64encode(sig).decode()
+        auth_header = "OAuth " + ", ".join(
+            f'{k}="{urllib.parse.quote(str(v),"")}"' for k, v in oauth_params.items()
+        )
+        return requests.post(
+            EXCHANGE_URL,
+            headers={
+                "Authorization": auth_header,
+                "User-Agent": "com.garmin.android.apps.connectmobile",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            data="",
+            timeout=15,
+        )
+
+    # Garmin rate-limits this endpoint (429). Retry with backoff so a transient
+    # throttle self-recovers instead of failing the whole run.
+    delays = [0, 15, 45, 90]
+    last = None
+    for i, wait in enumerate(delays):
+        if wait:
+            print(f"  Exchange attempt {i+1} (last status {last}) — waiting {wait}s...")
+            time.sleep(wait)
+        try:
+            r = _signed_post()
+        except Exception as e:
+            last = f"net:{e}"
+            continue
+        if r.ok:
+            new_tokens = r.json()
+            new_tokens["expires_at"] = int(time.time()) + new_tokens.get("expires_in", 3600)
+            print(f"  OAuth2 token obtained. Expires: {datetime.fromtimestamp(new_tokens['expires_at']).strftime('%Y-%m-%d %H:%M')}")
+            return new_tokens
+        last = r.status_code
+        # Retry only on throttling / transient server errors; fail fast otherwise.
+        if r.status_code not in (429, 500, 502, 503, 504):
+            r.raise_for_status()
+    raise RuntimeError(f"OAuth2 exchange failed after {len(delays)} attempts (last status {last})")
 
 def load_tokens():
     """
