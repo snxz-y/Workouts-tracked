@@ -73,7 +73,7 @@
     "maxStress": 96,
     "steps": 26686,
     "stepsGoal": 7940,
-    "floors": 10.79757,
+    "floors": 32.911,
     "floorsGoal": 10,
     "activeKcal": 484.0,
     "totalKcal": 2545.0,
@@ -119,6 +119,7 @@
     "anaerobicMax": 211,
     "vo2max": 47.0,
     "enduranceScore": 5337,
+    "enduranceClass": "Intermediate",
     "fitnessAge": 25.9,
     "recoveryTimeHrs": 16.2,
     "lactateHR": 184,
@@ -127,7 +128,11 @@
     "bodyFat": null,
     "muscleMass": null,
     "boneMass": null,
-    "bodyWater": null
+    "bodyWater": null,
+    "race5kSec": null,
+    "race10kSec": null,
+    "raceHalfSec": null,
+    "raceMarathonSec": null
   },
   {
     "date": "2026-06-20",
