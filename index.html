@@ -1226,8 +1226,8 @@ function renderWorkSchedule(){
   sorted.forEach(s=>{shiftMap[s.date]=s;});
 
   const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const now=new Date();
-  const today=fmtIso(now);
+  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const today=fmtIso(new Date());
 
   const isoWeek=(d)=>{
     const t=new Date(d);t.setHours(0,0,0,0);
@@ -1236,49 +1236,81 @@ function renderWorkSchedule(){
     return 1+Math.round(((t-w1)/86400000-3+(w1.getDay()+6)%7)/7);
   };
 
-  const shiftBg={day:'rgba(212,176,100,.15)',evening:'rgba(124,109,250,.15)',night:'rgba(30,80,160,.2)',vacation:'rgba(0,180,160,.12)',off:'rgba(122,171,136,.1)'};
-  const shiftLabel={day:'☀️ Day',evening:'🌆 Eve',night:'🌙 Night',vacation:'🏖️ Ferie',off:'😴 Off'};
+  const TYPE={day:'Day',evening:'Evening',night:'Night',vacation:'Ferie',off:'Off'};
 
-  let rows='';
+  let weeks='';
   const cur=new Date(start);
   while(cur<=end){
+    const wkStart=new Date(cur);
     const weekNum=isoWeek(cur);
-    let cells=`<td style="font-size:11px;font-weight:600;color:var(--muted);padding:4px 8px;white-space:nowrap;vertical-align:middle">W${weekNum}</td>`;
+    let days='';
     for(let d=0;d<7;d++){
       const ds=fmtIso(cur);
       const s=shiftMap[ds];
       const isToday=ds===today;
       const isFuture=ds>today;
-      const type=s?s.shiftType:'';
-      const bg=type?shiftBg[type]||'rgba(122,171,136,.1)':'transparent';
-      const border=isToday?'2px solid var(--accent)':'1px solid var(--border)';
+      const type=s?(s.shiftType||'off'):'';
       const dd=String(cur.getDate()).padStart(2,'0');
-      const label=type?shiftLabel[type]||'':'';
-      const time=s&&s.start?`<div style="font-size:9px;color:var(--muted)">${s.start}–${s.end}</div>`:'';
-      cells+=`<td style="padding:0;width:${100/7}%"><div style="background:${bg};border:${border};border-radius:6px;padding:5px 6px;margin:2px;min-height:52px;opacity:${isFuture?'.6':'1'}">
-        <div style="font-size:10px;color:${isToday?'var(--accent)':'var(--muted)'};font-weight:${isToday?700:400}">${dd}</div>
-        <div style="font-size:11px;font-weight:600;margin-top:2px">${label}</div>
-        ${time}
-      </div></td>`;
+      const cls=['sc-day'];
+      cls.push(type?'t-'+type:'empty');
+      if(isToday)cls.push('today');
+      if(isFuture)cls.push('future');
+      const label=type?`<span class="sc-label">${TYPE[type]||type}</span>`:'';
+      const time=s&&s.start?`<span class="sc-time">${s.start}–${s.end}</span>`:'';
+      days+=`<div class="${cls.join(' ')}"><span class="sc-dow">${dayNames[d]}</span><span class="sc-date">${dd}</span>${label}${time}</div>`;
       cur.setDate(cur.getDate()+1);
     }
-    rows+=`<tr>${cells}</tr>`;
+    const wkEnd=new Date(wkStart);wkEnd.setDate(wkEnd.getDate()+6);
+    const cap=wkStart.getMonth()===wkEnd.getMonth()
+      ? `${MON[wkStart.getMonth()]} ${wkStart.getDate()} – ${wkEnd.getDate()}`
+      : `${MON[wkStart.getMonth()]} ${wkStart.getDate()} – ${MON[wkEnd.getMonth()]} ${wkEnd.getDate()}`;
+    weeks+=`<div class="sc-week"><div class="sc-wkcap"><b>Week ${weekNum}</b><span>${cap}</span></div><div class="sc-grid">${days}</div></div>`;
   }
 
+  const legend=[['day','Day'],['evening','Evening'],['night','Night'],['vacation','Ferie'],['off','Off']];
   el.innerHTML=`
-    <div class="section-head" style="margin-top:0">Shift Schedule</div>
-    <div style="display:flex;gap:12px;margin-bottom:12px;font-size:11px">
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(212,176,100,.3);display:inline-block"></span>Day</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(124,109,250,.3);display:inline-block"></span>Evening</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(30,80,160,.3);display:inline-block"></span>Night</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(0,180,160,.25);display:inline-block"></span>Ferie</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(122,171,136,.2);display:inline-block"></span>Off</span>
+    <style>
+    .sc-top{display:flex;justify-content:space-between;align-items:center;gap:12px 18px;flex-wrap:wrap;margin-bottom:16px}
+    .sc-legend{display:flex;gap:6px 14px;flex-wrap:wrap}
+    .sc-lg{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:500}
+    .sc-lg i{width:9px;height:9px;border-radius:3px;background:var(--sc-c);display:inline-block}
+    .t-day{--sc-c:#c9a84c}.t-evening{--sc-c:#7c6dfa}.t-night{--sc-c:#3f74c9}.t-vacation{--sc-c:#1fb39e}.t-off{--sc-c:#7aab88}.empty{--sc-c:transparent}
+    .sc-colhead{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:0 2px 8px}
+    .sc-colhead span{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:center}
+    .sc-cal{display:flex;flex-direction:column;gap:18px}
+    .sc-wkcap{display:flex;align-items:baseline;gap:8px;margin-bottom:7px;font-size:11px}
+    .sc-wkcap b{font-weight:600;color:var(--text)}.sc-wkcap span{color:var(--muted)}
+    .sc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+    .sc-day{position:relative;min-height:66px;border:1px solid var(--border);border-radius:12px;padding:8px 9px;display:flex;flex-direction:column;gap:3px;background:var(--surface);overflow:hidden}
+    .sc-day::before{content:"";position:absolute;inset:0;background:var(--sc-c);opacity:.1;pointer-events:none}
+    .sc-day.empty{background:transparent;border-style:dashed;opacity:.45}
+    .sc-day.empty::before{display:none}
+    .sc-day.future{opacity:.72}
+    .sc-dow{display:none}
+    .sc-date{font-size:11px;font-weight:600;color:var(--muted);position:relative}
+    .sc-label{font-size:12px;font-weight:600;position:relative;display:flex;align-items:center;gap:6px;line-height:1.2}
+    .sc-label::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--sc-c);flex:0 0 auto}
+    .sc-time{font-size:10px;color:var(--muted);position:relative;font-variant-numeric:tabular-nums}
+    .sc-day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+    .sc-day.today .sc-date{color:var(--accent)}
+    @media(max-width:600px){
+      .sc-colhead{display:none}
+      .sc-cal{gap:20px}
+      .sc-grid{grid-template-columns:1fr;gap:6px}
+      .sc-day{flex-direction:row;align-items:center;min-height:0;padding:11px 14px;gap:11px}
+      .sc-day.empty{display:none}
+      .sc-dow{display:block;font-size:11px;font-weight:600;color:var(--muted);width:32px;position:relative;flex:0 0 auto}
+      .sc-date{font-size:15px;color:var(--text);width:24px;flex:0 0 auto}
+      .sc-label{margin-left:auto;font-size:13px}
+      .sc-time{min-width:104px;text-align:right;font-size:11px}
+    }
+    </style>
+    <div class="sc-top">
+      <div class="section-head inline" style="margin:0">Shift Schedule</div>
+      <div class="sc-legend">${legend.map(([t,n])=>`<span class="sc-lg t-${t}"><i></i>${n}</span>`).join('')}</div>
     </div>
-    <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse;table-layout:fixed">
-      <thead><tr><th style="width:45px"></th>${dayNames.map(d=>`<th style="font-size:11px;color:var(--muted);font-weight:600;padding:4px;text-align:center">${d}</th>`).join('')}</tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
+    <div class="sc-colhead">${dayNames.map(d=>`<span>${d}</span>`).join('')}</div>
+    <div class="sc-cal">${weeks}</div>
   `;
 }
 
