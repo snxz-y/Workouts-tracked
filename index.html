@@ -326,8 +326,8 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
 </div>
 <div class="nav">
   <div class="nav-inner">
-    <button class="nav-tab active" onclick="showNav('activities',this)"><span class="nav-ic">🏃</span>Activities</button>
-    <button class="nav-tab" onclick="showNav('health',this)"><span class="nav-ic">❤️</span>Health</button>
+    <button class="nav-tab active" onclick="showNav('health',this)"><span class="nav-ic">❤️</span>Health</button>
+    <button class="nav-tab" onclick="showNav('activities',this)"><span class="nav-ic">🏃</span>Activities</button>
     <button class="nav-tab" onclick="showNav('nutrition',this)"><span class="nav-ic">🍽️</span>Nutrition</button>
     <button class="nav-tab" onclick="showNav('reviews',this)"><span class="nav-ic">📝</span>Reviews</button>
     <button class="nav-tab" onclick="showNav('work',this)"><span class="nav-ic">💼</span>Work</button>
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
 <div class="content">
 
   <!-- ACTIVITIES -->
-  <div id="nav-activities" class="panel active">
+  <div id="nav-activities" class="panel">
     <div class="subnav" data-sect="act" style="align-items:center">
       <button class="subnav-btn active" onclick="showSubTab('act','summary',this)">📊 Summary</button>
       <button class="subnav-btn" onclick="showSubTab('act','runs',this)">🏃 Runs</button>
@@ -458,11 +458,12 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
 
   <!-- HEALTH -->
   </div><!-- /nav-activities -->
-  <div id="nav-health" class="panel">
+  <div id="nav-health" class="panel active">
     <div class="subnav" data-sect="health">
       <button class="subnav-btn active" onclick="showSubTab('health','today',this)">📍 Today</button>
       <button class="subnav-btn" onclick="showSubTab('health','trends',this)">📈 Trends</button>
       <button class="subnav-btn" onclick="showSubTab('health','composition',this)">💪 Composition</button>
+      <button class="subnav-btn" onclick="showSubTab('health','goal',this)">🎯 Goal</button>
     </div>
     <div id="health-sub-today" class="sub-panel active">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;justify-content:center">
@@ -488,6 +489,9 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
     <div id="health-sub-composition" class="sub-panel">
       <div id="health-comp-content"></div>
     </div><!-- /health-sub-composition -->
+    <div id="health-sub-goal" class="sub-panel">
+      <div id="health-goal-content"></div>
+    </div><!-- /health-sub-goal -->
   </div><!-- /nav-health -->
   <div id="nav-nutrition" class="panel">
     <div class="subnav" data-sect="nutr">
@@ -920,6 +924,77 @@ function renderWeightChart(sorted){
   });
   const infoEl=document.getElementById('weight-goal-info');
   if(infoEl&&goalLabel)infoEl.textContent=goalLabel+(slope<0?` (${(slope*7).toFixed(2)} kg/wk)`:'');
+}
+
+function renderGoalProjection(){
+  const el=document.getElementById('health-goal-content');if(!el)return;
+  const GOAL=65;
+  const pts=[...healthData].filter(d=>d.weight!=null).sort((a,b)=>a.date.localeCompare(b.date));
+  if(pts.length<2){el.innerHTML='<p style="color:var(--muted);padding:20px;text-align:center">Need at least two weigh-ins to project a trend. Keep logging your weight.</p>';return;}
+  const smooth=pts.map((d,i)=>{const sl=pts.slice(Math.max(0,i-6),i+1).map(p=>p.weight);return{date:d.date,w:sl.reduce((a,b)=>a+b,0)/sl.length};});
+  const dayNum=ds=>Math.round(new Date(ds+'T00:00:00').getTime()/86400000);
+  const x0=dayNum(smooth[0].date);
+  const X=smooth.map(p=>dayNum(p.date)-x0), Y=smooth.map(p=>p.w), n=X.length;
+  const mX=X.reduce((a,b)=>a+b,0)/n, mY=Y.reduce((a,b)=>a+b,0)/n;
+  const denom=X.reduce((s,x)=>s+(x-mX)**2,0)||1;
+  const slope=X.reduce((s,x,i)=>s+(x-mX)*(Y[i]-mY),0)/denom;
+  const startW=Y[0], lastAvg=Y[Y.length-1];
+  const ratePerWk=slope*7;
+  const remaining=lastAvg-GOAL;
+  const totalToLose=startW-GOAL;
+  const lost=startW-lastAvg;
+  const pct=totalToLose>0?Math.max(0,Math.min(100,lost/totalToLose*100)):0;
+  let etaStr='—', etaSub='', onTrack=false;
+  if(slope<-0.0005 && remaining>0){
+    const daysToGoal=(GOAL-lastAvg)/slope;
+    if(daysToGoal>0){
+      onTrack=true;
+      const g=new Date();g.setDate(g.getDate()+Math.round(daysToGoal));
+      etaStr=g.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      const wks=Math.round(daysToGoal/7);
+      etaSub='≈ '+wks+' week'+(wks===1?'':'s')+' away';
+    }
+  } else if(remaining<=0){ etaStr='Goal reached'; etaSub='at or below 65 kg'; onTrack=true; }
+  else { etaStr='Not on current pace'; etaSub=slope>0.0005?'trending upward':'holding steady'; }
+  let status,statusClr;
+  if(remaining<=0){status='Goal reached \ud83c\udf89';statusClr='var(--green)';}
+  else if(slope<-0.0005){status='On track';statusClr='var(--green)';}
+  else if(slope>0.0005){status='Gaining';statusClr='var(--red)';}
+  else {status='Stalled';statusClr='var(--amber)';}
+  const rateClr=ratePerWk<-0.01?'var(--green)':ratePerWk>0.01?'var(--red)':'var(--amber)';
+  const now=new Date();
+  const yearEnd=new Date(now.getFullYear(),11,31);
+  const daysToYE=Math.max(1,Math.round((yearEnd-now)/86400000));
+  const reqPerWk=remaining>0?remaining/(daysToYE/7):0;
+  const reqKcal=Math.round(reqPerWk*7700/7);
+  const yeLabel=yearEnd.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const card=(label,val,sub,clr)=>`<div style="flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">${label}</div>
+    <div style="font-family:var(--font-serif);font-size:26px;font-weight:500;letter-spacing:-.5px;line-height:1;color:${clr||'var(--text)'}">${val}</div>
+    ${sub?`<div style="font-size:11px;color:var(--muted);margin-top:6px">${sub}</div>`:''}</div>`;
+  el.innerHTML=`
+    <div class="section-head">Weight Goal</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:1.2rem;text-align:center">
+      <div style="font-family:var(--font-serif);font-size:48px;font-weight:500;letter-spacing:-1.5px;line-height:1;color:var(--text)">${lastAvg.toFixed(1)}<span style="font-size:20px;color:var(--muted)"> kg</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">7-day average · ${remaining>0?`${remaining.toFixed(1)} kg to go`:'goal reached'}</div>
+      <div style="margin-top:16px;height:10px;border-radius:6px;background:var(--surface2);overflow:hidden;position:relative">
+        <div style="height:100%;width:${pct.toFixed(1)}%;background:var(--accent);border-radius:6px;transition:width .4s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px">
+        <span>Start ${startW.toFixed(1)}</span><span>${pct.toFixed(0)}% there</span><span>Goal ${GOAL}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1.2rem">
+      ${card('Current rate',(ratePerWk>0?'+':'')+ratePerWk.toFixed(2)+' kg/wk',`over last ${n} weigh-ins`,rateClr)}
+      ${card('Projected goal date',etaStr,etaSub,onTrack?'var(--green)':'var(--muted)')}
+      ${card('Status',status,onTrack?'at current pace':'change needed',statusClr)}
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:13px;color:var(--text);line-height:1.5">
+      <span style="color:var(--muted)">To reach <b style="color:var(--text)">${GOAL} kg by ${yeLabel}</b> you'd need </span>
+      <b style="color:var(--accent2)">${reqPerWk>0?reqPerWk.toFixed(2):'0'} kg/wk</b>
+      <span style="color:var(--muted)"> — roughly a </span><b style="color:var(--accent2)">${reqKcal>0?reqKcal:0} kcal/day</b><span style="color:var(--muted)"> deficit.</span>
+    </div>
+    <p style="font-size:10px;color:var(--muted);margin-top:10px">Projection = linear trend of your 7-day average weight. Deficit estimate uses ~7700 kcal per kg.</p>`;
 }
 
 function renderBodyFatChart(sorted){
@@ -1989,6 +2064,7 @@ function showSubTab(sect, tab, el) {
   // Trigger trend rendering
   if(sect==='health'&&tab==='trends'){renderHealthTrends();}
   if(sect==='health'&&tab==='composition'){renderHealthComp();}
+  if(sect==='health'&&tab==='goal'){renderGoalProjection();}
 }
 
 function showNav(id,el){
@@ -2811,7 +2887,7 @@ function renderAllViews() {
 (async () => {
   try { await loadData(); } catch(e) { console.error('Init load failed:', e); }
   initCompDates(); initHealthDates(); initNutrDates();
-  renderActivities(); renderReviewHistory();
+  renderHealth(); renderActivities(); renderReviewHistory();
 })();
 </script>
 </body>
