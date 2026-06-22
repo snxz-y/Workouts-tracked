@@ -343,7 +343,6 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
       <button class="subnav-btn" onclick="showSubTab('act','walks',this)">🚶 Walks</button>
       <button class="subnav-btn" onclick="showSubTab('act','bikes',this)">🚴 Bikes</button>
       <button class="subnav-btn" onclick="showSubTab('act','all',this)">📋 All</button>
-      <button id="garmin-sync-btn" onclick="triggerGarminSync()" style="margin-left:8px;font-size:11px;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;letter-spacing:.03em;transition:all .15s;white-space:nowrap">⟳ Sync Garmin</button>
     </div>
     <div id="act-sub-summary" class="sub-panel active"><div id="act-summary"></div></div>
     <div id="act-sub-runs" class="sub-panel">
@@ -2279,71 +2278,6 @@ async function doDeleteReview(rev) {
   }
 }
 
-async function triggerGarminSync() {
-  const btn = document.getElementById('garmin-sync-btn');
-  btn.disabled = true;
-  btn.textContent = '⟳ Syncing...';
-  btn.style.opacity = '0.6';
-  try {
-    const r = await fetch('https://nutrition-reciever.margidowiggen.workers.dev/sync-garmin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const data = await r.json();
-    if (r.ok && data.ok) {
-      // Workflow dispatched. Count down while it runs (~45-60s), then reload data.
-      btn.style.color = 'var(--accent)';
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.opacity = '1';
-      let secs = 60;
-      btn.textContent = '⟳ Syncing ' + secs + 's';
-      const countdown = setInterval(() => {
-        secs -= 1;
-        if (secs > 0) btn.textContent = '⟳ Syncing ' + secs + 's';
-      }, 1000);
-      setTimeout(async () => {
-        clearInterval(countdown);
-        btn.textContent = '⟳ Refreshing…';
-        try {
-          await loadData();
-          renderAllViews();
-          btn.textContent = '✓ Updated!';
-        } catch (e) {
-          console.error('Refresh after sync failed:', e);
-          btn.textContent = '✓ Synced (reload)';
-        }
-        setTimeout(() => {
-          btn.textContent = '⟳ Sync Garmin';
-          btn.style.color = 'var(--accent)';
-          btn.style.borderColor = 'var(--accent)';
-          btn.disabled = false;
-        }, 4000);
-      }, 60000);
-    } else {
-      btn.textContent = '✗ Failed';
-      btn.style.color = '#f55';
-      btn.style.borderColor = '#f55';
-      btn.style.opacity = '1';
-      console.error('Sync error:', data);
-      setTimeout(() => {
-        btn.textContent = '⟳ Sync Garmin';
-        btn.style.color = 'var(--accent)';
-        btn.style.borderColor = 'var(--accent)';
-        btn.disabled = false;
-      }, 3000);
-    }
-  } catch (e) {
-    btn.textContent = '✗ Error';
-    btn.style.color = '#f55';
-    btn.style.opacity = '1';
-    setTimeout(() => {
-      btn.textContent = '⟳ Sync Garmin';
-      btn.style.color = 'var(--accent)';
-      btn.style.borderColor = 'var(--accent)';
-      btn.disabled = false;
-    }, 3000);
-  }
-}
 
 async function pushReviewToGithub(review) {
   // Route through Cloudflare Worker which holds the GitHub token securely
