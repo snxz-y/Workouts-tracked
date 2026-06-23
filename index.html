@@ -151,6 +151,36 @@ tr:hover td{background:var(--surface2)}
 .chart-card canvas{display:block}
 .acwr-explain{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
 
+/* ── Insights tab ── */
+.ins-title{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.2px;margin-bottom:3px}
+.ins-note{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+.ins-head{font-size:14px;font-weight:500;line-height:1.5;margin:4px 0 14px;color:var(--text)}
+.ins-head b{font-weight:700;color:var(--accent)}
+.ins-head b.good{color:var(--green)}.ins-head b.warn{color:var(--amber)}.ins-head b.bad{color:var(--red)}
+.ins-stats{display:flex;gap:30px;flex-wrap:wrap;margin:8px 0 16px}
+.ins-stats .k{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:4px}
+.ins-stats .v{font-family:var(--font-display);font-size:23px;font-weight:600;letter-spacing:-.3px;display:block;line-height:1}
+.ins-stats .v.good{color:var(--green)}.ins-stats .v.warn{color:var(--amber)}.ins-stats .v.bad{color:var(--red)}.ins-stats .v.accent{color:var(--accent)}
+.ins-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ins-pill{font-size:12px;font-weight:500;padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s}
+.ins-pill:hover:not(.active){color:var(--text);border-color:var(--muted)}
+.ins-pill.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.ins-meter{margin:2px 0 18px}
+.ins-meter-track{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--red) 0%,var(--surface2) 50%,var(--green) 100%)}
+.ins-meter-zero{position:absolute;left:50%;top:-4px;width:1px;height:14px;background:var(--muted);transform:translateX(-50%)}
+.ins-meter-dot{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;background:var(--surface);border:3px solid var(--accent);transform:translate(-50%,-50%);transition:left .25s;box-shadow:var(--shadow)}
+.ins-meter-lbl{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:7px;letter-spacing:.03em}
+.ins-call{border-radius:12px;padding:14px 16px;margin:4px 0 14px;border:1px solid var(--border)}
+.ins-call.push{background:rgba(95,140,106,.10);border-color:rgba(95,140,106,.4)}
+.ins-call.easy{background:rgba(181,106,69,.08);border-color:rgba(181,106,69,.35)}
+.ins-call.rest{background:rgba(181,84,74,.10);border-color:rgba(181,84,74,.4)}
+.ins-call .big{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.2px}
+.ins-call .sm{font-size:12.5px;color:var(--muted2);margin-top:4px;line-height:1.5}
+.ins-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.ins-zbar{display:flex;height:28px;border-radius:8px;overflow:hidden;margin:10px 0 10px}
+.ins-zbar span{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.ins-mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
 .gc-links{display:flex;gap:4px;align-items:center}
 .gc-btn{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);text-decoration:none;letter-spacing:.03em;white-space:nowrap;transition:color .12s,border-color .12s}
 .gc-btn:hover{color:var(--text);border-color:var(--muted)}
@@ -327,6 +357,7 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
 <div class="nav">
   <div class="nav-inner">
     <button class="nav-tab active" onclick="showNav('health',this)"><span class="nav-ic">❤️</span>Health</button>
+    <button class="nav-tab" onclick="showNav('insights',this)"><span class="nav-ic">🔬</span>Insights</button>
     <button class="nav-tab" onclick="showNav('activities',this)"><span class="nav-ic">🏃</span>Activities</button>
     <button class="nav-tab" onclick="showNav('nutrition',this)"><span class="nav-ic">🍽️</span>Nutrition</button>
     <button class="nav-tab" onclick="showNav('reviews',this)"><span class="nav-ic">📝</span>Reviews</button>
@@ -495,7 +526,7 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
   <div id="nav-nutrition" class="panel">
     <div class="subnav" data-sect="nutr">
       <button class="subnav-btn active" onclick="showSubTab('nutr','daily',this)">📍 Daily</button>
-      <button class="subnav-btn" onclick="showSubTab('nutr','insights',this);renderNutritionExtras()">📊 Insights</button>
+      <button class="subnav-btn" onclick="showSubTab('nutr','insights',this);renderNutritionExtras()">📊 Trends</button>
     </div>
     <div id="nutr-sub-daily" class="sub-panel active">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap;justify-content:center">
@@ -516,6 +547,47 @@ document.addEventListener('DOMContentLoaded',function(){var t=document.documentE
     <div id="work-sub-correlation" class="sub-panel active"><div id="work-content"><p style="color:var(--muted);padding:20px">Loading shifts…</p></div></div>
     <div id="work-sub-schedule" class="sub-panel"><div id="work-schedule"></div></div>
   </div><!-- /nav-work -->
+  <div id="nav-insights" class="panel">
+    <div class="section-head">Readiness</div>
+    <div class="chart-card">
+      <div class="ins-title">What drives your readiness?</div>
+      <div class="ins-note" id="ins-d-note">Each dot is one morning. Pick a metric to see how closely it tracks your Garmin training readiness.</div>
+      <div class="ins-pills" id="ins-pills"></div>
+      <div class="ins-head" id="ins-d-head"></div>
+      <div class="ins-meter">
+        <div class="ins-meter-track"><span class="ins-meter-zero"></span><span class="ins-meter-dot" id="ins-d-dot"></span></div>
+        <div class="ins-meter-lbl"><span>−1 · opposite</span><span>0 · no link</span><span>+1 · move together</span></div>
+      </div>
+      <div style="height:280px;position:relative"><canvas id="ins-d-chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="ins-title">Today's training call</div>
+      <div class="ins-note">Advisory only — reads Garmin readiness + recovery time and suggests how hard to go.</div>
+      <div class="ins-call" id="ins-call-box"><div class="big" id="ins-call-big"></div><div class="sm" id="ins-call-sm"></div></div>
+      <div class="tbl-wrap"><table id="ins-call-table"><thead><tr><th>Date</th><th>Readiness</th><th>Recovery left</th><th>Call</th></tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <div class="section-head">Recovery</div>
+    <div class="chart-card">
+      <div class="ins-title">Recovery since quitting Zyn</div>
+      <div class="ins-note">Resting HR (lower is better) and HRV (higher is better) around the 5 June quit date.</div>
+      <div class="ins-head" id="ins-r-head"></div>
+      <div class="ins-stats">
+        <div><span class="k">Resting HR</span><span class="v" id="ins-r-rhr">–</span></div>
+        <div><span class="k">HRV</span><span class="v good" id="ins-r-hrv">–</span></div>
+      </div>
+      <div style="height:260px;position:relative"><canvas id="ins-r-chart"></canvas></div>
+    </div>
+
+    <div class="section-head">Training</div>
+    <div class="chart-card">
+      <div class="ins-title">Intensity mix · last 7 training days</div>
+      <div class="ins-note">Share of workout time in each HR zone. For endurance, most time should be easy (Z1–Z2).</div>
+      <div class="ins-head" id="ins-i-head"></div>
+      <div class="ins-zbar" id="ins-zbar"></div>
+      <div class="zone-legend" id="ins-zleg"></div>
+    </div>
+  </div><!-- /nav-insights -->
   <div id="nav-reviews" class="panel">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap;justify-content:center">
       <div style="display:flex;align-items:center;gap:8px">
@@ -967,6 +1039,28 @@ function renderGoalProjection(){
   const reqPerWk=remaining>0?remaining/(daysToYE/7):0;
   const reqKcal=Math.round(reqPerWk*7700/7);
   const yeLabel=yearEnd.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  // Actual recent calorie balance (cross-data: nutrition eaten vs Garmin burned)
+  let actualBox='';
+  if(typeof nutritionData!=='undefined' && nutritionData && nutritionData.length){
+    const recentN=[...nutritionData].filter(d=>d.calories>0).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
+    const paired=recentN.map(nd=>{const h=healthData.find(x=>x.date===nd.date);return (h&&h.totalKcal)?{eaten:nd.calories,burned:h.totalKcal}:null;}).filter(Boolean);
+    if(paired.length>=3){
+      const avgEat=Math.round(paired.reduce((s,p)=>s+p.eaten,0)/paired.length);
+      const avgBurn=Math.round(paired.reduce((s,p)=>s+p.burned,0)/paired.length);
+      const actBal=avgBurn-avgEat; // +ve = deficit
+      let vTxt,vClr;
+      if(remaining<=0){vTxt='goal already reached';vClr='var(--green)';}
+      else if(actBal>=reqKcal*0.9){vTxt='roughly on pace for the goal';vClr='var(--green)';}
+      else if(actBal>0){vTxt=`a bit short of the ${reqKcal} kcal/day needed`;vClr='var(--amber)';}
+      else{vTxt='currently a surplus — trending the wrong way';vClr='var(--red)';}
+      actualBox=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:13px;color:var(--text);line-height:1.5;margin-top:12px">
+        <span style="color:var(--muted)">Lately you're actually eating </span><b style="color:var(--text)">${avgEat.toLocaleString()} kcal/day</b>
+        <span style="color:var(--muted)"> vs </span><b style="color:var(--text)">${avgBurn.toLocaleString()} burned</b>
+        <span style="color:var(--muted)"> — a </span><b style="color:${vClr}">${Math.abs(actBal).toLocaleString()} kcal/day ${actBal>0?'deficit':'surplus'}</b>,
+        <span style="color:${vClr}">${vTxt}</span>.
+        <span style="color:var(--muted)"> (${paired.length} recent days with both meals &amp; Garmin logged.)</span></div>`;
+    }
+  }
   const card=(label,val,sub,clr)=>`<div style="flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
     <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">${label}</div>
     <div style="font-family:var(--font-serif);font-size:26px;font-weight:500;letter-spacing:-.5px;line-height:1;color:${clr||'var(--text)'}">${val}</div>
@@ -993,7 +1087,8 @@ function renderGoalProjection(){
       <b style="color:var(--accent2)">${reqPerWk>0?reqPerWk.toFixed(2):'0'} kg/wk</b>
       <span style="color:var(--muted)"> — roughly a </span><b style="color:var(--accent2)">${reqKcal>0?reqKcal:0} kcal/day</b><span style="color:var(--muted)"> deficit.</span>
     </div>
-    <p style="font-size:10px;color:var(--muted);margin-top:10px">Projection = linear trend of your 7-day average weight. Deficit estimate uses ~7700 kcal per kg.</p>`;
+    ${actualBox}
+    <p style="font-size:10px;color:var(--muted);margin-top:10px">Projection = linear trend of your 7-day average weight. Deficit estimate uses ~7700 kcal per kg. "Lately" = up to 14 recent days where both meals and Garmin burn were logged.</p>`;
 }
 
 function renderBodyFatChart(sorted){
@@ -1335,10 +1430,11 @@ function renderWorkSchedule(){
       cur.setDate(cur.getDate()+1);
     }
     const wkEnd=new Date(wkStart);wkEnd.setDate(wkEnd.getDate()+6);
+    const isThisWeek=fmtIso(wkStart)<=today&&today<=fmtIso(wkEnd);
     const cap=wkStart.getMonth()===wkEnd.getMonth()
       ? `${MON[wkStart.getMonth()]} ${wkStart.getDate()} – ${wkEnd.getDate()}`
       : `${MON[wkStart.getMonth()]} ${wkStart.getDate()} – ${MON[wkEnd.getMonth()]} ${wkEnd.getDate()}`;
-    weeks+=`<div class="sc-week"><div class="sc-wkcap"><b>Week ${weekNum}</b><span>${cap}</span></div><div class="sc-grid">${days}</div></div>`;
+    weeks+=`<div class="sc-week"${isThisWeek?' id="sc-this-week"':''}><div class="sc-wkcap"><b>Week ${weekNum}</b><span>${cap}</span>${isThisWeek?' <span style="color:var(--accent);font-weight:600">· this week</span>':''}</div><div class="sc-grid">${days}</div></div>`;
   }
 
   const legend=[['day','Day'],['evening','Evening'],['night','Night'],['vacation','Ferie'],['off','Off']];
@@ -1760,6 +1856,11 @@ function renderHealth(){
       const v=parseFloat(A('trainingReadiness'))||0;
       const rc=v>=70?'var(--green)':v>=40?'var(--amber)':'var(--red)';
       const clr=isToday?rc:'var(--text)';
+      let callHtml='';
+      if(isToday&&d.trainingReadiness!=null&&typeof insMakeCall==='function'){
+        const c=insMakeCall(d.trainingReadinessLevel,d.trainingReadiness,d.recoveryTimeHrs||0);
+        callHtml=`<div class="ins-call ${c.cls}" style="margin-top:12px"><div class="big">Today → ${c.label}</div><div class="sm">${c.sm} <a onclick="document.querySelector('.nav-tab[onclick*=insights]').click()" style="color:var(--accent);cursor:pointer;text-decoration:underline">Why?</a></div></div>`;
+      }
       return `<div class="readiness-feature">
         <div class="rf-main">
           <div class="stat-label">Training Readiness</div>
@@ -1771,7 +1872,7 @@ function renderHealth(){
           <div class="rf-scale"><span>0</span><span>50</span><span>100</span></div>
           ${isToday&&d.trainingReadiness?`<div class="stat-badge ${readBadge(d.trainingReadiness)}" style="margin-top:12px">${readinessFeedback(d.trainingReadinessFeedback)}</div>`:''}
         </div>
-      </div>`;
+      </div>${callHtml}`;
     })()}
     <div class="stat-grid recovery-support">
       <div class="stat-card">
@@ -2040,6 +2141,162 @@ function renderHealth(){
 }
 
 
+// ── INSIGHTS ───────────────────────────────────────────────────────────────
+const INS_GOAL=65;
+const INS_ZLBL=['Z1 104–124','Z2 125–145','Z3 146–165','Z4 166–186','Z5 187+'];
+const INS_ZVAR=['--z1','--z2','--z3','--z4','--z5'];
+const INS_DRIVERS=[
+  {key:'hrvAvg',label:'HRV',unit:' ms'},{key:'avgStress',label:'Avg stress',unit:''},
+  {key:'sleepScore',label:'Sleep score',unit:''},{key:'sleepH',label:'Sleep hours',unit:' h'},
+  {key:'remH',label:'REM sleep',unit:' h'},{key:'rhr',label:'Resting HR',unit:' bpm'},
+  {key:'shift',label:'Shift (prev day)',cat:true}
+];
+const INS_SHIFT_NICE={day:'Day',evening:'Evening',night:'Night',off:'Off',vacation:'Ferie'};
+const INS_SHIFT_COL={day:'#c9a84c',evening:'#7c6dfa',night:'#3f74c9',off:'#7aab88',vacation:'#1fb39e'};
+function insCss(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function insVal(r,key){
+  if(key==='sleepH')return r.sleepSec?r.sleepSec/3600:null;
+  if(key==='remH')return r.remSec!=null?r.remSec/3600:null;
+  return r[key]!=null?r[key]:null;
+}
+function insReg(pts){
+  const n=pts.length,mx=pts.reduce((s,p)=>s+p.x,0)/n,my=pts.reduce((s,p)=>s+p.y,0)/n;
+  let cov=0,sx=0,sy=0;pts.forEach(p=>{cov+=(p.x-mx)*(p.y-my);sx+=(p.x-mx)**2;sy+=(p.y-my)**2;});
+  const slope=sx?cov/sx:0;
+  return {r:(sx&&sy)?cov/Math.sqrt(sx*sy):0,slope,intercept:my-slope*mx,mnx:Math.min(...pts.map(p=>p.x)),mxx:Math.max(...pts.map(p=>p.x))};
+}
+function insStrength(r){const a=Math.abs(r);return a>=.5?['Strong','good']:a>=.4?['Moderate','good']:a>=.25?['Weak','warn']:['Negligible','bad'];}
+function insRenderDriver(key){
+  const drv=INS_DRIVERS.find(d=>d.key===key);
+  const tick=chartTick(),grid=chartGrid();
+  const el=document.getElementById('ins-d-chart');
+  const meterEl=document.querySelector('#nav-insights .ins-meter');
+
+  // Categorical driver: shift type the day before (night-before shift → morning readiness)
+  if(drv.cat){
+    if(meterEl)meterEl.style.display='none';
+    const sm={};(typeof shiftsData!=='undefined'?shiftsData:[]).forEach(s=>{sm[s.date]=s.shiftType;});
+    const prevDay=ds=>{const t=new Date(ds+'T00:00:00');t.setDate(t.getDate()-1);return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;};
+    const groups={};
+    healthData.forEach(d=>{if(d.trainingReadiness==null)return;const stp=sm[prevDay(d.date)];if(!stp)return;(groups[stp]=groups[stp]||[]).push(d.trainingReadiness);});
+    const order=['day','evening','night','off','vacation'];
+    const labels=order.filter(t=>groups[t]&&groups[t].length);
+    const avgs=labels.map(t=>groups[t].reduce((a,b)=>a+b,0)/groups[t].length);
+    const counts=labels.map(t=>groups[t].length);
+    if(labels.length>=2){
+      const pr=labels.map((t,i)=>({t,a:avgs[i]}));
+      const best=pr.reduce((m,p)=>p.a>m.a?p:m),worst=pr.reduce((m,p)=>p.a<m.a?p:m);
+      document.getElementById('ins-d-head').innerHTML=`Readiness the morning after a <b class="good">${INS_SHIFT_NICE[best.t].toLowerCase()}</b> day averages <b>${best.a.toFixed(0)}</b>, vs <b class="bad">${worst.a.toFixed(0)}</b> after ${worst.t==='off'?'a day off':'an '+INS_SHIFT_NICE[worst.t].toLowerCase()+' shift'}. Small samples so far — worth watching as nights get logged.`;
+    }else{
+      document.getElementById('ins-d-head').textContent='Not enough shift-paired readiness data yet.';
+    }
+    if(chartInstances.insD){try{chartInstances.insD.destroy()}catch(e){}}
+    chartInstances.insD=new Chart(el,{type:'bar',
+      data:{labels:labels.map(t=>INS_SHIFT_NICE[t]),datasets:[{data:avgs,backgroundColor:labels.map(t=>INS_SHIFT_COL[t]),borderWidth:0,borderRadius:6,maxBarThickness:90}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>`avg readiness ${c.parsed.y.toFixed(0)} · ${counts[c.dataIndex]} day${counts[c.dataIndex]===1?'':'s'}`}}},
+        scales:{x:{grid:{display:false},ticks:{color:tick}},y:{min:0,max:100,grid:{color:grid},ticks:{color:tick},title:{display:true,text:'Avg readiness (morning after)',color:tick}}}}});
+    return;
+  }
+
+  if(meterEl)meterEl.style.display='';
+  const pts=healthData.filter(d=>insVal(d,key)!=null&&d.trainingReadiness!=null)
+    .map(d=>({x:insVal(d,key),y:d.trainingReadiness,date:d.date}));
+  if(pts.length<3)return;
+  const s=insReg(pts),st=insStrength(s.r),sLab=st[0],a=Math.abs(s.r),name=drv.label.toLowerCase();
+  document.getElementById('ins-d-dot').style.left=((s.r+1)/2*100)+'%';
+  let h;
+  if(a<.25)h=`On mornings your <b>${name}</b> is higher, readiness is about the same — <b class="bad">it barely predicts</b> how recovered you'll be.`;
+  else if(s.r>0)h=`Higher <b>${name}</b> usually means <b class="good">higher readiness</b> — a ${sLab.toLowerCase()} link. ${a>=.5?'One of the things actually worth watching.':'A real but loose pattern.'}`;
+  else h=`Higher <b>${name}</b> tends to mean <b class="bad">lower readiness</b> — a ${sLab.toLowerCase()} link in the opposite direction.`;
+  document.getElementById('ins-d-head').innerHTML=h;
+  const tick=chartTick(),grid=chartGrid();
+  const line=[{x:s.mnx,y:s.intercept+s.slope*s.mnx},{x:s.mxx,y:s.intercept+s.slope*s.mxx}];
+  if(chartInstances.insD){try{chartInstances.insD.destroy()}catch(e){}}
+  chartInstances.insD=new Chart(document.getElementById('ins-d-chart'),{type:'scatter',
+    data:{datasets:[
+      {data:pts,backgroundColor:insCss('--accent'),pointRadius:5,pointHoverRadius:7},
+      {type:'line',data:line,borderColor:insCss('--muted'),borderWidth:1.5,borderDash:[5,4],pointRadius:0}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.raw.date?`${fmtDate(c.raw.date)}: ${drv.label} ${(+c.raw.x).toFixed(drv.key==='sleepH'||drv.key==='remH'?1:0)}${drv.unit}, readiness ${c.raw.y}`:''}}},
+      scales:{x:{title:{display:true,text:drv.label+drv.unit,color:tick},grid:{color:grid},ticks:{color:tick}},
+              y:{title:{display:true,text:'Training readiness',color:tick},min:0,max:100,grid:{color:grid},ticks:{color:tick}}}}});
+}
+function insMakeCall(level,readiness,recovHrs){
+  if(level==='HIGH'||readiness>=65)return{cls:'push',label:'Push',sm:'Good day for quality — intervals or threshold. Target Z4 (166–186), touches of Z5.'};
+  if(level==='MODERATE'||(readiness>=45&&recovHrs<24))return{cls:'easy',label:'Moderate',sm:'Steady aerobic work is fine — keep it Z2–Z3 (125–165). Save the hard stuff.'};
+  if(recovHrs>=24)return{cls:'rest',label:'Rest / very easy',sm:`Recovery still needs ~${Math.round(recovHrs)}h. Walk or rest; Z1 only (≤124) if you move.`};
+  return{cls:'easy',label:'Easy',sm:'Keep it light — Z1–Z2 (≤145). Let readiness rebuild before pushing.'};
+}
+function renderInsights(){
+  if(!healthData||!healthData.length){document.getElementById('ins-d-head').textContent='No health data loaded.';return;}
+  const H=[...healthData].sort((a,b)=>a.date.localeCompare(b.date));
+  const tick=chartTick(),grid=chartGrid();
+
+  // DRIVERS pills
+  const pillBox=document.getElementById('ins-pills');pillBox.innerHTML='';
+  INS_DRIVERS.forEach((d,i)=>{const b=document.createElement('button');b.className='ins-pill'+(i===0?' active':'');b.textContent=d.label;
+    b.onclick=function(){document.querySelectorAll('#ins-pills .ins-pill').forEach(x=>x.classList.remove('active'));b.classList.add('active');insRenderDriver(d.key);};
+    pillBox.appendChild(b);});
+  insRenderDriver('hrvAvg');
+
+  // READINESS CALL
+  const rdays=H.filter(d=>d.trainingReadiness!=null);
+  if(rdays.length){
+    const latest=rdays[rdays.length-1],c=insMakeCall(latest.trainingReadinessLevel,latest.trainingReadiness,latest.recoveryTimeHrs||0);
+    document.getElementById('ins-call-box').className='ins-call '+c.cls;
+    document.getElementById('ins-call-big').textContent=`${fmtDate(latest.date)} · readiness ${latest.trainingReadiness} (${latest.trainingReadinessLevel}) → ${c.label}`;
+    document.getElementById('ins-call-sm').textContent=c.sm;
+    const tb=document.querySelector('#ins-call-table tbody');tb.innerHTML='';
+    rdays.slice(-6).reverse().forEach(d=>{const cc=insMakeCall(d.trainingReadinessLevel,d.trainingReadiness,d.recoveryTimeHrs||0);
+      const col=cc.cls==='push'?insCss('--green'):cc.cls==='rest'?insCss('--red'):insCss('--accent');
+      tb.insertAdjacentHTML('beforeend',`<tr><td class="ins-mono">${fmtDate(d.date)}</td><td class="ins-mono">${d.trainingReadiness} <span style="color:var(--muted)">${d.trainingReadinessLevel||''}</span></td><td class="ins-mono">${d.recoveryTimeHrs!=null?Math.round(d.recoveryTimeHrs)+'h':'—'}</td><td><span class="ins-dot" style="background:${col}"></span>${cc.label}</td></tr>`);
+    });
+  }
+
+  // RECOVERY RIBBON
+  const QUIT='2026-06-05';
+  const rows=H.filter(d=>d.rhr!=null||d.hrvAvg!=null);
+  if(rows.length){
+    const avg=(k,cond)=>{const v=rows.filter(cond).map(x=>x[k]).filter(x=>x!=null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:null;};
+    const rB=avg('rhr',x=>x.date<QUIT),rA=avg('rhr',x=>x.date>=QUIT),hB=avg('hrvAvg',x=>x.date<QUIT),hA=avg('hrvAvg',x=>x.date>=QUIT);
+    if(rB!=null&&rA!=null)document.getElementById('ins-r-rhr').innerHTML=`${rB.toFixed(0)} → <span style="color:var(--green)">${rA.toFixed(0)}</span> bpm`;
+    if(hB!=null&&hA!=null){
+      document.getElementById('ins-r-hrv').textContent=`${hB.toFixed(0)} → ${hA.toFixed(0)} ms`;
+      document.getElementById('ins-r-head').innerHTML=`Since quitting, resting HR dropped <b class="good">${(rB-rA).toFixed(0)} bpm</b> and HRV rose <b class="good">${(hA-hB).toFixed(0)} ms</b> — both point to better recovery. (Early days &amp; few "before" readings, so it's suggestive, not proof.)`;
+    }
+    const qi=rows.findIndex(x=>x.date>=QUIT);
+    if(chartInstances.insR){try{chartInstances.insR.destroy()}catch(e){}}
+    chartInstances.insR=new Chart(document.getElementById('ins-r-chart'),{type:'line',
+      data:{labels:rows.map(d=>d.date),datasets:[
+        {label:'RHR',data:rows.map(d=>d.rhr),borderColor:insCss('--red'),borderWidth:2,pointRadius:2,yAxisID:'y',tension:.3,spanGaps:true},
+        {label:'HRV',data:rows.map(d=>d.hrvAvg),borderColor:insCss('--green'),borderWidth:2,pointRadius:2,yAxisID:'y1',tension:.3,spanGaps:true}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:tick,usePointStyle:true,boxWidth:7}},tooltip:{callbacks:{title:i=>fmtDate(rows[i[0].dataIndex].date)}}},
+        scales:{x:{grid:{color:grid},ticks:{color:tick,maxTicksLimit:9,callback:function(v,i){return i===qi?'⟵ quit':rows[i].date.slice(5);}}},
+          y:{position:'left',title:{display:true,text:'RHR',color:insCss('--red')},grid:{color:grid},ticks:{color:tick}},
+          y1:{position:'right',title:{display:true,text:'HRV',color:insCss('--green')},grid:{drawOnChartArea:false},ticks:{color:tick}}}}});
+  }
+
+  // INTENSITY
+  if(activities&&activities.length){
+    const dates=activities.map(a=>a.date).filter(Boolean).sort(),last=dates[dates.length-1];
+    const cut=new Date(new Date(last).getTime()-6*864e5).toISOString().slice(0,10);
+    const win=activities.filter(a=>a.date>=cut),z=[0,0,0,0,0];
+    win.forEach(a=>{for(let i=0;i<5;i++)z[i]+=(a['z'+(i+1)]||0);});
+    const tot=z.reduce((s,x)=>s+x,0),pct=z.map(v=>tot?Math.round(v/tot*100):0);
+    const easy=pct[0]+pct[1],hard=pct[2]+pct[3]+pct[4];
+    document.getElementById('ins-i-head').innerHTML= easy>=70
+      ? `Nicely polarized — <b class="good">${easy}% easy</b> (Z1–Z2). Plenty of aerobic base, hard days stay hard.`
+      : `Only <b class="warn">${easy}% of your training was easy</b> — <b class="bad">${hard}%</b> sat in Z3–Z5. That's a lot of hard/threshold work; more easy Z1–Z2 volume would let the quality days land harder and lower injury risk.`;
+    const bar=document.getElementById('ins-zbar'),leg=document.getElementById('ins-zleg');bar.innerHTML='';leg.innerHTML='';
+    pct.forEach((p,i)=>{if(p>0)bar.insertAdjacentHTML('beforeend',`<span style="width:${p}%;background:var(${INS_ZVAR[i]})">${p>=8?p+'%':''}</span>`);
+      leg.insertAdjacentHTML('beforeend',`<span><span class="zone-dot" style="background:var(${INS_ZVAR[i]})"></span>${INS_ZLBL[i]} · ${p}%</span>`);});
+  }
+}
+
 function showSubTab(sect, tab, el) {
   // Hide all sub-panels for this section
   const panel = el.closest('.panel');
@@ -2064,6 +2321,7 @@ function showSubTab(sect, tab, el) {
   if(sect==='health'&&tab==='trends'){renderHealthTrends();}
   if(sect==='health'&&tab==='composition'){renderHealthComp();}
   if(sect==='health'&&tab==='goal'){renderGoalProjection();}
+  if(sect==='work'&&tab==='schedule'){setTimeout(()=>{const w=document.getElementById('sc-this-week');if(w)w.scrollIntoView({behavior:'smooth',block:'center'});},60);}
 }
 
 function showNav(id,el){
@@ -2082,6 +2340,7 @@ function showNav(id,el){
     try{renderNutrition();}catch(e){console.error('renderNutrition:',e);}
   }
   if(id==='health'){try{renderHealth();}catch(e){console.error('renderHealth:',e);}}
+  if(id==='insights'){try{renderInsights();}catch(e){console.error('renderInsights:',e);}}
   if(id==='reviews'){try{renderReviewHistory();}catch(e){console.error('renderReviewHistory:',e);}}
 }
 function showSub(id,el){
@@ -2277,7 +2536,6 @@ async function doDeleteReview(rev) {
     console.error('Delete review error:', e);
   }
 }
-
 
 async function pushReviewToGithub(review) {
   // Route through Cloudflare Worker which holds the GitHub token securely
