@@ -620,22 +620,20 @@ let chartInstances={};
 const gcLinks=id=>id?`<a class="gc-btn" href="https://connect.garmin.com/activity/${id}" target="_blank" rel="noopener">GC</a>`:'';
 const fmtEffect=t=>{
   if(!t||t==='—'||t==='NONE')return'—';
-  if(!t.includes('_'))return t;
-  const map={
-    'IMPACTING_TEMPO':'Tempo',
-    'IMPACTING_BASE':'Aerobic base',
-    'IMPACTING_THRESHOLD':'Lactate threshold',
-    'IMPACTING_VO2MAX':'VO2 Max',
-    'IMPACTING_ANAEROBIC':'Anaerobic',
-    'IMPACTING_SPRINT':'Sprint',
-    'MAINTAINING_TEMPO':'Maintaining Tempo',
-    'MAINTAINING_BASE':'Maintaining base',
-    'MAINTAINING_THRESHOLD':'Maintaining threshold',
-    'NO_IMPACT':'Recovery',
-    'RECOVERY':'Recovery',
-  };
-  const key=t.toUpperCase().replace(/_\d+$/,'').replace(/^HIGHLY_/,'');
-  return map[key]||t.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  // Component-based: pull the training focus out of ANY Garmin variant —
+  // clean labels ("Tempo"), raw codes ("MAINTAINING_AEROBIC_BASE_7"), or
+  // benefit messages ("MINOR_AEROBIC_BENEFIT_6") — into one short category.
+  // Order matters (ANAEROBIC before AEROBIC; NO_ before AEROBIC).
+  const k=t.toString().toUpperCase().replace(/\s+/g,'_').replace(/_\d+$/,'');
+  if(k.startsWith('NO_'))return'Recovery';
+  if(k.includes('SPRINT'))return'Sprint';
+  if(k.includes('ANAEROBIC'))return'Anaerobic';
+  if(k.includes('VO2'))return'VO2 Max';
+  if(k.includes('LACTATE')||k.includes('THRESHOLD'))return'Lactate threshold';
+  if(k.includes('TEMPO'))return'Tempo';
+  if(k.includes('AEROBIC')||k.includes('BASE'))return'Aerobic base';
+  if(k.includes('RECOVERY'))return'Recovery';
+  return k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 };
 const fmtDate=d=>{
   if(!d)return'—';
@@ -657,7 +655,21 @@ const toDisplay=d=>{
   return day+'/'+m+'/'+y;
 };
 const fmt=s=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=Math.round(s%60);return h>0?h+':'+(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc:m+':'+(sc<10?'0':'')+sc};
-const fmtD=m=>(m/1000).toFixed(2)+'km';
+const INDOOR='<span style="color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.5px">INDOOR</span>';
+// Indoor = no real GPS distance. Signals: explicit flag from sync, zero
+// distance (indoor bike), or Garmin's bare no-GPS name (outdoor sessions get a
+// place prefix like "Trondheim Gåtur"; treadmill/trainer come through as just
+// "Gåtur"/"Innendørssykling"). Indoor distance is estimated, so we hide it.
+const isIndoor=a=>{
+  if(a.indoor===true)return true;
+  if(a.indoor===false)return false;
+  if(a.distanceM==null||a.distanceM<1)return true;
+  const nm=(a.name||'').trim().toLowerCase();
+  if(/innend|indoor|treadmill|tredem|trainer|home_?trainer/.test(nm))return true;
+  if(/^(g[åa]tur|l[øo]ping|l[øo]p|sykling|sykkel)\b/.test(nm))return true;
+  return false;
+};
+const fmtD=m=>(m==null||m<1)?INDOOR:(m/1000).toFixed(2)+'km';
 const fmtSpd=mps=>((mps*3.6).toFixed(1))+'km/h';
 const pace=(d,s)=>fmt(s/(d/1000))+'/km';
 const n=(v,dec=0,suf='')=>v==null?'—':(dec?parseFloat(v).toFixed(dec):Math.round(v))+suf;
@@ -700,8 +712,8 @@ function renderRuns(){
   const rows=getSorted(activities.filter(a=>a.type==='running'),'runs');
   document.getElementById('tbody-runs').innerHTML=rows.map(r=>`<tr>
     <td>${fmtDate(r.date)}</td><td>${gcLinks(r.activityId)}</td>
-    <td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(r.distanceM)}</td>
-    <td style="font-weight:600">${pace(r.distanceM,r.durationSec)}</td>
+    <td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${isIndoor(r)?INDOOR:fmtD(r.distanceM)}</td>
+    <td style="font-weight:600">${isIndoor(r)?INDOOR:pace(r.distanceM,r.durationSec)}</td>
     <td style="${hrCls(r.avgHR)}">${r.avgHR}</td><td class="${r.maxHR>=187?'hi':r.maxHR>=166?'warn':''}">${r.maxHR}</td>
     <td>${r.fastest1k?fmt(r.fastest1k):'—'}</td><td>${r.fastest5k?fmt(r.fastest5k):'—'}</td><td>${r.fastest10k?fmt(r.fastest10k):'—'}</td>
     <td class="${r.vo2max>=47?'ok':''}">${n(r.vo2max)}</td>
@@ -726,22 +738,22 @@ function renderRuns(){
 function renderBikes(){
   const rows=getSorted(activities.filter(a=>a.type==='cycling'),'bikes');
   document.getElementById('tbody-bikes').innerHTML=rows.map(b=>`<tr>
-    <td>${fmtDate(b.date)}</td><td>${gcLinks(b.activityId)}</td><td>${fmtD(b.distanceM)}</td><td style="font-weight:600">${fmtSpd(b.distanceM/b.durationSec)}</td><td>${b.maxSpeed?fmtSpd(b.maxSpeed):'—'}</td>
+    <td>${fmtDate(b.date)}</td><td>${gcLinks(b.activityId)}</td><td>${isIndoor(b)?INDOOR:fmtD(b.distanceM)}</td><td style="font-weight:600">${isIndoor(b)?INDOOR:fmtSpd(b.distanceM/b.durationSec)}</td><td>${b.maxSpeed?fmtSpd(b.maxSpeed):'—'}</td>
     <td style="${hrCls(b.avgHR)}">${b.avgHR}</td><td class="${b.maxHR>=187?'hi':b.maxHR>=166?'warn':''}">${b.maxHR}</td>
     <td>${n(b.elevGain)}m</td><td class="muted-cell">${n(b.elevLoss)}m</td>
     <td>${fmt(b.durationSec)}</td><td>${n(b.load,1)}</td><td class="muted-cell">-${n(b.bodyBatDrain)}</td><td>${n(b.calories)}</td>
-    <td>${zbar(b)}</td><td class="muted-cell" style="font-size:11px">${b.label||'—'}</td>
+    <td>${zbar(b)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(b.label)}</td>
   </tr>`).join('');
 }
 function renderWalks(){
   const rows=getSorted(activities.filter(a=>a.type==='walking'),'walks');
   document.getElementById('tbody-walks').innerHTML=rows.map(w=>`<tr>
-    <td>${fmtDate(w.date)}</td><td>${gcLinks(w.activityId)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${fmtD(w.distanceM)}</td><td>${pace(w.distanceM,w.durationSec)}</td>
+    <td>${fmtDate(w.date)}</td><td>${gcLinks(w.activityId)}</td><td style="font-weight:700;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${isIndoor(w)?INDOOR:fmtD(w.distanceM)}</td><td>${isIndoor(w)?INDOOR:pace(w.distanceM,w.durationSec)}</td>
     <td style="${hrCls(w.avgHR)}">${w.avgHR}</td><td class="${w.maxHR>=187?'hi':w.maxHR>=166?'warn':''}">${w.maxHR}</td>
     <td>${n(w.elevGain)}m</td><td class="muted-cell">${n(w.elevLoss)}m</td>
     <td>${fmt(w.durationSec)}</td><td>${n(w.steps)}</td>
     <td>${n(w.load,1)}</td><td class="muted-cell">-${n(w.bodyBatDrain)}</td><td>${n(w.calories)}</td>
-    <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${w.label||'—'}</td>
+    <td>${zbar(w)}</td><td class="muted-cell" style="font-size:11px">${fmtEffect(w.label)}</td>
   </tr>`).join('');
 }
 function renderAll(){
@@ -752,13 +764,13 @@ function renderAll(){
   document.getElementById('tbody-all').innerHTML=rows.map(a=>`<tr>
     <td>${fmtDate(a.date)}</td><td>${gcLinks(a.activityId)}</td><td>${tbadge(a.type)}</td>
     <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis">${a.name}</td>
-    <td>${fmtD(a.distanceM)}</td><td>${fmt(a.durationSec)}</td>
-    <td style="font-weight:600">${a.type==='cycling'?fmtSpd(a.distanceM/a.durationSec):pace(a.distanceM,a.durationSec)}</td>
+    <td>${isIndoor(a)?INDOOR:fmtD(a.distanceM)}</td><td>${fmt(a.durationSec)}</td>
+    <td style="font-weight:600">${isIndoor(a)?INDOOR:(a.type==='cycling'?fmtSpd(a.distanceM/a.durationSec):pace(a.distanceM,a.durationSec))}</td>
     <td style="${hrCls(a.avgHR)}">${a.avgHR}</td><td class="${a.maxHR>=187?'hi':a.maxHR>=166?'warn':''}">${a.maxHR}</td>
     <td>${n(a.elevGain)}m</td><td>${n(a.load,1)}</td>
     <td class="${a.vo2max>=47?'ok':''}">${a.vo2max||'—'}</td>
     <td>${n(a.calories)}</td><td class="muted-cell">-${n(a.bodyBatDrain)}</td>
-    <td class="muted-cell" style="font-size:11px">${a.label||'—'}</td>
+    <td class="muted-cell" style="font-size:11px">${fmtEffect(a.label)}</td>
   </tr>`).join('');
 }
 
@@ -1494,21 +1506,22 @@ function renderActSummary(){
   const steadyRuns=runs.filter(r=>!isInterval(r));
   // This week
   const now=new Date();const mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));mon.setHours(0,0,0,0);
-  const thisWkRunKm=runs.filter(r=>new Date(r.date)>=mon).reduce((s,r)=>s+(r.distanceM||0)/1000,0);
-  const thisWkBikeKm=bikes.filter(b=>new Date(b.date)>=mon).reduce((s,b)=>s+(b.distanceM||0)/1000,0);
-  const thisWkWalkKm=walks.filter(w=>new Date(w.date)>=mon).reduce((s,w)=>s+(w.distanceM||0)/1000,0);
-  const totalRunKm=runs.reduce((s,r)=>s+(r.distanceM||0)/1000,0);
-  const totalBikeKm=bikes.reduce((s,b)=>s+(b.distanceM||0)/1000,0);
-  const totalWalkKm=walks.reduce((s,w)=>s+(w.distanceM||0)/1000,0);
-  // Run PRs
-  const maxRunDist=steadyRuns.reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
-  const fastPace=steadyRuns.filter(r=>r.distanceM>=1000).reduce((b,r)=>{const p=r.durationSec/r.distanceM*1000;return b===null||p<b.p?{r,p}:b;},null);
+  // Distance totals exclude indoor sessions — their distance is estimated, not real GPS.
+  const thisWkRunKm=runs.filter(r=>!isIndoor(r)&&new Date(r.date)>=mon).reduce((s,r)=>s+(r.distanceM||0)/1000,0);
+  const thisWkBikeKm=bikes.filter(b=>!isIndoor(b)&&new Date(b.date)>=mon).reduce((s,b)=>s+(b.distanceM||0)/1000,0);
+  const thisWkWalkKm=walks.filter(w=>!isIndoor(w)&&new Date(w.date)>=mon).reduce((s,w)=>s+(w.distanceM||0)/1000,0);
+  const totalRunKm=runs.filter(r=>!isIndoor(r)).reduce((s,r)=>s+(r.distanceM||0)/1000,0);
+  const totalBikeKm=bikes.filter(b=>!isIndoor(b)).reduce((s,b)=>s+(b.distanceM||0)/1000,0);
+  const totalWalkKm=walks.filter(w=>!isIndoor(w)).reduce((s,w)=>s+(w.distanceM||0)/1000,0);
+  // Run PRs (outdoor only — indoor distance/pace isn't real)
+  const maxRunDist=steadyRuns.filter(r=>!isIndoor(r)).reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
+  const fastPace=steadyRuns.filter(r=>!isIndoor(r)&&r.distanceM>=1000).reduce((b,r)=>{const p=r.durationSec/r.distanceM*1000;return b===null||p<b.p?{r,p}:b;},null);
   const best5k=steadyRuns.filter(r=>r.fastest5k).reduce((b,r)=>!b||r.fastest5k<b.fastest5k?r:b,null);
   const mostRunElev=steadyRuns.reduce((b,r)=>(r.elevGain||0)>(b?.elevGain||0)?r:b,null);
   const bestVO2=runs.filter(r=>r.vo2max).reduce((b,r)=>(r.vo2max||0)>(b?.vo2max||0)?r:b,null);
   // Bike PRs
-  const maxBikeDist=bikes.reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
-  const fastSpeed=bikes.filter(b=>b.distanceM&&b.durationSec).reduce((b,r)=>{const s=r.distanceM/r.durationSec;return b===null||s>b.s?{r,s}:b;},null);
+  const maxBikeDist=bikes.filter(b=>!isIndoor(b)).reduce((b,r)=>r.distanceM>(b?.distanceM||0)?r:b,null);
+  const fastSpeed=bikes.filter(b=>!isIndoor(b)&&b.distanceM&&b.durationSec).reduce((b,r)=>{const s=r.distanceM/r.durationSec;return b===null||s>b.s?{r,s}:b;},null);
   const mostBikeElev=bikes.reduce((b,r)=>(r.elevGain||0)>(b?.elevGain||0)?r:b,null);
   const el=document.getElementById('act-summary');if(!el)return;
   el.innerHTML=`
@@ -2602,12 +2615,12 @@ async function generateReview() {
     },
     activities: {
       totalRuns: runs.length,
-      totalRunKm: runs.length ? Math.round(runs.reduce((s,r)=>s+(r.distanceM||0),0)/100)/10 : 0,
-      avgRunPaceSec: runs.length ? Math.round(runs.reduce((s,r)=>s+(r.durationSec||0)/(r.distanceM||1)*1000,0)/runs.length) : null,
+      totalRunKm: runs.length ? Math.round(runs.filter(r=>!isIndoor(r)).reduce((s,r)=>s+(r.distanceM||0),0)/100)/10 : 0,
+      avgRunPaceSec: runs.filter(r=>!isIndoor(r)).length ? Math.round(runs.filter(r=>!isIndoor(r)).reduce((s,r)=>s+(r.durationSec||0)/(r.distanceM||1)*1000,0)/runs.filter(r=>!isIndoor(r)).length) : null,
       avgRunHR: runs.length ? Math.round(runs.reduce((s,r)=>s+(r.avgHR||0),0)/runs.length) : null,
       totalBikes: bikes.length,
       totalWalks: walks.length,
-      totalWalkKm: walks.length ? Math.round(walks.reduce((s,w)=>s+(w.distanceM||0),0)/100)/10 : 0,
+      totalWalkKm: walks.length ? Math.round(walks.filter(w=>!isIndoor(w)).reduce((s,w)=>s+(w.distanceM||0),0)/100)/10 : 0,
     },
     nutrition: {
       avgCalories: avgH('calories') || sumN('calories') ? Math.round((nRows.map(n=>n.calories).filter(x=>x!=null).reduce((a,b)=>a+b,0)||0)/Math.max(nRows.length,1)) : null,
