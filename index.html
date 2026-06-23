@@ -2210,7 +2210,6 @@ function insRenderDriver(key){
   else if(s.r>0)h=`Higher <b>${name}</b> usually means <b class="good">higher readiness</b> — a ${sLab.toLowerCase()} link. ${a>=.5?'One of the things actually worth watching.':'A real but loose pattern.'}`;
   else h=`Higher <b>${name}</b> tends to mean <b class="bad">lower readiness</b> — a ${sLab.toLowerCase()} link in the opposite direction.`;
   document.getElementById('ins-d-head').innerHTML=h;
-  const tick=chartTick(),grid=chartGrid();
   const line=[{x:s.mnx,y:s.intercept+s.slope*s.mnx},{x:s.mxx,y:s.intercept+s.slope*s.mxx}];
   if(chartInstances.insD){try{chartInstances.insD.destroy()}catch(e){}}
   chartInstances.insD=new Chart(document.getElementById('ins-d-chart'),{type:'scatter',
