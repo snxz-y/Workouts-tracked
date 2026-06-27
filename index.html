@@ -3129,6 +3129,21 @@ async function loadData() {
   activities = acts || []; healthData = health || [];
   nutritionData = nutr || []; reviewsData = reviews || [];
   shiftsData = shifts || [];
+  // Floor recorded daily burn to BURN_FLOOR. On days the watch is off for a
+  // long stretch, Garmin only accrues BMR over the hours it logged, so the
+  // total comes out artificially low (e.g. 1470 on a ~17h day). Bump any
+  // recorded total below the floor up to it, so deficit/projection/balance all
+  // use a realistic full-day burn. Only days that actually have a totalKcal
+  // value are touched — body-composition-only days are left as null.
+  const BURN_FLOOR = 2100;
+  healthData.forEach(h => {
+    if (h && h.totalKcal != null && h.totalKcal < BURN_FLOOR) {
+      const diff = BURN_FLOOR - h.totalKcal;
+      if (h.bmrKcal != null) h.bmrKcal += diff;   // keep activeKcal + bmrKcal = totalKcal
+      h.totalKcal = BURN_FLOOR;
+      h._burnFloored = true;                       // marker for possible UI flagging
+    }
+  });
 }
 
 // Re-render every view from the current globals (used after a manual sync).
