@@ -267,6 +267,49 @@ def sync_health(hdrs, dn, target_date=None):
     _rt_raw = max(_rt_candidates) if _rt_candidates else None
     _recovery_hrs = round(_rt_raw / 60, 1) if _rt_raw and _rt_raw > 24 else _rt_raw
 
+    # ── Intraday series ──────────────────────────────────────────────────────
+    # Training Readiness and Body Battery change through the day, but storing
+    # one daily number loses that history. Keep the timestamped readings so a
+    # value can be backtracked to a time of day (e.g. readiness 96 at 12:49
+    # before a ride, 13 at 17:51 after). Garmin already returns these arrays.
+    rt_series = []
+    if isinstance(readiness, list):
+        for r in sorted(readiness, key=lambda x: x.get("timestampLocal") or ""):
+            tl = r.get("timestampLocal")
+            sc = r.get("score") or r.get("trainingReadinessScore")
+            if not tl or sc is None:
+                continue
+            rt_series.append({
+                "time": tl[11:16],
+                "score": sc,
+                "level": str(r.get("level")).upper().replace("_", " ") if r.get("level") else None,
+            })
+
+    bb_series = []
+    bb_vals = bb_today.get("bodyBatteryValuesArray") or []
+    # Values array timestamps are GMT epoch-ms; convert to local HH:MM using the
+    # day's own offset (start GMT vs start Local) so points line up with the clock.
+    off_ms = 0
+    try:
+        g = bb_today.get("startTimestampGMT"); l = bb_today.get("startTimestampLocal")
+        if g and l:
+            # Slice to seconds: Garmin's ".0" fractional suffix breaks
+            # datetime.fromisoformat on Python <3.11 (HA box / Actions).
+            off_ms = (datetime.fromisoformat(l[:19]) - datetime.fromisoformat(g[:19])).total_seconds() * 1000
+    except Exception:
+        off_ms = 0
+    for pair in bb_vals:
+        if not isinstance(pair, (list, tuple)) or len(pair) < 2:
+            continue
+        ts, lvl = pair[0], pair[1]
+        if ts is None or lvl is None:
+            continue
+        try:
+            tl = datetime.utcfromtimestamp((ts + off_ms) / 1000).strftime("%H:%M")
+        except Exception:
+            continue
+        bb_series.append({"time": tl, "level": lvl})
+
     entry = {
         "date": TARGET,
         "rhr": stats.get("restingHeartRate") or stats.get("minHeartRate") or hr.get("restingHeartRate"),
@@ -306,6 +349,8 @@ def sync_health(hdrs, dn, target_date=None):
         "trainingReadiness": read_val,
         "trainingReadinessLevel": str(read_level).upper().replace("_"," ") if read_level else None,
         "trainingReadinessFeedback": str(read_feedback).replace("_"," ") if read_feedback else None,
+        "trainingReadinessSeries": rt_series,
+        "bodyBatterySeries": bb_series,
         "trainingStatus": ts_status.get("trainingStatusKey") if isinstance(ts_status, dict) else ts_status,
         "acuteLoad": acute_load,
         "chronicLoad": chronic_load,
@@ -345,24 +390,47 @@ def sync_health(hdrs, dn, target_date=None):
 
 
 LABEL_MAP = {
-    'IMPACTING_TEMPO': 'Tempo',
-    'IMPACTING_BASE': 'Aerobic base',
-    'IMPACTING_THRESHOLD': 'Lactate threshold',
-    'IMPACTING_VO2MAX': 'VO2 Max',
-    'IMPACTING_ANAEROBIC': 'Anaerobic',
-    'IMPACTING_SPRINT': 'Sprint',
-    'MAINTAINING_TEMPO': 'Maintaining Tempo',
-    'MAINTAINING_BASE': 'Maintaining base',
-    'MAINTAINING_THRESHOLD': 'Maintaining threshold',
-    'NO_IMPACT': 'Recovery',
     'RECOVERY': 'Recovery',
+    'AEROBIC_BASE': 'Aerobic base',
+    'TEMPO': 'Tempo',
+    'LACTATE_THRESHOLD': 'Lactate threshold',
+    'VO2MAX': 'VO2 Max',
+    'VO2_MAX': 'VO2 Max',
+    'ANAEROBIC_CAPACITY': 'Anaerobic',
+    'ANAEROBIC': 'Anaerobic',
+    'SPRINT': 'Sprint',
 }
 def _translate_label(msg):
     if not msg:
         return None
     import re as _re
-    key = _re.sub(r'_\d+$', '', msg.upper()).replace('HIGHLY_IMPACTING_', 'IMPACTING_').replace('HIGHLY_MAINTAINING_', 'MAINTAINING_')
-    return LABEL_MAP.get(key, msg.replace('_', ' ').title())
+    # Component-based: pull the training focus out of any Garmin variant
+    # (trainingEffectLabel like AEROBIC_BASE, or a benefit message like
+    # MINOR_AEROBIC_BENEFIT_6) into one short category. Order matters
+    # (ANAEROBIC before AEROBIC; NO_ before AEROBIC).
+    k = _re.sub(r'_\d+$', '', str(msg).upper()).replace(' ', '_')
+    if k in LABEL_MAP:
+        return LABEL_MAP[k]
+    if k.startswith('NO_'):     return 'Recovery'
+    if 'SPRINT' in k:           return 'Sprint'
+    if 'ANAEROBIC' in k:        return 'Anaerobic'
+    if 'VO2' in k:              return 'VO2 Max'
+    if 'LACTATE' in k or 'THRESHOLD' in k: return 'Lactate threshold'
+    if 'TEMPO' in k:            return 'Tempo'
+    if 'AEROBIC' in k or 'BASE' in k:      return 'Aerobic base'
+    if 'RECOVERY' in k:         return 'Recovery'
+    return k.replace('_', ' ').title()
+
+
+def _is_indoor(act, atype):
+    """Indoor = no real GPS distance (treadmill, trainer, indoor cycling)."""
+    t = (act.get("activityType", {}).get("typeKey", "") or "").lower()
+    if "indoor" in t or "treadmill" in t or "virtual" in t:
+        return True
+    # No GPS track and no start coordinate → recorded indoors.
+    if not act.get("hasPolyline") and act.get("startLatitude") is None:
+        return True
+    return False
 
 def sync_activities(hdrs):
     print(f"\nFetching activities ({YESTERDAY} to {TODAY})...")
@@ -446,7 +514,8 @@ def sync_activities(hdrs):
             "maxSpeed": act.get("maxSpeed"),
             "steps": act.get("steps"),
             "z1": zones[0], "z2": zones[1], "z3": zones[2], "z4": zones[3], "z5": zones[4],
-            "label": _translate_label(act.get("aerobicTrainingEffectMessage")),
+            "label": _translate_label(act.get("trainingEffectLabel") or act.get("aerobicTrainingEffectMessage")),
+            "indoor": _is_indoor(act, atype),
             "splits": splits,
         }
         # Upsert: insert new activities, repair partial/foreign-schema entries,
