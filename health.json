@@ -67,50 +67,7 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null,
-    "bodyBatterySeries": [
-      {
-        "time": "03:18",
-        "level": 48
-      },
-      {
-        "time": "06:00",
-        "level": 72
-      },
-      {
-        "time": "06:03",
-        "level": 72
-      },
-      {
-        "time": "09:42",
-        "level": 100
-      },
-      {
-        "time": "12:06",
-        "level": 100
-      },
-      {
-        "time": "18:03",
-        "level": 43
-      }
-    ],
-    "trainingReadinessSeries": [
-      {
-        "time": "00:34",
-        "score": 82,
-        "level": "HIGH"
-      },
-      {
-        "time": "12:49",
-        "score": 96,
-        "level": "PRIME"
-      },
-      {
-        "time": "17:51",
-        "score": 13,
-        "level": "POOR"
-      }
-    ]
+    "raceMarathonSec": null
   },
   {
     "date": "2026-06-26",
