@@ -67,7 +67,50 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "03:18",
+        "level": 48
+      },
+      {
+        "time": "06:00",
+        "level": 72
+      },
+      {
+        "time": "06:03",
+        "level": 72
+      },
+      {
+        "time": "09:42",
+        "level": 100
+      },
+      {
+        "time": "12:06",
+        "level": 100
+      },
+      {
+        "time": "18:03",
+        "level": 43
+      }
+    ],
+    "trainingReadinessSeries": [
+      {
+        "time": "00:34",
+        "score": 82,
+        "level": "HIGH"
+      },
+      {
+        "time": "12:49",
+        "score": 96,
+        "level": "PRIME"
+      },
+      {
+        "time": "17:51",
+        "score": 13,
+        "level": "POOR"
+      }
+    ]
   },
   {
     "date": "2026-06-26",
@@ -137,7 +180,33 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "02:09",
+        "level": 21
+      },
+      {
+        "time": "05:42",
+        "level": 50
+      },
+      {
+        "time": "05:45",
+        "level": 50
+      },
+      {
+        "time": "10:39",
+        "level": 94
+      },
+      {
+        "time": "11:30",
+        "level": 89
+      },
+      {
+        "time": "16:57",
+        "level": 69
+      }
+    ]
   },
   {
     "date": "2026-06-25",
@@ -207,7 +276,33 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "01:12",
+        "level": 32
+      },
+      {
+        "time": "07:57",
+        "level": 76
+      },
+      {
+        "time": "09:45",
+        "level": 88
+      },
+      {
+        "time": "15:45",
+        "level": 55
+      },
+      {
+        "time": "16:00",
+        "level": 55
+      },
+      {
+        "time": "23:51",
+        "level": 29
+      }
+    ]
   },
   {
     "date": "2026-06-24",
@@ -277,7 +372,33 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "03:15",
+        "level": 26
+      },
+      {
+        "time": "07:57",
+        "level": 64
+      },
+      {
+        "time": "08:00",
+        "level": 64
+      },
+      {
+        "time": "12:42",
+        "level": 95
+      },
+      {
+        "time": "16:00",
+        "level": 80
+      },
+      {
+        "time": "23:57",
+        "level": 36
+      }
+    ]
   },
   {
     "date": "2026-06-23",
@@ -347,7 +468,33 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "00:00",
+        "level": 42
+      },
+      {
+        "time": "05:12",
+        "level": 18
+      },
+      {
+        "time": "08:00",
+        "level": 34
+      },
+      {
+        "time": "15:21",
+        "level": 83
+      },
+      {
+        "time": "16:00",
+        "level": 82
+      },
+      {
+        "time": "23:51",
+        "level": 38
+      }
+    ]
   },
   {
     "date": "2026-06-22",
@@ -417,7 +564,33 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "01:27",
+        "level": 11
+      },
+      {
+        "time": "07:48",
+        "level": 63
+      },
+      {
+        "time": "08:00",
+        "level": 63
+      },
+      {
+        "time": "14:18",
+        "level": 45
+      },
+      {
+        "time": "17:24",
+        "level": 69
+      },
+      {
+        "time": "23:48",
+        "level": 42
+      }
+    ]
   },
   {
     "date": "2026-06-21",
@@ -487,7 +660,33 @@
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
-    "raceMarathonSec": null
+    "raceMarathonSec": null,
+    "bodyBatterySeries": [
+      {
+        "time": "01:12",
+        "level": 29
+      },
+      {
+        "time": "05:57",
+        "level": 75
+      },
+      {
+        "time": "08:00",
+        "level": 60
+      },
+      {
+        "time": "15:54",
+        "level": 31
+      },
+      {
+        "time": "16:00",
+        "level": 31
+      },
+      {
+        "time": "23:30",
+        "level": 13
+      }
+    ]
   },
   {
     "date": "2026-06-20",
@@ -552,7 +751,33 @@
     "bodyFat": 25.1,
     "muscleMass": 32.39,
     "boneMass": 4.56,
-    "bodyWater": 54.7
+    "bodyWater": 54.7,
+    "bodyBatterySeries": [
+      {
+        "time": "03:39",
+        "level": 44
+      },
+      {
+        "time": "07:54",
+        "level": 74
+      },
+      {
+        "time": "10:48",
+        "level": 93
+      },
+      {
+        "time": "15:51",
+        "level": 62
+      },
+      {
+        "time": "16:00",
+        "level": 62
+      },
+      {
+        "time": "23:21",
+        "level": 35
+      }
+    ]
   },
   {
     "date": "2026-06-19",
@@ -617,7 +842,33 @@
     "bodyFat": 23.9,
     "muscleMass": 32.19,
     "boneMass": 4.59,
-    "bodyWater": 55.6
+    "bodyWater": 55.6,
+    "bodyBatterySeries": [
+      {
+        "time": "00:00",
+        "level": 30
+      },
+      {
+        "time": "07:57",
+        "level": 90
+      },
+      {
+        "time": "08:00",
+        "level": 90
+      },
+      {
+        "time": "12:54",
+        "level": 100
+      },
+      {
+        "time": "16:00",
+        "level": 97
+      },
+      {
+        "time": "23:36",
+        "level": 53
+      }
+    ]
   },
   {
     "date": "2026-06-18",
@@ -682,7 +933,33 @@
     "bodyFat": 25.2,
     "muscleMass": 32.26,
     "boneMass": 4.51,
-    "bodyWater": 54.6
+    "bodyWater": 54.6,
+    "bodyBatterySeries": [
+      {
+        "time": "00:18",
+        "level": 39
+      },
+      {
+        "time": "06:18",
+        "level": 85
+      },
+      {
+        "time": "08:00",
+        "level": 77
+      },
+      {
+        "time": "15:30",
+        "level": 44
+      },
+      {
+        "time": "16:00",
+        "level": 44
+      },
+      {
+        "time": "23:18",
+        "level": 30
+      }
+    ]
   },
   {
     "date": "2026-06-17",
@@ -747,7 +1024,33 @@
     "bodyFat": 25,
     "muscleMass": 32.32,
     "boneMass": 4.55,
-    "bodyWater": 54.8
+    "bodyWater": 54.8,
+    "bodyBatterySeries": [
+      {
+        "time": "02:15",
+        "level": 45
+      },
+      {
+        "time": "07:54",
+        "level": 84
+      },
+      {
+        "time": "11:54",
+        "level": 100
+      },
+      {
+        "time": "15:54",
+        "level": 74
+      },
+      {
+        "time": "16:00",
+        "level": 74
+      },
+      {
+        "time": "23:36",
+        "level": 40
+      }
+    ]
   },
   {
     "date": "2026-06-16",
@@ -812,7 +1115,33 @@
     "bodyFat": 24.4,
     "muscleMass": 32.45,
     "boneMass": 4.64,
-    "bodyWater": 55.2
+    "bodyWater": 55.2,
+    "bodyBatterySeries": [
+      {
+        "time": "03:03",
+        "level": 60
+      },
+      {
+        "time": "07:48",
+        "level": 92
+      },
+      {
+        "time": "10:09",
+        "level": 100
+      },
+      {
+        "time": "15:45",
+        "level": 75
+      },
+      {
+        "time": "16:00",
+        "level": 75
+      },
+      {
+        "time": "23:57",
+        "level": 49
+      }
+    ]
   },
   {
     "date": "2026-06-15",
@@ -877,7 +1206,33 @@
     "bodyFat": 25.1,
     "muscleMass": 32.59,
     "boneMass": 4.63,
-    "bodyWater": 54.7
+    "bodyWater": 54.7,
+    "bodyBatterySeries": [
+      {
+        "time": "03:03",
+        "level": 27
+      },
+      {
+        "time": "07:51",
+        "level": 76
+      },
+      {
+        "time": "10:03",
+        "level": 92
+      },
+      {
+        "time": "15:45",
+        "level": 54
+      },
+      {
+        "time": "15:54",
+        "level": 54
+      },
+      {
+        "time": "23:45",
+        "level": 30
+      }
+    ]
   },
   {
     "date": "2026-06-14",
@@ -942,7 +1297,33 @@
     "bodyFat": 24.6,
     "muscleMass": 32.53,
     "boneMass": 4.65,
-    "bodyWater": 55.1
+    "bodyWater": 55.1,
+    "bodyBatterySeries": [
+      {
+        "time": "01:06",
+        "level": 26
+      },
+      {
+        "time": "07:57",
+        "level": 65
+      },
+      {
+        "time": "09:09",
+        "level": 75
+      },
+      {
+        "time": "15:57",
+        "level": 48
+      },
+      {
+        "time": "16:00",
+        "level": 48
+      },
+      {
+        "time": "23:18",
+        "level": 33
+      }
+    ]
   },
   {
     "date": "2026-06-13",
