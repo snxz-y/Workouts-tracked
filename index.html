@@ -1766,22 +1766,41 @@ function renderHealth(){
     if(bb.length){
       const pts=bb.map(p=>({m:toMin(p.time),v:p.level,t:p.time})).filter(p=>p.m!=null).sort((a,b)=>a.m-b.m);
       if(pts.length){
+        const esc=s=>String(s).replace(/'/g,"\\'");
         bbPath=`<polyline fill="none" stroke="#c49078" stroke-width="2" stroke-linejoin="round" points="${pts.map(p=>`${px(p.m).toFixed(1)},${py(p.v).toFixed(1)}`).join(' ')}"/>`+
-          pts.map(p=>`<circle cx="${px(p.m).toFixed(1)}" cy="${py(p.v).toFixed(1)}" r="2.5" fill="#c49078"><title>${p.t} · Body Battery ${p.v}</title></circle>`).join('');
+          pts.map(p=>`<circle cx="${px(p.m).toFixed(1)}" cy="${py(p.v).toFixed(1)}" r="7" fill="transparent" style="cursor:pointer" onclick="iTip(event,'${esc(p.t)} · Body Battery ${p.v}')"/><circle cx="${px(p.m).toFixed(1)}" cy="${py(p.v).toFixed(1)}" r="2.5" fill="#c49078" pointer-events="none"/>`).join('');
       }
     }
+    const esc=s=>String(s).replace(/'/g,"\\'");
     const dotColor=s=>s>=70?'var(--green)':s>=40?'var(--amber)':'var(--red)';
     const trDots=tr.map(p=>{const m=toMin(p.time);if(m==null)return'';const x=px(m),y=py(p.score);
-      return `<g><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${dotColor(p.score)}" stroke="#0d0d0f" stroke-width="1.5"><title>${p.time} · Readiness ${p.score}${p.level?' ('+p.level+')':''}</title></circle><text x="${x.toFixed(1)}" y="${(y-8).toFixed(1)}" fill="var(--text)" font-size="10" font-weight="600" text-anchor="middle">${p.score}</text></g>`;}).join('');
-    return `<div class="intraday-wrap" style="margin:10px 0 4px">
+      const label=`${esc(p.time)} · Readiness ${p.score}${p.level?' ('+esc(p.level)+')':''}`;
+      return `<g style="cursor:pointer" onclick="iTip(event,'${label}')"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" fill="transparent"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${dotColor(p.score)}" stroke="#0d0d0f" stroke-width="1.5" pointer-events="none"/><text x="${x.toFixed(1)}" y="${(y-8).toFixed(1)}" fill="var(--text)" font-size="10" font-weight="600" text-anchor="middle" pointer-events="none">${p.score}</text></g>`;}).join('');
+    return `<div class="intraday-wrap" style="margin:10px 0 4px;position:relative">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Through the day</span>
-        <span style="font-size:10px;color:var(--muted)"><span style="color:#c49078">●</span> Body Battery &nbsp; <span style="color:var(--green)">●</span> Readiness</span>
+        <span style="font-size:10px;color:var(--muted)"><span style="color:#c49078">●</span> Body Battery &nbsp; Readiness <span style="color:var(--green)">●</span><span style="color:var(--amber)">●</span><span style="color:var(--red)">●</span></span>
       </div>
       <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}${bbPath}${trDots}</svg>
-      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:2px">Hover or tap a point for the exact reading & time</div>
+      <div class="intraday-tip" style="position:absolute;display:none;transform:translateX(-50%);background:#1a1a1f;border:1px solid rgba(255,255,255,.15);color:var(--text);font-size:11px;padding:4px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,.5)"></div>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:2px">Tap a point for its exact reading & time · Readiness dots are <span style="color:var(--green)">green</span>/<span style="color:var(--amber)">amber</span>/<span style="color:var(--red)">red</span> by level</div>
     </div>`;
   };
+  if(typeof window.iTip!=='function'){
+    window.iTip=function(e,txt){
+      e.stopPropagation();
+      const wrap=e.currentTarget.closest('.intraday-wrap');if(!wrap)return;
+      const tip=wrap.querySelector('.intraday-tip');if(!tip)return;
+      const rect=wrap.getBoundingClientRect();
+      const cx=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX)-rect.left;
+      const cy=(e.touches&&e.touches[0]?e.touches[0].clientY:e.clientY)-rect.top;
+      tip.textContent=txt;tip.style.display='block';
+      tip.style.left=Math.max(40,Math.min(rect.width-40,cx))+'px';
+      tip.style.top=Math.max(0,cy-32)+'px';
+      clearTimeout(window._iTipT);
+      window._iTipT=setTimeout(()=>{tip.style.display='none';},2800);
+    };
+  }
 
   // Endurance score scale: 3570 (base) to 10560 (max), classes at 5100/5800/6600/7300/8100/8800
   const endPct=d.enduranceScore?Math.min(100,Math.round((d.enduranceScore-3570)/(10560-3570)*100)):0;
