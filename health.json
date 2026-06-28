@@ -4,15 +4,15 @@
     "rhr": 48,
     "minHR": 44,
     "maxHR": 98,
-    "avgStress": 27,
+    "avgStress": 28,
     "maxStress": 96,
-    "steps": 42,
+    "steps": 152,
     "stepsGoal": 5920,
     "floors": null,
     "floorsGoal": 10,
-    "activeKcal": 4.0,
-    "totalKcal": 1021.0,
-    "bmrKcal": 1017.0,
+    "activeKcal": 6.0,
+    "totalKcal": 1095.0,
+    "bmrKcal": 1089.0,
     "modIntensityMin": 0,
     "vigIntensityMin": 0,
     "weeklyIntensityTotal": 297,
@@ -47,28 +47,28 @@
     ],
     "bodyBatterySeries": [
       {
-        "time": "00:00",
-        "level": 18
-      },
-      {
         "time": "01:21",
         "level": 13
       },
       {
-        "time": "04:00",
-        "level": 19
+        "time": "04:09",
+        "level": 20
       },
       {
-        "time": "07:48",
-        "level": 39
+        "time": "04:15",
+        "level": 20
       },
       {
-        "time": "08:00",
-        "level": 40
+        "time": "08:15",
+        "level": 42
       },
       {
-        "time": "11:48",
-        "level": 61
+        "time": "08:30",
+        "level": 42
+      },
+      {
+        "time": "12:09",
+        "level": 62
       }
     ],
     "trainingStatus": "PRODUCTIVE",
@@ -91,12 +91,12 @@
     "fitnessAge": 25.8,
     "recoveryTimeHrs": 79.9,
     "lactateHR": 184,
-    "weight": null,
-    "bmi": null,
-    "bodyFat": null,
-    "muscleMass": null,
-    "boneMass": null,
-    "bodyWater": null,
+    "weight": 75.59,
+    "bmi": 25.899999618530273,
+    "bodyFat": 24.4,
+    "muscleMass": 32.24,
+    "boneMass": 4.56,
+    "bodyWater": 55.2,
     "race5kSec": null,
     "race10kSec": null,
     "raceHalfSec": null,
