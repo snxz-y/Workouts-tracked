@@ -1144,12 +1144,14 @@ function renderNutritionExtras(){
   const el=document.getElementById('nutr-extras');if(!el)return;
   if(!nutritionData||!nutritionData.length)return;
 
-  // Protein per kg (current weight)
+  // Protein per kg of LEAN mass (bodyweight − fat mass)
   const lastWeight=([...healthData].sort((a,b)=>b.date.localeCompare(a.date)).find(h=>h.weight)||{}).weight||76;
+  const lastBodyFat=([...healthData].sort((a,b)=>b.date.localeCompare(a.date)).find(h=>h.bodyFat!=null)||{}).bodyFat;
+  const leanMass=lastBodyFat!=null?+(lastWeight*(1-lastBodyFat/100)).toFixed(1):lastWeight;
   const recent=[...nutritionData].filter(d=>d.calories>0).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
   const recentWithProtein=recent.filter(d=>d.protein!=null&&d.protein>0);
   const avgProtein=recentWithProtein.length?recentWithProtein.reduce((s,d)=>s+d.protein,0)/recentWithProtein.length:0;
-  const proteinPerKg=(avgProtein/lastWeight).toFixed(2);
+  const proteinPerKg=(avgProtein/leanMass).toFixed(2);
   const protTarget=2.0;
 
   // Cumulative deficit (goal 1600 kcal, actual eaten)
@@ -1173,11 +1175,11 @@ function renderNutritionExtras(){
   }).filter(d=>d.n>0).sort((a,b)=>a.avg-b.avg);
 
   el.innerHTML=`
-    <div class="section-head">Protein per kg</div>
+    <div class="section-head">Protein per kg lean mass</div>
     <div class="stat-grid" style="margin-bottom:1.25rem">
-      <div class="stat-card"><div class="stat-label">7d avg protein</div><div class="stat-value">${Math.round(avgProtein)}g</div><div class="stat-sub">${Math.round(avgProtein)}g ÷ ${lastWeight}kg = ${proteinPerKg}g/kg</div></div>
-      <div class="stat-card"><div class="stat-label">protein per kg</div><div class="stat-value" style="color:${+proteinPerKg>=protTarget?'var(--green)':'var(--red)'}">${proteinPerKg}g/kg</div><div class="stat-sub">target ${protTarget}g/kg · need ${Math.round(protTarget*lastWeight)}g/day</div></div>
-      <div class="stat-card"><div class="stat-label">bodyweight</div><div class="stat-value">${lastWeight}kg</div></div>
+      <div class="stat-card"><div class="stat-label">7d avg protein</div><div class="stat-value">${Math.round(avgProtein)}g</div><div class="stat-sub">${Math.round(avgProtein)}g ÷ ${leanMass}kg lean = ${proteinPerKg}g/kg</div></div>
+      <div class="stat-card"><div class="stat-label">protein per kg lean</div><div class="stat-value" style="color:${+proteinPerKg>=protTarget?'var(--green)':'var(--red)'}">${proteinPerKg}g/kg</div><div class="stat-sub">target ${protTarget}g/kg · need ${Math.round(protTarget*leanMass)}g/day</div></div>
+      <div class="stat-card"><div class="stat-label">lean mass</div><div class="stat-value">${leanMass}kg</div><div class="stat-sub">${lastWeight}kg − ${lastBodyFat!=null?lastBodyFat+'% fat':'n/a'}</div></div>
     </div>
     <div class="section-head">Cumulative Calorie Deficit</div>
     <div class="chart-card"><canvas id="deficit-chart" height="140"></canvas></div>
@@ -2680,7 +2682,7 @@ async function generateReview() {
       avgProtein: sumN('protein') ? Math.round(sumN('protein')/Math.max(nRows.length,1)) : null,
       avgCarbs: sumN('carbs') ? Math.round(sumN('carbs')/Math.max(nRows.length,1)) : null,
       avgFat: sumN('fat') ? Math.round(sumN('fat')/Math.max(nRows.length,1)) : null,
-      targets: { calories: 1600, protein: 150, carbs: 145, fat: 51 },
+      targets: { calories: 1600, protein: 120, carbs: 164, fat: 51 },
       daysLogged: nRows.length,
     }
   };
@@ -2813,7 +2815,7 @@ let nutritionData = [];
 let reviewsData = [];
 let currentNutrPeriod = 'today';
 
-const TARGETS = { calories: 1600, protein: 150, carbs: 145, fat: 51 };
+const TARGETS = { calories: 1600, protein: 120, carbs: 164, fat: 51 };
 
 function getFilteredNutr() {
   if (!nutritionData.length) return [];
