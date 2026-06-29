@@ -3,16 +3,16 @@
     "date": "2026-06-29",
     "rhr": 45,
     "minHR": 43,
-    "maxHR": 82,
-    "avgStress": 25,
-    "maxStress": 76,
+    "maxHR": 93,
+    "avgStress": 26,
+    "maxStress": 87,
     "steps": 361,
     "stepsGoal": 6270,
     "floors": null,
     "floorsGoal": 10,
     "activeKcal": 4.0,
-    "totalKcal": 1083.0,
-    "bmrKcal": 1079.0,
+    "totalKcal": 1224.0,
+    "bmrKcal": 1220.0,
     "modIntensityMin": 0,
     "vigIntensityMin": 0,
     "weeklyIntensityTotal": 0,
@@ -51,24 +51,24 @@
         "level": 35
       },
       {
-        "time": "04:03",
-        "level": 72
-      },
-      {
-        "time": "04:12",
-        "level": 72
+        "time": "04:39",
+        "level": 77
       },
       {
         "time": "05:51",
         "level": 85
       },
       {
-        "time": "08:24",
-        "level": 74
+        "time": "09:21",
+        "level": 69
       },
       {
-        "time": "12:09",
-        "level": 57
+        "time": "09:30",
+        "level": 69
+      },
+      {
+        "time": "14:09",
+        "level": 52
       }
     ],
     "trainingStatus": "RECOVERY",
