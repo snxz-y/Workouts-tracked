@@ -7,7 +7,7 @@
     "avgStress": null,
     "maxStress": null,
     "steps": null,
-    "stepsGoal": 9590,
+    "stepsGoal": null,
     "floors": null,
     "floorsGoal": 10,
     "activeKcal": null,
