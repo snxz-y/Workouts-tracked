@@ -48,6 +48,16 @@
         "time": "15:48",
         "score": 49,
         "level": "LOW"
+      },
+      {
+        "time": "15:54",
+        "score": 49,
+        "level": "LOW"
+      },
+      {
+        "time": "16:22",
+        "score": 49,
+        "level": "LOW"
       }
     ],
     "bodyBatterySeries": [
@@ -77,11 +87,11 @@
       }
     ],
     "trainingStatus": "RECOVERY",
-    "acuteLoad": 249,
-    "chronicLoad": 290,
+    "acuteLoad": 260,
+    "chronicLoad": 292,
     "acwr": 0.8,
     "loadFocus": "AEROBIC HIGH FOCUS",
-    "aerobicLowLoad": 382.75916,
+    "aerobicLowLoad": 388.2033,
     "aerobicHighLoad": 705.9968,
     "anaerobicLoad": 96.7583,
     "aerobicLowMin": 130,
